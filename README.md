@@ -1,18 +1,112 @@
-# saltFlow
+<h1 align="center">saltFlow</h1>
 
-saltFlow shows you a software product the way a person moves through it: every flow as a path, the real screen at
-every step, and the reason behind every choice. It is a review tool for the founder or product manager, and the
-product's own AI coding agent keeps it up to date.
+<p align="center"><b>Review your product the way people move through it.</b><br>
+Every flow as a path, the real screen at every step, and the reason behind every choice,<br>
+kept up to date by your AI coding agent.</p>
 
-saltFlow stores nothing of your product. It reads plain JSON files that live in your repo under `flows/`, checks
-them, walks them, and serves a review page on your own machine. What it writes back is in `flows/`: notes, answers
-to decisions, what the last walk reached, and screenshots. The one file outside your repo is the list of products
-the page's switcher offers, `~/.saltflow/products.json`, with each product's name and path; `saltflow init
+<p align="center">
+  <a href="#quickstart">Quickstart</a> ·
+  <a href="#features">Features</a> ·
+  <a href="#use-it-on-your-product">Use it on your product</a> ·
+  <a href="#licence">Licence</a>
+</p>
+
+<p align="center"><img src="docs/img/journey.png" alt="The journey board: every flow of a coffee-bar till, grouped by where the guest is, each with its real screen and what is broken, waiting on a decision or not built yet" width="100%"></p>
+
+Screens get reviewed one at a time; products fail between them. saltFlow lays the whole product out as the flows
+people actually walk (ordering, paying, a card declined, the wifi dropping) and puts the real screen on every step.
+You see what is built, what breaks, and what is still waiting on you, and you answer with a tap. Your AI coding
+agent writes the flows beside the code it builds, so the review never goes stale.
+
+It runs on your machine, reads plain JSON in your repo, and needs nothing but Python.
+
+## Features
+
+### The whole journey on one board
+
+Every flow of the product, in the order a person meets them, each with its real screen. A tile says at a glance
+what broke, what is not built yet and what is waiting on a decision. Switch between the happy path, the variations
+and everything.
+
+### Every flow as a map
+
+<p align="center"><img src="docs/img/feature-map.png" alt="The flow map of paying on leaving: steps as boxes, moves as arrows, a stuck step marked in red" width="100%"></p>
+
+Steps are the things that arrive on screen; moves are the taps, keys and things that just happen (a card declined)
+between them. Branches, loops, ways back and failures are all drawn, laid out by where each step lands: home, one
+pane in, the same pane deeper.
+
+<table>
+<tr>
+<td width="42%"><img src="docs/img/feature-step.png" alt="The step panel: the real iPad screen of a declined card, the run that reaches it, and the pattern behind it"></td>
+<td width="58%"><b>Tap a step and the real screen is there</b>, captured from your web build or from your iOS UI tests,
+with the runs that pass through it, the pattern behind its design and why it was chosen, and the notes left on it.
+Leave a note in one tap; it reaches your agent as work.</td>
+</tr>
+</table>
+
+### Walks that find the breaks for you
+
+`saltflow walk` tries every flow under every combination of its conditions: online or not, card accepted or
+declined, a manager on shift or not. A run that does not reach what the design promises is marked on the map and
+becomes a note, before anyone taps through it by hand.
+
+### Decisions, right beside the screen they change
+
+<p align="center"><img src="docs/img/decide.png" alt="Decision mode: the open questions on the left, the screen the question is about in the middle, the options on the right" width="100%"></p>
+
+<table>
+<tr>
+<td width="40%"><img src="docs/img/feature-decision.png" alt="A decision card: the question, why it matters, two options with what follows from each, one recommended"></td>
+<td width="60%"><b>Your agent asks; you decide.</b> Each question comes with why it matters, its options, what follows
+from each, and one recommended. Answer with a tap, a number key or in your own words; the answer lands in the repo
+and the agent picks it up before its next change. Questions that depend on each other are linked, so one answer
+never quietly undoes another.</td>
+</tr>
+</table>
+
+### A feed of what is waiting on you
+
+<table>
+<tr>
+<td width="40%"><img src="docs/img/feature-feed.png" alt="The feed: what is waiting on the reviewer, what broke, what is done"></td>
+<td width="60%">What is waiting on you, what broke since you last looked, and what got done, each closed with the commit
+that answered it. Leave a note on any step, move or region; it reaches the agent as work, and comes back closed.</td>
+</tr>
+</table>
+
+### Real screens, web and native
+
+`saltflow capture` plays each flow in your web build through WebKit and saves the screen at every step, light and
+dark. For iPhone and iPad apps, saltFlow reads the screenshots your own XCUITests attach
+(`saltflow capture --xcresult`). In both cases it reads every control back and checks it against the flow, so a
+button the flow does not know about, or a flow step with no button, shows up as a finding. A product built for both
+keeps both: a step captured on the web and on the iPad shows a switch between the two.
+
+### On your phone, light or dark
+
+<table>
+<tr>
+<td width="62%"><img src="docs/img/flow-dark.png" alt="A flow map in dark mode"></td>
+<td width="38%"><img src="docs/img/phones.png" alt="The journey and the decisions on an iPhone, light and dark"></td>
+</tr>
+</table>
+
+The page works at phone width, one pane at a time, with a floating tab bar. `saltflow --lan` serves it on your
+wifi, so you can review from the sofa.
+
+### Made for AI coding agents
+
+`saltflow init` installs a guide into your repo (`flows/README.md`) that tells your agent what to write, where,
+and the rules to keep. `saltflow validate` and `saltflow lint` give it fast, exact feedback; a git hook re-walks and
+re-captures after each commit. Works with Claude Code, Codex, Cursor and the like.
+
+### What it is not
+
+saltFlow stores nothing of your product and edits nothing but its own `flows/` folder. No account, no server, no
+cloud. What it writes back (notes, answers, the last walk, screenshots) is in `flows/`, in your repo. The one file
+outside it is the list of products the page's switcher offers, `~/.saltflow/products.json`; `saltflow init
 --no-register` skips it, and `SALTFLOW_HOME` moves it.
-
-![The journey board of the bundled example: every flow of a coffee-bar till, each with its real screen](docs/img/journey.png)
-
-![A decision beside the screen it changes](docs/img/decision.png)
 
 saltFlow is source-available, not open source: free for non-commercial use, commercial use by agreement. See
 [Licence](#licence).

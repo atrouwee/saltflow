@@ -7,6 +7,22 @@ version and comes with a note on how to update your flows.
 
 ## [Unreleased]
 
+## [0.2.2]
+
+### Added
+
+- The README is a product page: what saltFlow does, feature by feature, with screenshots of the example.
+- A step captured both on the web and natively shows a switch between the two pictures (the choice is remembered on
+  that device). `capture.prefer` in `flows/saltflow.json` (`"native"` or `"web"`) says which shows first; native by
+  default.
+
+### Fixed
+
+- Web and native captures no longer overwrite each other: the native import writes `flows/captures/native.json`
+  beside the web capture's `index.json`, and moves any native rows an older version left in `index.json`. The lint
+  checks both.
+- A capture with no commit (the bundled example) no longer reads "undefined" on its label.
+
 ## [0.2.1]
 
 ### Fixed
@@ -49,6 +65,7 @@ version and comes with a note on how to update your flows.
 - `saltflow publish` writes the page as one static HTML file.
 - `saltflow doctor` checks the machine and says how to fix what is missing; `saltflow demo` opens a bundled example.
 
-[Unreleased]: https://github.com/atrouwee/saltflow/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/atrouwee/saltflow/compare/v0.2.2...HEAD
+[0.2.2]: https://github.com/atrouwee/saltflow/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/atrouwee/saltflow/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/atrouwee/saltflow/releases/tag/v0.2.0

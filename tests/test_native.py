@@ -97,3 +97,30 @@ class Import(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class SideBySide(unittest.TestCase):
+    """Web and native captures of one step live in their own index and both reach the page and the lint."""
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp()
+        self.fd = os.path.join(self.tmp, "flows")
+        os.makedirs(os.path.join(self.fd, "captures"))
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp)
+
+    def write(self, name, steps):
+        with open(os.path.join(self.fd, "captures", name), "w") as f:
+            json.dump({"schema": "saltflow/v1/captures", "steps": steps}, f)
+
+    def test_both_kept_native_shown_first(self):
+        from saltflow import model
+        self.write("index.json", {"f/a": {"files": {"light": "f/a.png"}}, "f/b": {"files": {"light": "f/b.png"}},
+                                  "f/c": {"client": "native", "files": {"light": "f/c.native.png"}}})
+        self.write("native.json", {"f/a": {"client": "native", "files": {"light": "f/a.native.png"}}})
+        steps = model.load_captures(self.fd)["steps"]
+        self.assertEqual(steps["f/a"]["client"], "native")
+        self.assertEqual([x["client"] for x in steps["f/a"]["alt"]], ["web"])
+        self.assertEqual(steps["f/b"]["client"], "web")
+        self.assertEqual(steps["f/c"]["client"], "native")            # an older import's row in the web index
+        self.assertEqual(model.load_captures(self.fd, prefer="web")["steps"]["f/a"]["client"], "web")

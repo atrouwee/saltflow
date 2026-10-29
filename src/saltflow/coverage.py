@@ -129,14 +129,7 @@ def bar(root):
     m["runs"] = len(rs)
     m["runs_disagree"] = sum(1 for r in rs if "expect" in r and not r.get("agrees", True))
     m["runs_break"] = sum(1 for r in rs if model.run_verdict(r) == "break")
-    ixp = os.path.join(d, "captures", "index.json")
-    ix = {}
-    if os.path.exists(ixp):
-        with open(ixp, encoding="utf-8") as f:
-            try:
-                ix = json.load(f)
-            except ValueError:       # a broken index counts as no captures; capturing again rewrites it whole
-                pass
+    ix = model.load_captures(d)
     built_keys = {"%s/%s" % (fl["id"], sid) for fl, sid in built}
     m["captures"] = sum(1 for k in (ix.get("steps") or {}) if k in built_keys)
     m["captures_at_head"] = sum(1 for k, v in (ix.get("steps") or {}).items() if k in built_keys and v.get("commit") == W.product_head(root))

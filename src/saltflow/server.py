@@ -156,7 +156,7 @@ class Product:
         return _jsonl_all(os.path.join(self.man.flows_dir(), "iterations.jsonl"))
 
     def captures(self):
-        return _json(os.path.join(self.man.flows_dir(), "captures", "index.json")) or {}
+        return model.load_captures(self.man.flows_dir(), (self.man.data.get("capture") or {}).get("prefer"))
 
     def sketches(self):
         """A product with no screen draws its surfaces: flows/sketches/<surface>.svg, a state of one step at

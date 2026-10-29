@@ -1,9 +1,7 @@
 # saltFlow Individual Contributor Licence Agreement
 
-> **Draft: have a lawyer review this before it is used.** It is a plain-language starting point, not legal advice.
-
-This agreement is between you (the person submitting a contribution) and the saltFlow project, as represented by its
-maintainer ("the project"). It applies to every contribution you submit to saltFlow, now or later.
+This agreement is between you (the person submitting a contribution) and Moonlabor, which maintains saltFlow
+("the project"). It applies to every contribution you submit to saltFlow, now or later.
 
 ## 1. Definitions
 

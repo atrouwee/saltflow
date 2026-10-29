@@ -152,6 +152,40 @@ TEXT_FILES = (".md", ".txt", ".json", ".jsonl", ".html", ".py", ".ts", ".tsx", "
 
 
 
+def load_captures(flows_dir, prefer=None):
+    """The captures of a product, web and native side by side. The web capture writes captures/index.json, the
+    native import captures/native.json; neither touches the other. A step captured by both shows the preferred
+    client's entry (the manifest's capture.prefer, else native) with the other under "alt"."""
+    def read(name):
+        p = os.path.join(flows_dir, "captures", name)
+        if not os.path.exists(p):
+            return {}
+        with open(p, encoding="utf-8") as f:
+            try:
+                return json.load(f) or {}
+            except ValueError:       # a broken index counts as no captures; capturing again rewrites it whole
+                return {}
+    web, nat = read("index.json"), read("native.json")
+    order = ("web", "native") if prefer == "web" else ("native", "web")
+    by = {"web": {}, "native": {}}
+    for k, v in (web.get("steps") or {}).items():
+        by[v.get("client") or "web"][k] = dict(v, client=v.get("client") or "web")   # an older import left native rows here
+    for k, v in (nat.get("steps") or {}).items():
+        by["native"][k] = dict(v, client="native")
+    steps = {}
+    for k in set(by["web"]) | set(by["native"]):
+        have = [by[c][k] for c in order if k in by[c]]
+        e = dict(have[0])
+        if len(have) > 1:
+            e["alt"] = [have[1]]
+        steps[k] = e
+    out = dict(web or nat)
+    out["steps"] = steps
+    out["disagree"] = (web.get("disagree") or []) + (nat.get("disagree") or [])
+    out["errors"] = (web.get("errors") or []) + (nat.get("errors") or [])
+    return out
+
+
 def write_json(path, obj, **kw):
     """Write a whole file or none of it: the page reads these while a capture in another session is still writing."""
     tmp = path + ".tmp"

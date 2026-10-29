@@ -23,6 +23,7 @@ import os
 import re
 
 from . import manifest as M
+from . import model
 
 STOP_KINDS = ("back", "cancel")
 MAP = r"const PLACE[^=]*=\s*\{([^}]*)\}"        # the map's body
@@ -59,6 +60,13 @@ def code_places(man):
     return places
 
 
+def _clients(cap):
+    """Every client's capture of a step: the one shown and the other (web and native side by side)."""
+    if not cap:
+        return []
+    return [cap] + list(cap.get("alt") or [])
+
+
 def _norm(s):
     return " ".join(re.sub(r"[^\w€]+", " ", s.lower()).split())
 
@@ -79,14 +87,7 @@ def lint(root):
     lint_cfg = man.data.get("lint")
     needs_error = set((lint_cfg or {}).get("needs_error_move", []))
 
-    cpath = os.path.join(man.flows_dir(), "captures", "index.json")
-    caps = {}
-    if os.path.exists(cpath):
-        with open(cpath, encoding="utf-8") as f:
-            try:
-                caps = (json.load(f) or {}).get("steps") or {}
-            except ValueError:       # a broken index counts as no captures; capturing again rewrites it whole
-                pass
+    caps = model.load_captures(man.flows_dir()).get("steps") or {}
     all_flows = _flows(man)
     by_surface = {}                  # a component's controls serve every flow that uses it
     for fl in all_flows:
@@ -107,8 +108,7 @@ def lint(root):
                             nulls.add(k)
     for flow in all_flows:
         fid, steps, moves = flow["id"], flow["steps"], flow["moves"]
-        for sid in steps:
-            cap = caps.get("%s/%s" % (fid, sid)) or {}
+        for sid, cap in ((sid, c) for sid in steps for c in _clients(caps.get("%s/%s" % (fid, sid)))):
             code = cap.get("moves_in_code")
             if code is None:
                 continue

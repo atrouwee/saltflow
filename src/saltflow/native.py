@@ -9,7 +9,8 @@ The app marks each screen element accessibilityIdentifier("surface.<id>") and ea
 moves space-separated, as data-move on the web; " = <words>" after the ids gives a control whose label is data its
 fixed words, as data-words does); keypad keys are "key.N", input inside a step and not moves.
 `saltflow capture --xcresult <bundle>` exports the attachments with xcresulttool and writes the same
-captures/index.json the web capture writes, so the page, lint and needs read native steps unchanged: the moves on
+captures/native.json, beside the web capture's index.json (each keeps its own; a step captured by both shows both),
+so the page, lint and needs read native steps as they read web ones: the moves on
 screen become moves_in_code, their labels move_words, and agrees says whether the flow's surface is on screen.
 
 macOS only: xcresulttool comes with Xcode, and sips (which turns a landscape screenshot upright) with macOS. An
@@ -163,7 +164,8 @@ def capture(root, bundle, log=print):
         src, entries = export(bundle, tmp)
         found = attachments(entries, flows)
         log("%d steps attached in %s" % (len(found), os.path.basename(bundle.rstrip("/"))))
-        oip = os.path.join(out, "index.json")
+        # native steps live in their own index beside the web one, so neither capture overwrites the other
+        oip = os.path.join(out, "native.json")
         old = {}
         if os.path.exists(oip):
             with open(oip, encoding="utf-8") as f:
@@ -171,6 +173,20 @@ def capture(root, bundle, log=print):
                     old = json.load(f) or {}
                 except ValueError:   # a broken index is rewritten whole
                     old = {}
+        wip = os.path.join(out, "index.json")       # an older import wrote native rows into the web index: move them
+        if os.path.exists(wip):
+            with open(wip, encoding="utf-8") as f:
+                try:
+                    web = json.load(f) or {}
+                except ValueError:
+                    web = {}
+            moved = {k: v for k, v in (web.get("steps") or {}).items() if v.get("client") == "native"}
+            if moved:
+                old.setdefault("steps", {})
+                for k, v in moved.items():
+                    old["steps"].setdefault(k, v)
+                web["steps"] = {k: v for k, v in web["steps"].items() if k not in moved}
+                model.write_json(wip, web, indent=1, ensure_ascii=False)
         head = W.product_head(root)
         now = time.strftime("%Y-%m-%dT%H:%M:%S")
         steps, disagree, errors = dict(old.get("steps") or {}), [], []

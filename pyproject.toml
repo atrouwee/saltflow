@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "saltflow"
-version = "0.2.1"
+version = "0.2.2"
 description = "A review tool for products: the flow as the timeline, the real surface at every step, the reason behind every pattern."
 readme = "README.md"
 requires-python = ">=3.9"

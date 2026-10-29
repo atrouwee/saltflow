@@ -240,6 +240,10 @@ html, body { height: 100%; margin: 0; background: #000; }
 .tc-details[open] summary::before { transform: rotate(90deg); }
 .tc-details .tc-meta { padding: 4px 0 6px; }
 .crop { position: relative; }
+.crop-clients { position: absolute; right: 10px; top: 10px; z-index: 3; pointer-events: auto; display: flex; padding: 2px; gap: 2px; border-radius: 999px; background: color-mix(in srgb, var(--gl-ground) 82%, transparent); }
+.crop-clients button { all: unset; pointer-events: auto; cursor: pointer; font: 600 11.5px var(--font); padding: 3px 10px; border-radius: 999px; color: var(--dim); }
+.crop-clients button.on { background: var(--gl-open-fill, rgba(127,127,127,.18)); color: var(--ink); }
+.crop-clients button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .crop-chip { position: absolute; left: 10px; bottom: 10px; font: 600 11.5px var(--font); padding: 4px 9px; border-radius: 999px; background: color-mix(in srgb, var(--gl-ground) 82%, transparent); color: var(--dim); }
 /* board: content on the tint, not cards in panes */
 .bd-col { background: transparent !important; }
@@ -1004,6 +1008,9 @@ function xrayFor(surface) {
   c.classList.add('xr')
   return c
 }
+// a step captured by both builds shows the one picked last (web or native), remembered on this device
+let capClient = (() => { try { return localStorage.getItem('saltflow.client') } catch (_) { return null } })()
+const clientName = c => c.client === 'native' ? (/ipad/i.test(c.device || '') ? 'iPad' : /iphone/i.test(c.device || '') ? 'iPhone' : 'Native') : 'Web'
 // ── the card: the step ──
 function cropFor(id, s, surf) {
   const box = h('div', { 'data-move': 'open-live', 'data-words': 'the pane on the card', class: `crop ${s.made ? '' : 'unbuilt'} ${INLINE ? '' : 'live'}`, role: INLINE ? null : 'button', tabindex: INLINE ? null : 0, title: INLINE ? null : 'Open this step live', onclick: INLINE ? null : () => openLive(id), onkeydown: e => { if (!INLINE && e.key === 'Enter') openLive(id) } })
@@ -1017,12 +1024,15 @@ function cropFor(id, s, surf) {
     api('/api/terminal?cmd=' + encodeURIComponent(surf.command)).then(r => { pre.textContent = `$ ${r.command}\n${r.output}` }, e => { pre.textContent = e.message })
     return box
   }
-  const cap = (bundle.captures || {})[id]
+  const first = (bundle.captures || {})[id], all = first ? [first, ...(first.alt || [])] : []
+  const cap = all.find(c => c.client === capClient) || first   // web and native side by side: the one picked last
   const file = cap && cap.files ? (cap.files[scheme] || cap.files.light || cap.files.dark) : `${flowId}/${id}${scheme === 'dark' ? '.dark' : ''}.png`
-  const img = h('img', { src: `/api/crop/${file}?product=${encodeURIComponent(productName)}`, alt: `${(surf || {}).name}, ${callsIt()} at ${cap ? cap.commit : '?'}` })
+  const img = h('img', { src: `/api/crop/${file}?product=${encodeURIComponent(productName)}`, alt: `${(surf || {}).name}, ${callsIt()}${cap && cap.commit ? ` at ${cap.commit}` : ''}` })
   img.onerror = () => box.replaceChildren(h('div', { class: 'none' }, 'Built, not captured yet: saltflow capture takes the real pane once a commit touches it.'))
   box.append(img)
-  if (cap) box.append(h('span', { class: 'crop-chip' }, `Work in progress · ${cap.commit}`))
+  if (cap) box.append(h('span', { class: 'crop-chip' }, cap.commit ? `Work in progress · ${cap.commit}` : 'Work in progress'))
+  if (all.length > 1) box.append(h('span', { class: 'crop-clients', role: 'group', 'aria-label': 'Which build' }, ...all.map(c =>
+    h('button', { class: c === cap ? 'on' : '', 'aria-pressed': String(c === cap), onclick: e => { e.stopPropagation(); capClient = c.client; try { localStorage.setItem('saltflow.client', capClient) } catch (_) {} ; box.replaceWith(cropFor(id, s, surf)) } }, clientName(c)))))
   return box
 }
 function drawCard() {

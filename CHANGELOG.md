@@ -7,6 +7,13 @@ version and comes with a note on how to update your flows.
 
 ## [Unreleased]
 
+## [0.2.1]
+
+### Fixed
+
+- CI: Python 3.9 is tested on macOS only, since GitHub's Ubuntu runners no longer carry it; Ubuntu tests 3.10
+  and 3.13. The actions moved to their Node 24 versions.
+
 ## [0.2.0] - first public release
 
 ### Added
@@ -42,5 +49,6 @@ version and comes with a note on how to update your flows.
 - `saltflow publish` writes the page as one static HTML file.
 - `saltflow doctor` checks the machine and says how to fix what is missing; `saltflow demo` opens a bundled example.
 
-[Unreleased]: https://github.com/atrouwee/saltflow/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/atrouwee/saltflow/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/atrouwee/saltflow/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/atrouwee/saltflow/releases/tag/v0.2.0

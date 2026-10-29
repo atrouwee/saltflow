@@ -1,0 +1,311 @@
+/* saltFlow's own layer over saltglass (tokens.css, glass.css beside this file). saltglass gives the materials and
+   the appearance switch; this file maps the product's colours onto its inputs and lays out the page: a list on the
+   left, the map in the middle, the step's detail card on the right, and sheets that slide over them.
+
+   Regions (saltglass `data-gl-appearance`):
+   - the page itself is a dark region whose ground is the product's deep colour, blurred into a tint;
+   - the sidebar, sheets and popovers are light or dark panels that follow the chosen appearance;
+   - the detail card is frost over the tint.
+   Panels use the platform's own system colours (label, separator, grouped fills), so the page reads as native. */
+
+:root {
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif;
+  --quick: 160ms;
+  --hit-primary: 56px;
+  --r-lg: 22px;
+  --r-md: 14px;
+  --r-pill: 99px;
+}
+
+/* ── the page: a dark region on the product's tint ── */
+.app[data-gl-appearance] {
+  --gl-ground: var(--deep);
+  --gl-accent: #fffffc;              /* a white capsule: the one action on the tint */
+  --gl-on-accent: var(--deep);
+  --gl-action-a: 1;
+  --gl-glass-a: .58;
+  --gl-blur: 40px;
+  --gl-hit: 44px;
+  --ground-scrim: color-mix(in srgb, var(--deep) 30%, transparent);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .app[data-gl-appearance] {
+    --gl-ground: color-mix(in srgb, var(--deep) 40%, #0b0d10);
+    --ground-scrim: color-mix(in srgb, #000 52%, transparent);
+  }
+}
+:root[data-theme="dark"] .app[data-gl-appearance] {
+  --gl-ground: color-mix(in srgb, var(--deep) 40%, #0b0d10);
+  --ground-scrim: color-mix(in srgb, #000 52%, transparent);
+}
+
+/* ── panels: the sidebar, sheets, popovers ── */
+.on-panel[data-gl-appearance] {
+  --gl-accent: var(--accent);
+  --gl-on-accent: #fff;
+  --gl-action-a: 1;
+  --gl-glass-a: .78;
+  --gl-blur: 40px;
+  --gl-hit: 44px;
+}
+.on-panel[data-gl-appearance="light"] {
+  --gl-ground: #f2f2f7;
+  --gl-ink: #000;
+  --cell: #fff;
+  --dim: rgb(60 60 67 / .6);
+  --faint: rgb(60 60 67 / .3);
+  --hair: rgb(60 60 67 / .29);
+  --wash: rgb(118 118 128 / .12);
+  --wash-2: rgb(118 118 128 / .2);
+  --ok: #248a3d; --warn: #c93400; --fault: #d70015;
+}
+.on-panel[data-gl-appearance="dark"] {
+  --gl-ground: #1c1c1e;
+  --gl-ink: #fff;
+  --cell: #2c2c2e;
+  --dim: rgb(235 235 245 / .6);
+  --faint: rgb(235 235 245 / .3);
+  --hair: rgb(84 84 88 / .6);
+  --wash: rgb(118 118 128 / .24);
+  --wash-2: rgb(118 118 128 / .36);
+  --ok: #30db5b; --warn: #ffb340; --fault: #ff6961;
+}
+/* a panel's rim is its separator, not an outline */
+.on-panel { --ink: var(--gl-ink); --rim: var(--hair); color: var(--ink); }
+
+/* ── text and washes on the tint, from saltglass's ink ── */
+.on-tint {
+  --ink: var(--gl-ink);
+  --dim: var(--gl-dim);
+  --faint: color-mix(in srgb, var(--gl-ink) 42%, transparent);
+  --hair: color-mix(in srgb, var(--gl-ink) 16%, transparent);
+  --wash: var(--gl-btn-fill);
+  --wash-2: color-mix(in srgb, var(--gl-ink) 20%, transparent);
+  --ok: var(--gl-ok); --warn: var(--gl-warn); --fault: var(--gl-fault);
+  color: var(--ink);
+}
+.on-tint.frost { --dim: var(--gl-dim-glass); }
+
+/* The ground: the product's colours (--g1..--g3, set by the page from look.ground), blurred to a wash. */
+.ground { position: absolute; inset: 0; overflow: hidden; background: var(--gl-ground); z-index: 0; }
+.ground::before {
+  content: ""; position: absolute; inset: -20%;
+  background:
+    radial-gradient(45% 55% at 30% 18%, var(--g1), transparent 70%),
+    radial-gradient(50% 60% at 85% 35%, var(--g2), transparent 70%),
+    radial-gradient(60% 60% at 45% 100%, var(--g3), transparent 70%),
+    var(--gl-ground);
+  filter: blur(50px) saturate(1.1);
+}
+.ground::after { content: ""; position: absolute; inset: 0; background: var(--ground-scrim); }
+
+/* ── materials, from saltglass tokens ── */
+.frost { position: relative; isolation: isolate; }
+.frost::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; z-index: -1;
+  background: var(--gl-glass-fill);
+  -webkit-backdrop-filter: blur(var(--gl-blur)) saturate(var(--gl-sat));
+  backdrop-filter: blur(var(--gl-blur)) saturate(var(--gl-sat));
+  box-shadow: inset 0 0 0 1px var(--rim, var(--gl-rim)), inset 0 1px 0 var(--gl-spec);
+}
+.frost.heavy::before { background: var(--gl-glass-fill-heavy); }
+.frost.chip::before { background: var(--gl-btn-fill); box-shadow: inset 0 0 0 1px var(--gl-btn-rim), inset 0 1px 0 var(--gl-spec); }
+.float { box-shadow: var(--gl-shadow-float); }
+
+/* ── controls ── */
+/* the one action is saltglass's .gl-action; this sizes it for touch */
+.primary.gl-action {
+  height: auto; min-height: var(--hit-primary); padding: 0 26px; cursor: pointer;
+  font: 650 17px/1 var(--font); letter-spacing: -.01em;
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  transition: transform var(--quick) var(--gl-ease);
+}
+.primary.gl-action:active { transform: scale(.97); }
+.primary.gl-action[disabled] { color: var(--faint); cursor: default; }
+.primary.gl-action[disabled]::before { background: var(--wash); -webkit-backdrop-filter: none; backdrop-filter: none; }
+.primary.gl-action[disabled]::after { box-shadow: none; }
+
+.round {
+  width: var(--gl-hit); height: var(--gl-hit); flex: none; border: 0; border-radius: 50%; cursor: pointer;
+  display: inline-grid; place-items: center; color: var(--ink); background: transparent; position: relative;
+}
+.round.big { width: var(--hit-primary); height: var(--hit-primary); }
+.round[disabled] { opacity: .4; cursor: default; }
+.round .badge { position: absolute; top: -2px; right: -2px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 10px;
+  background: var(--accent); color: #fff; font: 700 11.5px/20px var(--font); text-align: center; }
+
+.capsule {
+  white-space: nowrap; flex: none;
+  min-height: var(--gl-hit); padding: 0 16px; border: 0; border-radius: var(--r-pill); cursor: pointer;
+  display: inline-flex; align-items: center; gap: 8px; color: var(--ink); background: transparent;
+  font: 600 15px/1 var(--font);
+}
+
+.wbtn {
+  min-height: var(--gl-hit); padding: 0 16px; border: 0; border-radius: var(--r-pill); cursor: pointer;
+  background: var(--wash); color: var(--ink); font: 600 15px/1 var(--font);
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+}
+.wbtn:active { background: var(--wash-2); }
+.wbtn[disabled] { color: var(--faint); cursor: default; }
+
+.icon { width: 22px; height: 22px; flex: none; }
+.icon.sm { width: 18px; height: 18px; }
+
+/* status: a glyph and a word, never a wash */
+.st { display: inline-flex; align-items: center; gap: 4px; font-size: 12.5px; font-weight: 650; white-space: nowrap; }
+.st.ok { color: var(--ok); } .st.warn { color: var(--warn); } .st.fault { color: var(--fault); }
+.st.info { color: var(--dim); }
+.st.ok::before { content: "✓"; } .st.warn::before { content: "▲"; font-size: 9px; } .st.fault::before { content: "✕"; font-size: 11px; }
+.st.new::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+.st.new { color: var(--ink); }
+
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+/* ── the page's frame: three columns that recede behind a sheet ── */
+.app {
+  position: fixed; inset: 0; width: 100%; height: 100%; overflow: hidden; container-type: size;
+  font: 400 15px/1.25 var(--font); letter-spacing: -.01em;
+  font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased;
+}
+.base { position: absolute; inset: 0; display: grid; grid-template-columns: 300px 1fr 400px; transform-origin: 50% 50%;
+  transition: transform 460ms cubic-bezier(.32,.72,0,1), filter 460ms cubic-bezier(.32,.72,0,1), border-radius 460ms; }
+:where(.app) :where(button, input) { font: inherit; color: inherit; letter-spacing: inherit; }
+.app h2, .app h3 { margin: 0; }
+.empty { color: var(--dim); padding: 20px; margin: 0; font-size: 15px; }
+
+/* ── the sidebar: the product, its journey, its list ── */
+.rail { position: relative; z-index: 2; display: flex; flex-direction: column; min-height: 0; }
+.rail::before { border-radius: 0; box-shadow: inset -.5px 0 0 var(--hair); }
+.rail-top { display: flex; align-items: center; justify-content: space-between; padding: 22px 16px 10px 20px; }
+.heading { flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; border: 0; background: transparent; padding: 4px; margin: -4px;
+  border-radius: 12px; text-align: left; cursor: pointer; }
+.heading:active { background: var(--wash); }
+.product { display: flex; flex-direction: column; }
+.product-name { font: 700 22px/1.15 var(--font-display); letter-spacing: -.02em; }
+.product-sub { font-size: 14px; color: var(--dim); margin-top: 2px; }
+.product-sub .st { font-size: 13px; }
+.rail-list { flex: 1; overflow: auto; padding: 0 10px 12px; }
+.rail-section { font: 600 15px var(--font); color: var(--dim); padding: 16px 12px 6px; letter-spacing: 0; }
+.item { width: 100%; display: flex; gap: 12px; align-items: flex-start; text-align: left; border: 0; background: transparent;
+  padding: 10px 12px; border-radius: 12px; cursor: pointer; }
+.item.sel { background: var(--wash-2); }
+.item:not(.sel):active { background: var(--wash); }
+.item-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.item-main { display: flex; justify-content: space-between; gap: 8px; }
+.item-label { font-weight: 500; }
+.item-total { color: var(--dim); font-size: 13px; }
+.item-sub { display: flex; gap: 6px; align-items: center; font-size: 13px; color: var(--dim); }
+.avatar { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; flex: none;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--accent) 70%, #fff), var(--accent)); color: #fff; font-weight: 600; }
+
+/* ── the middle, on the tint ── */
+.middle { position: relative; z-index: 1; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+.floatbar { display: flex; align-items: center; gap: 10px; padding: 18px 18px 8px; }
+.search { flex: 1; min-height: var(--gl-hit); padding: 0 16px; border-radius: var(--r-pill); display: flex; align-items: center; gap: 8px; color: var(--dim); }
+.search input { flex: 1; min-width: 0; border: 0; background: transparent; outline: none; color: var(--ink); font-size: 17px; }
+.search input::placeholder { color: var(--dim); }
+.cats { display: flex; gap: 6px; padding: 8px 18px 12px; overflow-x: auto; scrollbar-width: none; }
+.cat { position: relative; flex: none; height: 36px; padding: 0 15px; border: 0; border-radius: var(--r-pill); cursor: pointer;
+  background: var(--wash); color: var(--ink); font-size: 15px; font-weight: 500; }
+.cat.on { background: #fff; color: var(--deep); font-weight: 600; }
+.results { padding: 0 20px 8px; color: var(--dim); font-size: 14px; }
+.tile { min-height: 92px; text-align: left; border: 0; border-radius: var(--r-md); padding: 13px 13px 11px; cursor: pointer;
+  background: var(--wash); display: flex; flex-direction: column; justify-content: space-between; gap: 10px; }
+.tile:active { transform: scale(.97); background: var(--wash-2); }
+
+/* ── the detail card: floating glass on the right ── */
+/* its rim is ink at 16%, not saltglass's rim: a card is defined by its fill and shadow */
+.detail { --rim: color-mix(in srgb, var(--gl-ink) 16%, transparent);
+  z-index: 1; margin: 14px 14px 14px 0; border-radius: var(--r-lg); display: flex; flex-direction: column; min-height: 0; }
+.detail-head { padding: 20px 20px 10px; display: flex; flex-direction: column; gap: 4px; }
+.detail-head h2 { font: 700 28px/1.1 var(--font-display); letter-spacing: -.025em; }
+.detail-sub { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 15px; color: var(--dim); }
+.detail-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.tagbtn { position: relative; align-self: flex-start; margin-top: 8px; display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 10px 0 12px;
+  border: 0; border-radius: var(--r-pill); background: var(--wash); cursor: pointer; font-size: 15px; font-weight: 600; }
+.detail-pills .tagbtn { margin-top: 0; }
+.tagbtn .icon:last-child { color: var(--faint); width: 14px; }
+/* 44 pt touch areas on the pills; the visible shape stays small */
+.cat::after, .tagbtn::after { content: ""; position: absolute; inset: -4px -2px; }
+.lines { flex: 1; overflow: auto; padding: 0 20px; }
+.line { width: 100%; display: grid; grid-template-columns: 24px 1fr auto; gap: 10px; text-align: left; border: 0; background: transparent;
+  padding: 12px 0; cursor: pointer; box-shadow: inset 0 -.5px 0 var(--hair); }
+.line:active { opacity: .7; }
+.line-mark { color: var(--dim); font-weight: 600; }
+.line-body { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.line-name { font-weight: 500; }
+.line-mods { font-size: 14px; color: var(--dim); }
+.line-state { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 1px; }
+.line-val { display: flex; flex-direction: column; align-items: flex-end; }
+.line-val s { font-size: 13px; color: var(--faint); }
+.detail-foot { padding: 12px 16px 16px 20px; display: flex; flex-direction: column; gap: 14px; }
+.acts { display: flex; gap: 10px; align-items: center; }
+.acts .main-act { flex: 1; }
+.acts .round.frost { color: var(--ink); }
+
+/* ── sheets, and the layer that holds them ── */
+/* a sheet is solid, like a form sheet: it is read, not seen through */
+.sheet { width: 540px; max-height: 740px; border-radius: 26px; display: flex; flex-direction: column; }
+.sheet.frost::before { background: var(--gl-ground); -webkit-backdrop-filter: none; backdrop-filter: none; }
+.nav { display: grid; grid-template-columns: 52px 1fr 52px; align-items: center; gap: 8px; padding: 14px 14px 6px; }
+.nav h3 { text-align: center; font: 600 17px var(--font); }
+.nav .round { background: var(--cell); box-shadow: 0 1px 3px rgb(0 0 0 / .08), inset 0 0 0 .5px var(--hair); }
+.nav .round.ok { background: var(--accent); color: #fff; box-shadow: none; }
+.nav .round.ok[disabled] { background: var(--wash); color: var(--faint); opacity: 1; }
+.sheet-sub { margin: 0 24px 6px; text-align: center; color: var(--dim); font-size: 14px; }
+.sheet-body { min-height: 0; padding: 8px 20px 12px; overflow: auto; display: flex; flex-direction: column; gap: 6px; }
+.sheet-foot { display: flex; align-items: center; gap: 10px; padding: 10px 20px 20px; }
+.sheet-foot .primary { flex: 1; }
+.sheet-foot > .dim { flex: 1; color: var(--dim); font-size: 15px; }
+.keys { display: grid; grid-template-columns: repeat(3, 78px); gap: 16px 24px; }
+
+/* an inset grouped list */
+.group-h { font: 400 13px var(--font); color: var(--dim); text-transform: uppercase; letter-spacing: .02em; padding: 14px 16px 6px; }
+.group-f { font-size: 13px; color: var(--dim); padding: 6px 16px 4px; }
+.list { background: var(--cell); border-radius: 12px; overflow: hidden; }
+.row { width: 100%; min-height: 48px; display: flex; align-items: center; gap: 12px; padding: 10px 16px; border: 0; background: transparent;
+  text-align: left; cursor: pointer; position: relative; }
+.row + .row::before { content: ""; position: absolute; top: 0; left: 16px; right: 0; height: .5px; background: var(--hair); }
+.row:active { background: var(--wash); }
+.row[disabled] { cursor: default; color: var(--faint); }
+.row-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.row-sub { font-size: 14px; color: var(--dim); }
+.row-val { color: var(--dim); white-space: nowrap; }
+.check { color: var(--accent); font-weight: 600; width: 18px; text-align: right; }
+
+/* a segmented control */
+.segmented { display: flex; padding: 2px; border-radius: 9px; background: var(--wash); margin: 4px 0; }
+.segmented button { flex: 1; height: 32px; border: 0; border-radius: 7px; background: transparent; cursor: pointer; font-size: 14px; font-weight: 500; }
+.segmented button.on { background: var(--cell); font-weight: 600; box-shadow: 0 3px 8px rgb(0 0 0 / .12), 0 3px 1px rgb(0 0 0 / .04); }
+
+.facts { background: var(--cell); border-radius: 12px; padding: 0 16px; }
+.facts > div { display: flex; justify-content: space-between; padding: 12px 0; box-shadow: inset 0 -.5px 0 var(--hair); }
+.facts > div:last-child { box-shadow: none; }
+.facts > div > span:last-child { color: var(--dim); }
+.note { font-size: 14px; color: var(--dim); text-align: center; margin: 4px 0; }
+.warnbox { padding: 12px 16px; border-radius: 12px; background: var(--cell); color: var(--warn); font-weight: 600; }
+
+.toast { position: absolute; z-index: 20; left: 0; right: 0; bottom: 24px; margin: 0 auto; width: fit-content; max-width: 620px;
+  padding: 14px 22px; border-radius: var(--r-pill); font-size: 15px; font-weight: 600; }
+
+.popover { position: absolute; z-index: 5; left: 12px; right: 12px; bottom: 76px; border-radius: 16px; padding: 6px 0; }
+.popover::before { background: var(--gl-ground); -webkit-backdrop-filter: none; backdrop-filter: none; }
+.popover .row { min-height: 56px; }
+.popover .row-main > span:first-child { font-weight: 500; }
+
+/* depth: a sheet arrives and the page recedes behind it (scales back, blurs) */
+.base.recede { transform: scale(.955); filter: blur(6px) saturate(1.15); border-radius: 30px; }
+.layer { position: absolute; inset: 0; z-index: 10; display: grid; place-items: center; background: rgb(0 0 0 / .06); }
+.layer.place-right { place-items: stretch end; padding: 14px; }
+.layer.place-right .sheet { height: 100%; max-height: none; width: 560px; }
+.layer.place-out { background: transparent; place-items: stretch; }
+
+@media (prefers-reduced-transparency: reduce) {
+  .frost::before { -webkit-backdrop-filter: none; backdrop-filter: none; background: var(--gl-ground); }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 1ms !important; animation-duration: 1ms !important; }
+  .base { transition-duration: 1ms; }
+}

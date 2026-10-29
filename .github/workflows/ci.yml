@@ -1,0 +1,94 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: tests (${{ matrix.os }}, Python ${{ matrix.python }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python: ["3.9", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Unit tests
+        env:
+          PYTHONPATH: src
+        run: python -m unittest -q
+      - name: The example validates and walks
+        env:
+          PYTHONPATH: src
+        shell: bash
+        run: |
+          shopt -s nullglob
+          for m in examples/*/flows/saltflow.json; do
+            ex="$(dirname "$(dirname "$m")")"
+            echo "== $ex"
+            python -m saltflow.cli --repo "$ex" validate
+            python -m saltflow.cli --repo "$ex" walk
+          done
+
+  # Optional: capture in WebKit. It does not gate a merge.
+  capture:
+    name: capture (WebKit, optional)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Find an example with a web build
+        id: find
+        shell: bash
+        run: |
+          # an example qualifies when its manifest names a web build (web, live or stage) and it has a package.json
+          ex=$(python - <<'PY'
+          import glob, json, os
+          for m in sorted(glob.glob("examples/*/flows/saltflow.json")):
+              root = os.path.dirname(os.path.dirname(m))
+              d = json.load(open(m))
+              if any(d.get(k) for k in ("web", "live", "stage")) and os.path.exists(os.path.join(root, "package.json")):
+                  print(root)
+                  break
+          PY
+          )
+          echo "example=$ex" >> "$GITHUB_OUTPUT"
+          if [ -z "$ex" ]; then
+            echo "::notice::No example has a web build; capture skipped."
+          fi
+      - name: Install Playwright and WebKit
+        if: steps.find.outputs.example != ''
+        working-directory: ${{ steps.find.outputs.example }}
+        run: |
+          npm i
+          npm i playwright
+          npx playwright install --with-deps webkit
+      - name: Capture the example
+        if: steps.find.outputs.example != ''
+        env:
+          PYTHONPATH: ${{ github.workspace }}/src
+        run: |
+          python -m saltflow.cli --repo "${{ steps.find.outputs.example }}" capture
+          test -n "$(find "${{ steps.find.outputs.example }}/flows/captures" -name '*.png' -size +0 | head -1)"
+      - name: Upload the captures
+        if: steps.find.outputs.example != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: captures
+          path: ${{ steps.find.outputs.example }}/flows/captures
+          if-no-files-found: ignore

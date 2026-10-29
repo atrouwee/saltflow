@@ -1,0 +1,123 @@
+{
+ "schema": "saltflow/v1/jobs",
+ "says": "The job map: what a barista needs done, when, and the features each job needs. switch: the till cannot replace the old one until the job works.",
+ "jobs": [
+  {
+   "id": "open-a-tab",
+   "name": "Open a tab for a guest who sits, and add each later round to it",
+   "moment": "service",
+   "who": "barista",
+   "switch": true,
+   "features": [
+    "tabs",
+    "name-on-order",
+    "service-mode",
+    "floor",
+    "seats"
+   ]
+  },
+  {
+   "id": "ring-a-coffee",
+   "name": "Ring up a flat white with oat milk",
+   "moment": "service",
+   "who": "barista",
+   "switch": true,
+   "features": [
+    "grid",
+    "modifier-prompt",
+    "search"
+   ]
+  },
+  {
+   "id": "send-to-the-bar",
+   "name": "Send drinks to the bar and make them in order, name on the ticket",
+   "moment": "service",
+   "who": "barista",
+   "switch": true,
+   "features": [
+    "prep-routing",
+    "prep-print",
+    "name-on-order"
+   ]
+  },
+  {
+   "id": "void-a-line",
+   "name": "Take a line off the order, with a reason",
+   "moment": "service",
+   "who": "barista",
+   "switch": true,
+   "features": [
+    "override",
+    "exceptions"
+   ]
+  },
+  {
+   "id": "take-payment-on-leaving",
+   "name": "Take payment when the guest leaves, which closes the visit",
+   "moment": "service",
+   "who": "barista",
+   "switch": true,
+   "features": [
+    "card",
+    "tabs",
+    "tips"
+   ]
+  },
+  {
+   "id": "handle-a-declined-card",
+   "name": "Handle a declined or timed-out card",
+   "moment": "service",
+   "who": "barista",
+   "switch": true,
+   "features": [
+    "card",
+    "tabs"
+   ]
+  },
+  {
+   "id": "sell-through-an-outage",
+   "name": "Keep selling when the card terminal or the wifi fails",
+   "moment": "service",
+   "who": "barista",
+   "switch": true,
+   "features": [
+    "offline",
+    "pay-link",
+    "manual-card",
+    "health",
+    "devices"
+   ]
+  },
+  {
+   "id": "split-the-bill",
+   "name": "Split the bill for a group by lines, equally or by amount",
+   "moment": "service",
+   "who": "barista",
+   "switch": true,
+   "features": [
+    "split"
+   ]
+  },
+  {
+   "id": "close-the-day",
+   "name": "Close the day: the day's report, card total against the terminal",
+   "moment": "close",
+   "who": "barista",
+   "switch": true,
+   "features": [
+    "day-close",
+    "reports-core"
+   ]
+  },
+  {
+   "id": "take-a-tip",
+   "name": "Take a tip on the card terminal",
+   "moment": "service",
+   "who": "barista",
+   "switch": false,
+   "features": [
+    "tips"
+   ]
+  }
+ ]
+}

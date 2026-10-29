@@ -1,0 +1,160 @@
+{
+ "schema": "saltflow/v1/patterns",
+ "says": "The till's own patterns: how it does a common thing, and where it departs from what most tills do, with the reason.",
+ "patterns": [
+  {
+   "id": "ring-first-one-screen",
+   "name": "Ring first, tab after",
+   "area_name": "Start an order",
+   "stance": "diverge",
+   "reason": "Most tills start an order from the first item and keep a separate counter mode. Here a counter sale is a short visit, so one screen does both, and no guest count is asked.",
+   "steps": [
+    "Tap first item",
+    "Attach tab or name",
+    "Ring on"
+   ],
+   "links": [
+    {
+     "kind": "ruling",
+     "ref": "saltPOS:decisions#a-counter-sale-is-a-short-visit",
+     "state": "ruled",
+     "quote": "A counter sale is a short visit, so one screen does both, and no guest count is asked."
+    }
+   ]
+  },
+  {
+   "id": "options-open-on-tap",
+   "name": "Options open on the tap",
+   "area_name": "Ring an item",
+   "stance": "stick",
+   "reason": "A drink with choices opens its options at once, out of the tile, with the usual choice already ticked.",
+   "steps": [
+    "Tap tile",
+    "Options open",
+    "Add"
+   ],
+   "links": []
+  },
+  {
+   "id": "floor-plan-first",
+   "name": "Seats as seen from the bar",
+   "area_name": "Start an order",
+   "stance": "stick",
+   "reason": "The room map shows the seats as the barista sees them from behind the bar; a free seat opens a tab there.",
+   "steps": [
+    "Open the map",
+    "Tap a free seat",
+    "Open a tab here"
+   ],
+   "links": [
+    {
+     "kind": "ruling",
+     "ref": "saltPOS:decisions#the-room-map",
+     "state": "ruled",
+     "quote": "The room map is a pane from the left, opened by the map button beside +. The till recedes behind it."
+    }
+   ]
+  },
+  {
+   "id": "send-on-leave-early-button",
+   "name": "Sends on leaving, button early",
+   "area_name": "Send to bar or kitchen",
+   "stance": "diverge",
+   "reason": "Forgetting Send is the common failure of an explicit send. The round goes when the barista leaves the tab; the button stays for an early send, and each line shows Not sent, At the bar, Served.",
+   "steps": [
+    "Ring the round",
+    "Leave the tab",
+    "Lines go to bar",
+    "Served tap"
+   ],
+   "links": [
+    {
+     "kind": "ruling",
+     "ref": "saltPOS:decisions#send-on-leaving-the-tab",
+     "state": "ruled",
+     "quote": "A round goes to the bar when the barista leaves the tab. The Send button stays for an early send."
+    }
+   ]
+  },
+  {
+   "id": "made-or-never-made",
+   "name": "One reason, two effects",
+   "area_name": "Change a line",
+   "stance": "diverge",
+   "reason": "Tap-for-actions and void-with-reason are kept; the reason list also holds comp, waste and staff drink, so the reason decides whether stock was used.",
+   "steps": [
+    "Tap line",
+    "Remove or reason",
+    "Made or never made",
+    "Confirm"
+   ],
+   "links": [
+    {
+     "kind": "ruling",
+     "ref": "saltPOS:decisions#taps-with-a-reason",
+     "state": "ruled",
+     "quote": "Moves that are not a sale are taps with a reason. A void after sending is a counter-entry, never a deletion."
+    }
+   ]
+  },
+  {
+   "id": "manager-pin-in-place",
+   "name": "Manager PIN in place",
+   "area_name": "Change a line",
+   "stance": "stick",
+   "reason": "A manager types their PIN in place, once, for the blocked action; the barista stays on the screen they were working on.",
+   "steps": [
+    "Blocked action",
+    "PIN in place",
+    "Back on the tab"
+   ],
+   "links": []
+  },
+  {
+   "id": "decline-path",
+   "name": "A decline has three ways on",
+   "area_name": "Take payment",
+   "stance": "stick",
+   "reason": "A declined card says nothing was charged, then offers Try again, Another card, or Leave on the tab.",
+   "steps": [
+    "Card declined",
+    "Shown on screen",
+    "Retry, another card, or keep the tab"
+   ],
+   "links": []
+  },
+  {
+   "id": "tip-on-terminal",
+   "name": "The guest tips on the terminal",
+   "area_name": "Take payment",
+   "stance": "diverge",
+   "reason": "Some tills let staff key the tip in; here the guest picks it on the card terminal, so staff never type one.",
+   "steps": [
+    "Tap Card",
+    "Guest tips on the terminal",
+    "Guest taps"
+   ],
+   "links": [
+    {
+     "kind": "ruling",
+     "ref": "saltPOS:decisions#tips-on-the-terminal",
+     "state": "ruled",
+     "quote": "The guest picks a tip on the card terminal; it is never typed in at the till."
+    }
+   ]
+  },
+  {
+   "id": "offline-tabs-keep-working",
+   "name": "Tabs keep working offline",
+   "area_name": "Keep selling offline",
+   "stance": "stick",
+   "reason": "With the wifi down the till says so, tabs keep working, and card payments wait for the connection.",
+   "steps": [
+    "Wifi drops",
+    "The till says so",
+    "Tabs keep working"
+   ],
+   "links": []
+  }
+ ]
+}

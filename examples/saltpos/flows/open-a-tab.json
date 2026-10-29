@@ -1,0 +1,257 @@
+{
+ "schema": "saltflow/v1/flow",
+ "id": "open-a-tab",
+ "name": "Open a tab and place it on the room map",
+ "says": "A guest who sits gets a tab with a place: from the room map (tap free seats, open a tab there), or ring first and give the order a name or place after.",
+ "product": "saltPOS",
+ "stage": "arrive",
+ "path": "happy",
+ "jobs": [
+  {
+   "ref": "saltPOS:jobs#open-a-tab",
+   "ends": [
+    "tab-open"
+   ]
+  }
+ ],
+ "links": [
+  {
+   "kind": "ruling",
+   "ref": "saltPOS:decisions#the-room-map",
+   "state": "ruled",
+   "quote": "The room map is a pane from the left, opened by the map button beside +. The till recedes behind it."
+  },
+  {
+   "kind": "ruling",
+   "ref": "saltPOS:decisions#a-counter-sale-is-a-short-visit",
+   "state": "ruled",
+   "quote": "A counter sale is a short visit, so one screen does both, and no guest count is asked."
+  }
+ ],
+ "world": {
+  "start": [
+   "room",
+   "plus"
+  ],
+  "named": [
+   "place",
+   "name"
+  ]
+ },
+ "entry": "home",
+ "steps": {
+  "home": {
+   "surface": "home.rail",
+   "place": "home",
+   "primitive": "visit",
+   "built": true,
+   "behind": "none",
+   "size": "whole",
+   "features": [
+    "tabs"
+   ]
+  },
+  "room": {
+   "surface": "room.pane",
+   "place": "left",
+   "primitive": "resources",
+   "built": true,
+   "behind": "recede",
+   "size": "part",
+   "features": [
+    "floor",
+    "seats"
+   ],
+   "patterns": [
+    "saltPOS:patterns#floor-plan-first"
+   ]
+  },
+  "draft": {
+   "surface": "room.draft",
+   "place": "same",
+   "primitive": "resources",
+   "built": true,
+   "features": [
+    "seats"
+   ]
+  },
+  "new-order": {
+   "surface": "home.tab-card",
+   "place": "home",
+   "primitive": "visit",
+   "built": true,
+   "variant": "new-order",
+   "state": "new-order",
+   "behind": "none",
+   "size": "part",
+   "patterns": [
+    "saltPOS:patterns#ring-first-one-screen"
+   ]
+  },
+  "first-item": {
+   "surface": "home.tab-card",
+   "place": "home",
+   "primitive": "visit",
+   "built": true,
+   "variant": "order-n",
+   "state": "order-n",
+   "behind": "none",
+   "size": "part",
+   "features": [
+    "tabs"
+   ]
+  },
+  "attach": {
+   "surface": "attach.sheet",
+   "place": "zoom",
+   "primitive": "visit",
+   "built": true,
+   "behind": "recede",
+   "size": "part",
+   "features": [
+    "name-on-order",
+    "seats"
+   ]
+  },
+  "tab-open": {
+   "surface": "home.tab-card",
+   "place": "home",
+   "primitive": "visit",
+   "built": true,
+   "behind": "none",
+   "size": "part",
+   "end": "done",
+   "says": "a tab with a place or a name, open",
+   "features": [
+    "tabs"
+   ]
+  }
+ },
+ "moves": [
+  {
+   "id": "open-room",
+   "from": "home",
+   "to": "room",
+   "kind": "forward",
+   "trigger": "The room map, in the sidebar",
+   "needs": {
+    "start": "room"
+   }
+  },
+  {
+   "id": "tap-free-seat",
+   "from": "room",
+   "to": "draft",
+   "kind": "forward",
+   "trigger": "Tap a free seat: its pair or table is drafted"
+  },
+  {
+   "id": "change-seats",
+   "from": "draft",
+   "to": "draft",
+   "kind": "loop",
+   "trigger": "Tap seats to add or take away"
+  },
+  {
+   "id": "clear-draft",
+   "from": "draft",
+   "to": "room",
+   "kind": "back",
+   "trigger": "Clear"
+  },
+  {
+   "id": "open-here",
+   "from": "draft",
+   "to": "tab-open",
+   "kind": "forward",
+   "trigger": "Open a tab here"
+  },
+  {
+   "id": "close-room",
+   "from": "room",
+   "to": "home",
+   "kind": "back",
+   "trigger": "Close the room"
+  },
+  {
+   "id": "plus",
+   "from": "home",
+   "to": "new-order",
+   "kind": "forward",
+   "trigger": "New order, in the sidebar",
+   "needs": {
+    "start": "plus"
+   }
+  },
+  {
+   "id": "ring-first",
+   "from": "new-order",
+   "to": "first-item",
+   "kind": "forward",
+   "trigger": "Tap the first tile: the order opens at the counter"
+  },
+  {
+   "id": "name-or-place",
+   "from": "first-item",
+   "to": "attach",
+   "kind": "forward",
+   "trigger": "Name or place, on the card"
+  },
+  {
+   "id": "pick-place",
+   "from": "attach",
+   "to": "tab-open",
+   "kind": "forward",
+   "trigger": "Tap a place: the tab takes its free seats",
+   "needs": {
+    "named": "place"
+   }
+  },
+  {
+   "id": "type-name",
+   "from": "attach",
+   "to": "tab-open",
+   "kind": "forward",
+   "trigger": "Type a name, then Done",
+   "needs": {
+    "named": "name"
+   }
+  },
+  {
+   "id": "close-attach",
+   "from": "attach",
+   "to": "first-item",
+   "kind": "back",
+   "trigger": "Close; the order stays at the counter"
+  }
+ ],
+ "runs": [
+  {
+   "id": "from-the-room",
+   "job": "saltPOS:jobs#open-a-tab",
+   "world": {
+    "start": "room",
+    "named": "place"
+   },
+   "expect": "done"
+  },
+  {
+   "id": "ring-first-then-place",
+   "job": "saltPOS:jobs#open-a-tab",
+   "world": {
+    "start": "plus",
+    "named": "place"
+   },
+   "expect": "done"
+  },
+  {
+   "id": "ring-first-then-name",
+   "job": "saltPOS:jobs#open-a-tab",
+   "world": {
+    "start": "plus",
+    "named": "name"
+   },
+   "expect": "done"
+  }
+ ]
+}

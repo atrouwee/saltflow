@@ -1,0 +1,170 @@
+/* saltglass, cut to the materials saltFlow's page uses; the rest is in saltglass itself.
+   saltglass is saltFlow's design system, under the same licence as saltFlow (PolyForm Noncommercial 1.0.0,
+   LICENSE at the repo root). See VERSION. */
+/* saltglass — glass.css
+   The materials. Each class is one material, and its comment says WHERE it may
+   be used. There is no literal colour, radius or duration in this file: every
+   value is a token from tokens.css, and saltglass's own tests fail if one creeps in. Load tokens.css first.
+
+   The one rule that decides whether a thing may be glass: glass goes only where
+   something floats or sits on the picture. A pane is not glass. A card inside a
+   pane is not glass. A row is not glass, except the one selected row. */
+
+/* [data-gl-appearance] — a region in another appearance: a light sidebar inside a
+   dark page, a dark panel inside a light one. tokens.css recomputes every token
+   on the element; this re-inks its text, because `color` inherits as a computed
+   value and would otherwise keep the page's ink (white text on a light panel,
+   MEASURED in WebKit building demo/light.html).
+   WHERE: on any element that carries the attribute, the root included. */
+[data-gl-appearance] { color: var(--gl-ink); }
+/* .gl-glass-bar — edge-to-edge chrome: the header bar and the footer bar.
+   WHERE: a bar that spans the window and floats over scrolling content. Same
+   material as .gl-glass, no radius, the same floating shadow, and a rim only on the
+   open edge — the edge the content scrolls under — with the etched dark line
+   just outside it. Add one modifier: .gl-bar-top for a header (open edge at the
+   bottom), .gl-bar-bottom for a footer (open edge at the top). --gl-bar-edge
+   names the open edge for anything that wants to read it. */
+.gl-glass-bar {
+  isolation: isolate; background: transparent; box-shadow: var(--gl-shadow-float);
+  --gl-dim: var(--gl-dim-glass);
+}
+:where(.gl-glass-bar) { position: relative; z-index: 2; }
+.gl-glass-bar::before {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background: var(--gl-glass-fill);
+  -webkit-backdrop-filter: blur(var(--gl-blur)) saturate(var(--gl-sat));
+  backdrop-filter: blur(var(--gl-blur)) saturate(var(--gl-sat));
+}
+.gl-glass-bar::after { content: ""; position: absolute; inset: 0; pointer-events: none; }
+.gl-bar-top { --gl-bar-edge: bottom; }
+.gl-bar-top::after { box-shadow: inset 0 -1px 0 var(--gl-rim), 0 1px 0 var(--gl-seam-dark); }
+/* .gl-tabbar — the floating tab bar of a phone: a glass capsule with a tab in each
+   cell, the iOS 26 tab bar. The material is .gl-glass's (fill and blur on ::before,
+   rim and highlight on ::after, the floating shadow) at the pill radius. It is as
+   wide as its tabs, --gl-tab-cell each, and centred: never stretched to the screen,
+   the way the system's own bar hugs its items. Each tab is a .gl-tab: glyph over
+   label, the label dim; the current one (aria-current="page") carries the open
+   row's wash as a pill --gl-tab-sel-h high, and its label goes to ink. The pill is
+   a wash, not glass, so the bar is one filter however many tabs it holds.
+   WHERE: one per page, at a phone width, fixed --gl-bar-inset above the bottom
+   of the viewport: inside the home indicator's inset from the Home Screen, above
+   Safari's own toolbar in a browser tab, with no safe-area sum. The list
+   scrolls under it; the scroller is padded by --gl-tab-h + --gl-bar-inset. For
+   navigation only: an action is never a tab. Counts with the bars under law 1.
+   The host gives the glyphs, the type and any badge. */
+.gl-tabbar {
+  isolation: isolate; background: transparent; display: inline-flex; align-items: center;
+  height: var(--gl-tab-h); box-sizing: border-box; padding: calc((var(--gl-tab-h) - var(--gl-tab-sel-h)) / 2);
+  border-radius: var(--gl-r-pill); box-shadow: var(--gl-shadow-float);
+  color: var(--gl-ink);
+  --gl-dim: var(--gl-dim-glass);
+}
+:where(.gl-tabbar) { position: fixed; z-index: 2; left: 50%; transform: translateX(-50%); bottom: var(--gl-bar-inset); }
+.gl-tabbar::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; z-index: -1;
+  background: var(--gl-glass-fill);
+  -webkit-backdrop-filter: blur(var(--gl-blur)) saturate(var(--gl-sat));
+  backdrop-filter: blur(var(--gl-blur)) saturate(var(--gl-sat));
+}
+.gl-tabbar::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  box-shadow: inset 0 0 0 1px var(--gl-rim), inset 0 1px 0 var(--gl-spec);
+}
+.gl-tab {
+  position: relative; flex: none; width: var(--gl-tab-cell); height: var(--gl-tab-sel-h); box-sizing: border-box;
+  display: grid; place-content: center; justify-items: center; gap: 2px;
+  border: 0; border-radius: var(--gl-r-pill); background: transparent; color: var(--gl-dim);
+}
+.gl-tab[aria-current] { background: var(--gl-open-fill); color: var(--gl-ink); }
+/* ---- controls -----------------------------------------------------------
+   The three controls the system owns: the one action, the secondary button and
+   the field. Each is a material and a height; the host gives the type, the
+   padding and, for the field, the radius. Nothing else here is a control: no
+   toggle, no slider, no picker, no segmented control. */
+/* .gl-action — the one primary action: accent-tinted glass. The accent at
+   --gl-action-a over a lighter blur, a 1px rim and a 1px top highlight, a capsule
+   --gl-hit tall, the label in --gl-on-accent. This is the only glass that carries
+   a hue, because it is the only thing on the screen that asks to be pressed.
+   WHERE: one per screen -- the page's one action while the page is the screen;
+   a panel's own while the panel is. Never two on one screen,
+   never on a row, never for "where you are". The material lives on ::before and
+   the rim on ::after like .gl-glass; the host positions it. Counts with the bars
+   under law 1 (it is one filter, inside one bar). */
+.gl-action {
+  isolation: isolate; background: transparent; border: 0;
+  height: var(--gl-hit); border-radius: var(--gl-r-pill);
+  color: var(--gl-on-accent);
+}
+:where(.gl-action) { position: relative; }
+.gl-action::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; z-index: -1;
+  background: var(--gl-action-fill);
+  -webkit-backdrop-filter: blur(var(--gl-action-blur)) saturate(var(--gl-action-sat));
+  backdrop-filter: blur(var(--gl-action-blur)) saturate(var(--gl-action-sat));
+}
+.gl-action::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  box-shadow: inset 0 0 0 1px var(--gl-action-rim), inset 0 1px 0 var(--gl-action-spec);
+}
+/* .gl-btn — a secondary action: Cancel, Retry, Show more. The
+   open row's wash as a button: ink at 10% with a 1px rim at 18%, a capsule
+   --gl-hit tall, ink label. A wash, not glass: no backdrop filter, so a panel may
+   hold a row of them. Disabled ([disabled] or .gl-off) it is the fainter wash
+   with no rim and a dim label.
+   WHERE: every action that is not the one action: beside .gl-action in a bar,
+   in a panel's action row, in a dialog. */
+.gl-btn {
+  height: var(--gl-hit); border: 0; border-radius: var(--gl-r-pill);
+  background: var(--gl-btn-fill);
+  box-shadow: inset 0 0 0 1px var(--gl-btn-rim);
+  color: var(--gl-ink);
+}
+.gl-btn[disabled],
+.gl-btn.gl-off { background: var(--gl-btn-off); box-shadow: none; color: var(--gl-dim); }
+/* Reduce Transparency: no picture, an opaque scrim, the glass fill becomes the
+   ground, no backdrop filter. The selected row becomes its composite colour. */
+@media (prefers-reduced-transparency: reduce) {
+  .gl-glass-bar::before { -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .gl-glass-bar::before { background: var(--gl-ground); }
+  .gl-bar-top::after { box-shadow: inset 0 -1px 0 var(--gl-rim-hc); }
+  .gl-action::before { -webkit-backdrop-filter: none; backdrop-filter: none; background: var(--gl-accent); }
+  .gl-action { border: 1px solid var(--gl-rim-hc); }
+  .gl-action::after { box-shadow: none; }
+  .gl-btn { background: var(--gl-ground); border: 1px solid var(--gl-rim-hc); box-shadow: none; }
+  .gl-btn[disabled],
+  .gl-btn.gl-off { background: var(--gl-ground); }
+}
+/* Increase Contrast: the Reduce Transparency twin, and the rim becomes a real
+   border at the high-contrast alpha. */
+@media (prefers-contrast: more) {
+  .gl-glass-bar::before { -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .gl-glass-bar::before { background: var(--gl-ground); }
+  .gl-bar-top { border-bottom: 1px solid var(--gl-rim-hc); }
+  .gl-bar-top::after { box-shadow: none; }
+  .gl-action::before { -webkit-backdrop-filter: none; backdrop-filter: none; background: var(--gl-accent); }
+  .gl-action { border: 1px solid var(--gl-rim-hc); }
+  .gl-action::after { box-shadow: none; }
+  .gl-btn { background: var(--gl-ground); border: 1px solid var(--gl-rim-hc); box-shadow: none; }
+  .gl-btn[disabled],
+  .gl-btn.gl-off { background: var(--gl-ground); }
+}
+/* No backdrop-filter at all: the fill becomes the ground, so the material is
+   solid chrome and the text on it keeps its contrast. */
+@supports not (backdrop-filter: blur(1px)) {
+  .gl-glass-bar::before { background: var(--gl-ground); }
+  .gl-bar-top::after { box-shadow: inset 0 -1px 0 var(--gl-rim-hc); }
+  .gl-action::before { background: var(--gl-accent); }
+  .gl-action { border: 1px solid var(--gl-rim-hc); }
+  .gl-action::after { box-shadow: none; }
+  .gl-btn { background: var(--gl-ground); border: 1px solid var(--gl-rim-hc); box-shadow: none; }
+  .gl-btn[disabled],
+  .gl-btn.gl-off { background: var(--gl-ground); }
+}
+:root[data-gl="solid"] .gl-glass-bar::before { -webkit-backdrop-filter: none; backdrop-filter: none; }
+:root[data-gl="solid"] .gl-glass-bar::before { background: var(--gl-ground); }
+:root[data-gl="solid"] .gl-bar-top::after { box-shadow: inset 0 -1px 0 var(--gl-rim-hc); }
+:root[data-gl="solid"] .gl-action::before { -webkit-backdrop-filter: none; backdrop-filter: none; background: var(--gl-accent); }
+:root[data-gl="solid"] .gl-action { border: 1px solid var(--gl-rim-hc); }
+:root[data-gl="solid"] .gl-action::after { box-shadow: none; }
+:root[data-gl="solid"] .gl-btn { background: var(--gl-ground); border: 1px solid var(--gl-rim-hc); box-shadow: none; }
+

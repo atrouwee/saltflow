@@ -1,0 +1,673 @@
+{
+  "schema": "saltflow/v1/surfaces",
+  "says": "Every surface the flows point at, described once. A surface is the thing that arrives on screen, never the whole screen. Regions are percent boxes of the surface, for the low-fidelity drawing; `aria` is the pane's aria-label; `title` the heading inside; `sheet` the sheet kind, which decides where it arrives from.",
+  "surfaces": {
+    "home.rail": {
+      "name": "The open tabs, in the sidebar",
+      "component": "TabsRail",
+      "place": "home",
+      "aria": "Open tabs",
+      "size": "part",
+      "regions": [
+        {
+          "role": "venue",
+          "label": "Venue and menu version",
+          "x": 0,
+          "y": 0,
+          "w": 58,
+          "h": 8
+        },
+        {
+          "role": "actions",
+          "label": "The room map, New order",
+          "x": 60,
+          "y": 0,
+          "w": 40,
+          "h": 8
+        },
+        {
+          "role": "list",
+          "label": "Open tabs by zone, status as glyph and word",
+          "x": 0,
+          "y": 9,
+          "w": 100,
+          "h": 78
+        },
+        {
+          "role": "staff",
+          "label": "Staff name: zoom out to the day",
+          "x": 0,
+          "y": 88,
+          "w": 70,
+          "h": 12
+        },
+        {
+          "role": "net",
+          "label": "Online / offline",
+          "x": 72,
+          "y": 88,
+          "w": 28,
+          "h": 12
+        }
+      ]
+    },
+    "home.catalogue": {
+      "name": "The menu grid",
+      "component": "Catalogue",
+      "place": "home",
+      "size": "part",
+      "regions": [
+        {
+          "role": "search",
+          "label": "Search the menu",
+          "x": 0,
+          "y": 0,
+          "w": 55,
+          "h": 7
+        },
+        {
+          "role": "capsule",
+          "label": "Not a sale",
+          "x": 58,
+          "y": 0,
+          "w": 26,
+          "h": 7
+        },
+        {
+          "role": "tabs",
+          "label": "Categories",
+          "x": 0,
+          "y": 9,
+          "w": 100,
+          "h": 6
+        },
+        {
+          "role": "grid",
+          "label": "Product tiles, price and count left",
+          "x": 0,
+          "y": 17,
+          "w": 100,
+          "h": 83
+        }
+      ]
+    },
+    "home.tab-card": {
+      "name": "The open tab, a floating card",
+      "component": "TabCard",
+      "place": "home",
+      "size": "part",
+      "variants": {
+        "new-order": "nothing selected: 'New order', Pay 0.00 disabled",
+        "order-n": "an order just rung at the counter, with the 'Name or place' pill"
+      },
+      "regions": [
+        {
+          "role": "title",
+          "label": "Tab label",
+          "x": 0,
+          "y": 0,
+          "w": 100,
+          "h": 7
+        },
+        {
+          "role": "sub",
+          "label": "Zone, seats, open since; the guest's visit count",
+          "x": 0,
+          "y": 7,
+          "w": 100,
+          "h": 5
+        },
+        {
+          "role": "pills",
+          "label": "Name or place · Who pays",
+          "x": 0,
+          "y": 13,
+          "w": 100,
+          "h": 7
+        },
+        {
+          "role": "lines",
+          "label": "Sent lines: Served, At the bar",
+          "x": 0,
+          "y": 22,
+          "w": 100,
+          "h": 38
+        },
+        {
+          "role": "unsent",
+          "label": "Not sent: goes to the bar when you leave this tab",
+          "x": 0,
+          "y": 61,
+          "w": 100,
+          "h": 13
+        },
+        {
+          "role": "sums",
+          "label": "VAT, items, total",
+          "x": 0,
+          "y": 76,
+          "w": 100,
+          "h": 10
+        },
+        {
+          "role": "send",
+          "label": "Send now",
+          "x": 0,
+          "y": 88,
+          "w": 18,
+          "h": 12
+        },
+        {
+          "role": "action",
+          "label": "Pay / Charge / Pay waits for a connection",
+          "x": 20,
+          "y": 88,
+          "w": 80,
+          "h": 12
+        }
+      ]
+    },
+    "home.toast": {
+      "name": "A toast",
+      "component": "Till",
+      "place": "overlay",
+      "aria": "status",
+      "size": "part",
+      "regions": [
+        {
+          "role": "status",
+          "label": "What just happened",
+          "x": 0,
+          "y": 0,
+          "w": 100,
+          "h": 100
+        }
+      ]
+    },
+    "options.sheet": {
+      "name": "Options for a product",
+      "component": "Mods",
+      "place": "zoom",
+      "title": "<product name>",
+      "size": "part",
+      "regions": [
+        {
+          "role": "close",
+          "label": "Close",
+          "x": 0,
+          "y": 0,
+          "w": 12,
+          "h": 9
+        },
+        {
+          "role": "title",
+          "label": "Product name, price",
+          "x": 12,
+          "y": 0,
+          "w": 76,
+          "h": 9
+        },
+        {
+          "role": "confirm",
+          "label": "Add",
+          "x": 88,
+          "y": 0,
+          "w": 12,
+          "h": 9
+        },
+        {
+          "role": "groups",
+          "label": "Choices: the usual pre-ticked; one or many",
+          "x": 0,
+          "y": 14,
+          "w": 100,
+          "h": 72
+        },
+        {
+          "role": "action",
+          "label": "Add · price",
+          "x": 0,
+          "y": 88,
+          "w": 100,
+          "h": 12
+        }
+      ],
+      "aria": "Options",
+      "sheet": "mods"
+    },
+    "pay.choose": {
+      "name": "The bill",
+      "component": "Pay",
+      "place": "right",
+      "title": "Pay",
+      "size": "part",
+      "variants": {
+        "offline": "the warning 'No connection. Card payments wait until the till is back online; the tab stays open' and Card disabled",
+        "account": "titled 'Charge to account', one action: Charge"
+      },
+      "regions": [
+        {
+          "role": "close",
+          "label": "Close",
+          "x": 0,
+          "y": 0,
+          "w": 12,
+          "h": 9
+        },
+        {
+          "role": "title",
+          "label": "Pay · tab · items",
+          "x": 12,
+          "y": 0,
+          "w": 88,
+          "h": 9
+        },
+        {
+          "role": "total",
+          "label": "The total",
+          "x": 0,
+          "y": 12,
+          "w": 100,
+          "h": 12
+        },
+        {
+          "role": "split",
+          "label": "Whole · 2 ways · 3 ways · 4 ways",
+          "x": 0,
+          "y": 28,
+          "w": 100,
+          "h": 8
+        },
+        {
+          "role": "list",
+          "label": "Split by item · Charge to <account>",
+          "x": 0,
+          "y": 39,
+          "w": 100,
+          "h": 16
+        },
+        {
+          "role": "warning",
+          "label": "No connection (offline only)",
+          "x": 0,
+          "y": 58,
+          "w": 100,
+          "h": 10
+        },
+        {
+          "role": "action",
+          "label": "Card · amount / Charge",
+          "x": 0,
+          "y": 88,
+          "w": 100,
+          "h": 12
+        }
+      ],
+      "aria": "Pay",
+      "sheet": "pay"
+    },
+    "pay.reader": {
+      "name": "On the card reader",
+      "component": "Pay",
+      "place": "same",
+      "title": "On the card reader",
+      "size": "part",
+      "regions": [
+        {
+          "role": "close",
+          "label": "Back to the bill",
+          "x": 0,
+          "y": 0,
+          "w": 12,
+          "h": 9
+        },
+        {
+          "role": "title",
+          "label": "On the card reader · amount",
+          "x": 12,
+          "y": 0,
+          "w": 88,
+          "h": 9
+        },
+        {
+          "role": "reader",
+          "label": "Amount, Add a tip?, hold a card or phone near the reader",
+          "x": 10,
+          "y": 14,
+          "w": 80,
+          "h": 56
+        },
+        {
+          "role": "note",
+          "label": "Example: no reader is connected",
+          "x": 0,
+          "y": 72,
+          "w": 100,
+          "h": 10
+        },
+        {
+          "role": "danger",
+          "label": "Decline",
+          "x": 0,
+          "y": 88,
+          "w": 30,
+          "h": 12
+        },
+        {
+          "role": "action",
+          "label": "Simulate tap · amount",
+          "x": 32,
+          "y": 88,
+          "w": 68,
+          "h": 12
+        }
+      ],
+      "aria": "Pay",
+      "sheet": "pay"
+    },
+    "pay.declined": {
+      "name": "Declined",
+      "component": "Pay",
+      "place": "same",
+      "title": "Declined",
+      "size": "part",
+      "built": false,
+      "design": "The decline screen the direction designs for Take payment: what happened, then Try again, Another card, Leave on the tab.",
+      "regions": [
+        {
+          "role": "title",
+          "label": "Declined on the reader",
+          "x": 12,
+          "y": 0,
+          "w": 88,
+          "h": 9
+        },
+        {
+          "role": "message",
+          "label": "Nothing was charged · amount",
+          "x": 0,
+          "y": 14,
+          "w": 100,
+          "h": 40
+        },
+        {
+          "role": "action",
+          "label": "Try again",
+          "x": 0,
+          "y": 62,
+          "w": 100,
+          "h": 10
+        },
+        {
+          "role": "option",
+          "label": "Another card",
+          "x": 0,
+          "y": 75,
+          "w": 100,
+          "h": 10
+        },
+        {
+          "role": "cancel",
+          "label": "Leave on the tab",
+          "x": 0,
+          "y": 88,
+          "w": 100,
+          "h": 10
+        }
+      ],
+      "aria": "Pay",
+      "sheet": "pay"
+    },
+    "pay.paid": {
+      "name": "Paid",
+      "component": "Pay",
+      "place": "same",
+      "title": "Paid",
+      "size": "part",
+      "regions": [
+        {
+          "role": "close",
+          "label": "Close",
+          "x": 0,
+          "y": 0,
+          "w": 12,
+          "h": 9
+        },
+        {
+          "role": "title",
+          "label": "Paid",
+          "x": 12,
+          "y": 0,
+          "w": 88,
+          "h": 9
+        },
+        {
+          "role": "mark",
+          "label": "Check mark, amount, card ending",
+          "x": 0,
+          "y": 12,
+          "w": 100,
+          "h": 24
+        },
+        {
+          "role": "facts",
+          "label": "Asked, Tip, Card fee, This card here",
+          "x": 0,
+          "y": 38,
+          "w": 100,
+          "h": 24
+        },
+        {
+          "role": "segmented",
+          "label": "Receipt: None · Email · Print · QR",
+          "x": 0,
+          "y": 66,
+          "w": 100,
+          "h": 10
+        },
+        {
+          "role": "action",
+          "label": "Close tab",
+          "x": 0,
+          "y": 88,
+          "w": 100,
+          "h": 12
+        }
+      ],
+      "aria": "Pay",
+      "sheet": "pay"
+    },
+    "pay.charged": {
+      "name": "Charged to the account",
+      "component": "Pay",
+      "place": "same",
+      "title": "Charged to <account>",
+      "size": "part",
+      "regions": [
+        {
+          "role": "close",
+          "label": "Close",
+          "x": 0,
+          "y": 0,
+          "w": 12,
+          "h": 9
+        },
+        {
+          "role": "title",
+          "label": "Charged to <account or group>",
+          "x": 12,
+          "y": 0,
+          "w": 88,
+          "h": 9
+        },
+        {
+          "role": "mark",
+          "label": "Check mark",
+          "x": 0,
+          "y": 12,
+          "w": 100,
+          "h": 16
+        },
+        {
+          "role": "facts",
+          "label": "This visit, Balance now, Settles",
+          "x": 0,
+          "y": 30,
+          "w": 100,
+          "h": 30
+        },
+        {
+          "role": "action",
+          "label": "Close tab",
+          "x": 0,
+          "y": 88,
+          "w": 100,
+          "h": 12
+        }
+      ],
+      "aria": "Pay",
+      "sheet": "pay"
+    },
+    "room.pane": {
+      "name": "The room map",
+      "component": "RoomPane",
+      "place": "left",
+      "aria": "The room",
+      "size": "part",
+      "regions": [
+        {
+          "role": "title",
+          "label": "The room · seats taken · legend",
+          "x": 0,
+          "y": 0,
+          "w": 90,
+          "h": 10
+        },
+        {
+          "role": "close",
+          "label": "Close the room",
+          "x": 92,
+          "y": 0,
+          "w": 8,
+          "h": 10
+        },
+        {
+          "role": "tray",
+          "label": "Not on the map: standing tabs, at the counter",
+          "x": 0,
+          "y": 11,
+          "w": 24,
+          "h": 89
+        },
+        {
+          "role": "map",
+          "label": "Seats by zone, seen from behind the bar; tabs as pills",
+          "x": 26,
+          "y": 11,
+          "w": 74,
+          "h": 89
+        }
+      ]
+    },
+    "room.draft": {
+      "name": "The room map, a tab drafted on seats",
+      "component": "RoomPane",
+      "place": "same",
+      "aria": "The room",
+      "size": "part",
+      "regions": [
+        {
+          "role": "title",
+          "label": "The room",
+          "x": 0,
+          "y": 0,
+          "w": 28,
+          "h": 10
+        },
+        {
+          "role": "bar",
+          "label": "<label> · n seats · tap seats to change · Clear · Open a tab here",
+          "x": 30,
+          "y": 0,
+          "w": 60,
+          "h": 10
+        },
+        {
+          "role": "close",
+          "label": "Close the room",
+          "x": 92,
+          "y": 0,
+          "w": 8,
+          "h": 10
+        },
+        {
+          "role": "tray",
+          "label": "Not on the map",
+          "x": 0,
+          "y": 11,
+          "w": 24,
+          "h": 89
+        },
+        {
+          "role": "map",
+          "label": "The drafted seats lit",
+          "x": 26,
+          "y": 11,
+          "w": 74,
+          "h": 89
+        }
+      ]
+    },
+    "attach.sheet": {
+      "name": "Name or place",
+      "component": "NewTab",
+      "place": "zoom",
+      "title": "Name or place",
+      "size": "part",
+      "regions": [
+        {
+          "role": "close",
+          "label": "Close",
+          "x": 0,
+          "y": 0,
+          "w": 12,
+          "h": 9
+        },
+        {
+          "role": "title",
+          "label": "Name or place",
+          "x": 12,
+          "y": 0,
+          "w": 76,
+          "h": 9
+        },
+        {
+          "role": "confirm",
+          "label": "Done (once a name is typed)",
+          "x": 88,
+          "y": 0,
+          "w": 12,
+          "h": 9
+        },
+        {
+          "role": "field",
+          "label": "Name on the tab",
+          "x": 0,
+          "y": 12,
+          "w": 100,
+          "h": 9
+        },
+        {
+          "role": "places",
+          "label": "Places by area; a place takes the free seats of its pair or table",
+          "x": 0,
+          "y": 24,
+          "w": 100,
+          "h": 66
+        }
+      ],
+      "aria": "Name or place",
+      "sheet": "attach"
+    }
+  }
+}

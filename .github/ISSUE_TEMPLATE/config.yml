@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Commercial licence
+    url: https://github.com/atrouwee/saltflow/blob/main/COMMERCIAL.md
+    about: Using saltFlow at a company or for a client? Read how to ask for a commercial licence.
+  - name: Security vulnerability
+    url: https://github.com/atrouwee/saltflow/security/advisories/new
+    about: Please report security problems privately, not in a public issue.

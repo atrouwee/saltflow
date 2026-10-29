@@ -1,0 +1,668 @@
+{
+ "schema": "saltflow/v1/captures",
+ "at": "2026-10-27T12:06:31",
+ "device": "iPad 11″",
+ "viewport": [
+  1210,
+  834
+ ],
+ "says": "Screens of the native till in Practice mode, one per step, taken by its UI test and scaled to half size. The room map is left out.",
+ "steps": {
+  "open-a-tab/tab-open": {
+   "flow": "open-a-tab",
+   "step": "tab-open",
+   "at": "2026-10-27T12:06:31",
+   "device": "iPad 11″",
+   "client": "native",
+   "files": {
+    "light": "open-a-tab/tab-open.native.png"
+   },
+   "agrees": true,
+   "aria": "home.rail home.catalogue home.tab-card home.toast",
+   "title": null,
+   "how": "xcuitest RoundAndPayTests/testRoundAndPay()",
+   "moves_in_code": [
+    "open-room",
+    "plus",
+    "tap-plain-tile",
+    "next-item",
+    "send-now",
+    "send-first",
+    "open-bill",
+    "open-bill-offline"
+   ],
+   "move_words": {
+    "open-room": "The room map",
+    "plus": "New order",
+    "tap-plain-tile": "tile",
+    "next-item": "tile",
+    "send-now": "Send",
+    "send-first": "Send",
+    "open-bill": "Pay",
+    "open-bill-offline": "Pay"
+   }
+  },
+  "ring-a-coffee/menu": {
+   "flow": "ring-a-coffee",
+   "step": "menu",
+   "at": "2026-10-27T12:06:31",
+   "device": "iPad 11″",
+   "client": "native",
+   "files": {
+    "light": "ring-a-coffee/menu.native.png"
+   },
+   "agrees": true,
+   "aria": "home.rail home.catalogue home.tab-card",
+   "title": null,
+   "how": "xcuitest RoundAndPayTests/testRoundAndPay()",
+   "moves_in_code": [
+    "open-room",
+    "plus",
+    "tap-plain-tile",
+    "next-item",
+    "ring-first"
+   ],
+   "move_words": {
+    "open-room": "The room map",
+    "plus": "New order",
+    "tap-plain-tile": "tile",
+    "next-item": "tile",
+    "ring-first": "tile"
+   }
+  },
+  "ring-a-coffee/order-started": {
+   "flow": "ring-a-coffee",
+   "step": "order-started",
+   "at": "2026-10-27T12:06:31",
+   "device": "iPad 11″",
+   "client": "native",
+   "files": {
+    "light": "ring-a-coffee/order-started.native.png"
+   },
+   "agrees": true,
+   "aria": "home.rail home.catalogue home.tab-card",
+   "title": null,
+   "how": "xcuitest RoundAndPayTests/testRoundAndPay()",
+   "moves_in_code": [
+    "open-room",
+    "plus",
+    "tap-plain-tile",
+    "next-item",
+    "tap-unsent-line",
+    "send-now",
+    "send-first",
+    "open-bill",
+    "open-bill-offline"
+   ],
+   "move_words": {
+    "open-room": "The room map",
+    "plus": "New order",
+    "tap-plain-tile": "tile",
+    "next-item": "tile",
+    "tap-unsent-line": "a line",
+    "send-now": "Send",
+    "send-first": "Send",
+    "open-bill": "Pay",
+    "open-bill-offline": "Pay"
+   }
+  },
+  "ring-a-coffee/line-added": {
+   "flow": "ring-a-coffee",
+   "step": "line-added",
+   "at": "2026-10-27T12:06:31",
+   "device": "iPad 11″",
+   "client": "native",
+   "files": {
+    "light": "ring-a-coffee/line-added.native.png"
+   },
+   "agrees": true,
+   "aria": "home.rail home.catalogue home.tab-card",
+   "title": null,
+   "how": "xcuitest RoundAndPayTests/testRoundAndPay()",
+   "moves_in_code": [
+    "open-room",
+    "plus",
+    "tap-plain-tile",
+    "next-item",
+    "tap-unsent-line",
+    "send-now",
+    "send-first",
+    "open-bill",
+    "open-bill-offline"
+   ],
+   "move_words": {
+    "open-room": "The room map",
+    "plus": "New order",
+    "tap-plain-tile": "tile",
+    "next-item": "tile",
+    "tap-unsent-line": "a line",
+    "send-now": "Send",
+    "send-first": "Send",
+    "open-bill": "Pay",
+    "open-bill-offline": "Pay"
+   }
+  },
+  "send-to-the-bar/tab": {
+   "flow": "send-to-the-bar",
+   "step": "tab",
+   "at": "2026-10-27T12:06:31",
+   "device": "iPad 11″",
+   "client": "native",
+   "files": {
+    "light": "send-to-the-bar/tab.native.png"
+   },
+   "agrees": true,
+   "aria": "home.rail home.catalogue home.tab-card",
+   "title": null,
+   "how": "xcuitest RoundAndPayTests/testRoundAndPay()",
+   "moves_in_code": [
+    "open-room",
+    "plus",
+    "tap-plain-tile",
+    "next-item",
+    "tap-unsent-line",
+    "send-now",
+    "send-first",
+    "open-bill",
+    "open-bill-offline"
+   ],
+   "move_words": {
+    "open-room": "The room map",
+    "plus": "New order",
+    "tap-plain-tile": "tile",
+    "next-item": "tile",
+    "tap-unsent-line": "a line",
+    "send-now": "Send",
+    "send-first": "Send",
+    "open-bill": "Pay",
+    "open-bill-offline": "Pay"
+   }
+  },
+  "send-to-the-bar/ask": {
+   "flow": "send-to-the-bar",
+   "step": "ask",
+   "at": "2026-10-27T12:06:31",
+   "device": "iPad 11″",
+   "client": "native",
+   "files": {
+    "light": "send-to-the-bar/ask.native.png"
+   },
+   "agrees": true,
+   "aria": "home.rail home.catalogue home.tab-card home.ask-strip",
+   "title": null,
+   "how": "xcuitest RoundAndPayTests/testRoundAndPay()",
+   "moves_in_code": [
+    "open-room",
+    "plus",
+    "tap-plain-tile",
+    "next-item",
+    "tap-unsent-line",
+    "answer-name",
+    "answer-code",
+    "answer-paying-now",
+    "skip-ask"
+   ],
+   "move_words": {
+    "open-room": "The room map",
+    "plus": "New order",
+    "tap-plain-tile": "tile",
+    "next-item": "tile",
+    "tap-unsent-line": "a line",
+    "answer-name": "Send",
+    "answer-code": "Send",
+    "answer-paying-now": "Paying now",
+    "skip-ask": "Skip"
+   }
+  },
+  "send-to-the-bar/sent": {
+   "flow": "send-to-the-bar",
+   "step": "sent",
+   "at": "2026-10-27T12:06:31",
+   "device": "iPad 11″",
+   "client": "native",
+   "files": {
+    "light": "send-to-the-bar/sent.native.png"
+   },
+   "agrees": true,
+   "aria": "home.rail home.catalogue home.tab-card home.toast",
+   "title": null,
+   "how": "xcuitest RoundAndPayTests/testRoundAndPay()",
+   "moves_in_code": [
+    "open-room",
+    "plus",
+    "tap-plain-tile",
+    "next-item",
+    "tap-sent-line",
+    "send-now",
+    "send-first",
+    "open-bill",
+    "open-bill-offline"
+   ],
+   "move_words": {
+    "open-room": "The room map",
+    "plus": "New order",
+    "tap-plain-tile": "tile",
+    "next-item": "tile",
+    "tap-sent-line": "a line",
+    "send-now": "Send",
+    "send-first": "Send",
+    "open-bill": "Pay",
+    "open-bill-offline": "Pay"
+   }
+  },
+  "send-to-the-bar/at-the-bar": {
+   "flow": "send-to-the-bar",
+   "step": "at-the-bar",
+   "at": "2026-10-27T12:06:31",
+   "device": "iPad 11″",
+   "client": "native",
+   "files": {
+    "light": "send-to-the-bar/at-the-bar.native.png"
+   },
+   "agrees": true,
+   "aria": "home.rail home.catalogue home.tab-card home.toast",
+   "title": null,
+   "how": "xcuitest RoundAndPayTests/testRoundAndPay()",
+   "moves_in_code": [
+    "open-room",
+    "plus",
+    "tap-plain-tile",
+    "next-item",
+    "tap-sent-line",
+    "send-now",
+    "send-first",
+    "open-bill",
+    "open-bill-offline"
+   ],
+   "move_words": {
+    "open-room": "The room map",
+    "plus": "New order",
+    "tap-plain-tile": "tile",
+    "next-item": "tile",
+    "tap-sent-line": "a line",
+    "send-now": "Send",
+    "send-first": "Send",
+    "open-bill": "Pay",
+    "open-bill-offline": "Pay"
+   }
+  },
+  "void-a-line/line-sent": {
+   "flow": "void-a-line",
+   "step": "line-sent",
+   "at": "2026-10-27T12:06:31",
+   "device": "iPad 11″",
+   "client": "native",
+   "files": {
+    "light": "void-a-line/line-sent.native.png"
+   },
+   "agrees": true,
+   "aria": "home.rail home.catalogue line.sheet home.tab-card home.toast",
+   "title": null,
+   "how": "xcuitest RoundAndPayTests/testRoundAndPay()",
+   "moves_in_code": [
+    "open-room",
+    "plus",
+    "tap-plain-tile",
+    "next-item",
+    "done-sent",
+    "void",
+    "tap-sent-line",
+    "send-now",
+    "send-first",
+    "open-bill",
+    "open-bill-offline"
+   ],
+   "move_words": {
+    "open-room": "The room map",
+    "plus": "New order",
+    "tap-plain-tile": "tile",
+    "next-item": "tile",
+    "done-sent": "Close",
+    "void": "Void…",
+    "tap-sent-line": "a line",
+    "send-now": "Send",
+    "send-first": "Send",
+    "open-bill": "Pay",
+    "open-bill-offline": "Pay"
+   }
+  },
+  "void-a-line/reason": {
+   "flow": "void-a-line",
+   "step": "reason",
+   "at": "2026-10-27T12:06:31",
+   "device": "iPad 11″",
+   "client": "native",
+   "files": {
+    "light": "void-a-line/reason.native.png"
+   },
+   "agrees": true,
+   "aria": "home.rail home.catalogue reason.sheet home.tab-card",
+   "title": null,
+   "how": "xcuitest RoundAndPayTests/testRoundAndPay()",
+   "moves_in_code": [
+    "open-room",
+    "plus",
+    "tap-plain-tile",
+    "next-item",
+    "reason-close",
+    "needs-manager",
+    "tap-sent-line",
+    "send-now",
+    "send-first",
+    "open-bill",
+    "open-bill-offline"
+   ],
+   "move_words": {
+    "open-room": "The room map",
+    "plus": "New order",
+    "tap-plain-tile": "tile",
+    "next-item": "tile",
+    "reason-close": "Close",
+    "needs-manager": "a manager",
+    "tap-sent-line": "a line",
+    "send-now": "Send",
+    "send-first": "Send",
+    "open-bill": "Pay",
+    "open-bill-offline": "Pay"
+   }
+  },
+  "void-a-line/pin": {
+   "flow": "void-a-line",
+   "step": "pin",
+   "at": "2026-10-27T12:06:31",
+   "device": "iPad 11″",
+   "client": "native",
+   "files": {
+    "light": "void-a-line/pin.native.png"
+   },
+   "agrees": true,
+   "aria": "home.rail home.catalogue pin.sheet home.tab-card",
+   "title": null,
+   "how": "xcuitest RoundAndPayTests/testRoundAndPay()",
+   "moves_in_code": [
+    "open-room",
+    "plus",
+    "tap-plain-tile",
+    "next-item",
+    "pin-cancel",
+    "manager-pin",
+    "tap-sent-line",
+    "send-now",
+    "send-first",
+    "open-bill",
+    "open-bill-offline"
+   ],
+   "move_words": {
+    "open-room": "The room map",
+    "plus": "New order",
+    "tap-plain-tile": "tile",
+    "next-item": "tile",
+    "pin-cancel": "Cancel",
+    "tap-sent-line": "a line",
+    "send-now": "Send",
+    "send-first": "Send",
+    "open-bill": "Pay",
+    "open-bill-offline": "Pay"
+   }
+  },
+  "void-a-line/voided": {
+   "flow": "void-a-line",
+   "step": "voided",
+   "at": "2026-10-27T12:06:31",
+   "device": "iPad 11″",
+   "client": "native",
+   "files": {
+    "light": "void-a-line/voided.native.png"
+   },
+   "agrees": true,
+   "aria": "home.rail home.catalogue home.tab-card home.toast",
+   "title": null,
+   "how": "xcuitest RoundAndPayTests/testRoundAndPay()",
+   "moves_in_code": [
+    "open-room",
+    "plus",
+    "tap-plain-tile",
+    "next-item",
+    "tap-sent-line",
+    "send-now",
+    "send-first",
+    "open-bill",
+    "open-bill-offline"
+   ],
+   "move_words": {
+    "open-room": "The room map",
+    "plus": "New order",
+    "tap-plain-tile": "tile",
+    "next-item": "tile",
+    "tap-sent-line": "a line",
+    "send-now": "Send",
+    "send-first": "Send",
+    "open-bill": "Pay",
+    "open-bill-offline": "Pay"
+   }
+  },
+  "pay-on-leaving/tab": {
+   "flow": "pay-on-leaving",
+   "step": "tab",
+   "at": "2026-10-27T12:06:31",
+   "device": "iPad 11″",
+   "client": "native",
+   "files": {
+    "light": "pay-on-leaving/tab.native.png"
+   },
+   "agrees": true,
+   "aria": "home.rail home.catalogue home.tab-card home.toast",
+   "title": null,
+   "how": "xcuitest RoundAndPayTests/testRoundAndPay()",
+   "moves_in_code": [
+    "open-room",
+    "plus",
+    "tap-plain-tile",
+    "next-item",
+    "tap-sent-line",
+    "send-now",
+    "send-first",
+    "open-bill",
+    "open-bill-offline"
+   ],
+   "move_words": {
+    "open-room": "The room map",
+    "plus": "New order",
+    "tap-plain-tile": "tile",
+    "next-item": "tile",
+    "tap-sent-line": "a line",
+    "send-now": "Send",
+    "send-first": "Send",
+    "open-bill": "Pay",
+    "open-bill-offline": "Pay"
+   }
+  },
+  "pay-on-leaving/bill": {
+   "flow": "pay-on-leaving",
+   "step": "bill",
+   "at": "2026-10-27T12:06:31",
+   "device": "iPad 11″",
+   "client": "native",
+   "files": {
+    "light": "pay-on-leaving/bill.native.png"
+   },
+   "agrees": true,
+   "aria": "pay.choose home.rail home.catalogue home.tab-card home.toast",
+   "title": null,
+   "how": "xcuitest RoundAndPayTests/testRoundAndPay()",
+   "moves_in_code": [
+    "bill-back",
+    "bill-offline-back",
+    "card",
+    "open-room",
+    "plus",
+    "tap-plain-tile",
+    "next-item",
+    "tap-sent-line",
+    "send-now",
+    "send-first",
+    "open-bill",
+    "open-bill-offline"
+   ],
+   "move_words": {
+    "bill-back": "Close",
+    "bill-offline-back": "Close",
+    "card": "Card",
+    "open-room": "The room map",
+    "plus": "New order",
+    "tap-plain-tile": "tile",
+    "next-item": "tile",
+    "tap-sent-line": "a line",
+    "send-now": "Send",
+    "send-first": "Send",
+    "open-bill": "Pay",
+    "open-bill-offline": "Pay"
+   }
+  },
+  "pay-on-leaving/reader": {
+   "flow": "pay-on-leaving",
+   "step": "reader",
+   "at": "2026-10-27T12:06:31",
+   "device": "iPad 11″",
+   "client": "native",
+   "files": {
+    "light": "pay-on-leaving/reader.native.png"
+   },
+   "agrees": true,
+   "aria": "pay.reader home.rail home.catalogue home.tab-card",
+   "title": null,
+   "how": "xcuitest RoundAndPayTests/testRoundAndPay()",
+   "moves_in_code": [
+    "reader-back",
+    "decline",
+    "tap",
+    "open-room",
+    "plus",
+    "tap-plain-tile",
+    "next-item",
+    "tap-sent-line",
+    "send-now",
+    "send-first",
+    "open-bill",
+    "open-bill-offline"
+   ],
+   "move_words": {
+    "reader-back": "Close",
+    "decline": "Decline",
+    "tap": "Simulate tap",
+    "open-room": "The room map",
+    "plus": "New order",
+    "tap-plain-tile": "tile",
+    "next-item": "tile",
+    "tap-sent-line": "a line",
+    "send-now": "Send",
+    "send-first": "Send",
+    "open-bill": "Pay",
+    "open-bill-offline": "Pay"
+   }
+  },
+  "pay-on-leaving/declined": {
+   "flow": "pay-on-leaving",
+   "step": "declined",
+   "at": "2026-10-27T12:06:31",
+   "device": "iPad 11″",
+   "client": "native",
+   "files": {
+    "light": "pay-on-leaving/declined.native.png"
+   },
+   "agrees": true,
+   "aria": "pay.declined home.rail home.catalogue home.tab-card",
+   "title": null,
+   "how": "xcuitest RoundAndPayTests/testRoundAndPay()",
+   "moves_in_code": [
+    "try-again",
+    "another-card",
+    "leave-on-tab",
+    "open-room",
+    "plus",
+    "tap-plain-tile",
+    "next-item",
+    "tap-sent-line",
+    "send-now",
+    "send-first",
+    "open-bill",
+    "open-bill-offline"
+   ],
+   "move_words": {
+    "try-again": "Try again",
+    "another-card": "Another card",
+    "leave-on-tab": "Leave on the tab",
+    "open-room": "The room map",
+    "plus": "New order",
+    "tap-plain-tile": "tile",
+    "next-item": "tile",
+    "tap-sent-line": "a line",
+    "send-now": "Send",
+    "send-first": "Send",
+    "open-bill": "Pay",
+    "open-bill-offline": "Pay"
+   }
+  },
+  "pay-on-leaving/paid": {
+   "flow": "pay-on-leaving",
+   "step": "paid",
+   "at": "2026-10-27T12:06:31",
+   "device": "iPad 11″",
+   "client": "native",
+   "files": {
+    "light": "pay-on-leaving/paid.native.png"
+   },
+   "agrees": true,
+   "aria": "pay.paid home.rail home.catalogue home.tab-card",
+   "title": null,
+   "how": "xcuitest RoundAndPayTests/testRoundAndPay()",
+   "moves_in_code": [
+    "close-paid",
+    "open-room",
+    "plus",
+    "tap-plain-tile",
+    "next-item",
+    "ring-first"
+   ],
+   "move_words": {
+    "close-paid": "Close tab",
+    "open-room": "The room map",
+    "plus": "New order",
+    "tap-plain-tile": "tile",
+    "next-item": "tile",
+    "ring-first": "tile"
+   }
+  },
+  "pay-on-leaving/closed": {
+   "flow": "pay-on-leaving",
+   "step": "closed",
+   "at": "2026-10-27T12:06:31",
+   "device": "iPad 11″",
+   "client": "native",
+   "files": {
+    "light": "pay-on-leaving/closed.native.png"
+   },
+   "agrees": true,
+   "aria": "home.rail home.catalogue home.tab-card home.toast",
+   "title": null,
+   "how": "xcuitest RoundAndPayTests/testRoundAndPay()",
+   "moves_in_code": [
+    "open-room",
+    "plus",
+    "tap-plain-tile",
+    "next-item",
+    "ring-first"
+   ],
+   "move_words": {
+    "open-room": "The room map",
+    "plus": "New order",
+    "tap-plain-tile": "tile",
+    "next-item": "tile",
+    "ring-first": "tile"
+   }
+  }
+ },
+ "disagree": [],
+ "undriven": [],
+ "errors": []
+}

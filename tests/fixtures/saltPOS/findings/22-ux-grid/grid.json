@@ -1,0 +1,364 @@
+{
+  "flows": [
+    {
+      "id": "F10",
+      "name": "Take payment",
+      "group": "money",
+      "of": 20,
+      "patterns": [
+        {
+          "id": "pay-terminal-tip",
+          "label": "Terminal, guest tips",
+          "kind": "best",
+          "n": 11,
+          "who": "Till A, Till B, Till C, Till D, Till E, Till F, Till G, Till H, Till I, Till K, Till Q",
+          "desc": "One Pay button opens the method choice, card hands off to a terminal and the guest picks the tip on a guest-facing device.",
+          "steps": [
+            "Tap Pay",
+            "Pick method",
+            "Hand to terminal",
+            "Guest tips, taps"
+          ],
+          "taps": 3
+        },
+        {
+          "id": "quick-pay",
+          "label": "One-tap usual method",
+          "kind": "variant",
+          "n": 3,
+          "who": "Till A, Till B, Till P",
+          "desc": "A shortcut sends the usual payment straight to the terminal with no method sheet.",
+          "steps": [
+            "Tap QuickPay",
+            "Guest taps"
+          ],
+          "taps": 1
+        },
+        {
+          "id": "staff-entered-tip",
+          "label": "Staff key the tip",
+          "kind": "variant",
+          "n": 3,
+          "who": "Till J, Till L, Till M",
+          "desc": "Staff enter the tip on the till before choosing the method.",
+          "steps": [
+            "Tap Pay",
+            "Add tip",
+            "Pick method",
+            "Hand to terminal"
+          ],
+          "taps": 4
+        },
+        {
+          "id": "tip-by-overpay",
+          "label": "Tip from overpayment",
+          "kind": "variant",
+          "n": 4,
+          "who": "Till O, Till B, Till E, Till K",
+          "desc": "Staff enter more than the total and the excess is booked as a tip.",
+          "steps": [
+            "Tap Pay",
+            "Enter higher amount",
+            "Excess is tip"
+          ],
+          "taps": 4
+        },
+        {
+          "id": "decline-path",
+          "label": "Documented decline path",
+          "kind": "variant",
+          "n": 4,
+          "who": "Till D, Till F, Till G, Till S",
+          "desc": "What happens on a decline is documented: pay the remaining balance, end the attempt, or back to the method choice.",
+          "steps": [
+            "Card declined",
+            "Shown on screen",
+            "Retry or remainder"
+          ],
+          "taps": null
+        },
+        {
+          "id": "guest-phone-pay",
+          "label": "Guest pays on phone",
+          "kind": "outlier",
+          "n": 2,
+          "who": "Till S, Till T",
+          "desc": "The guest scans a table QR and pays and tips from their own phone; staff see the check close.",
+          "steps": [
+            "Scan QR",
+            "Pick items",
+            "Pick a tip",
+            "Take payment"
+          ],
+          "taps": 5
+        }
+      ]
+    },
+    {
+      "id": "F11",
+      "name": "Receipt and close",
+      "group": "money",
+      "of": 19,
+      "patterns": [
+        {
+          "id": "receipt-choice-after-pay",
+          "label": "Receipt choice, one tap",
+          "kind": "best",
+          "n": 9,
+          "who": "Till A, Till D, Till F, Till G, Till I, Till J, Till K, Till Q, Till M",
+          "desc": "After payment one screen offers print, email, text or QR with a one-tap No receipt, and the payment closes the order.",
+          "steps": [
+            "Payment approved",
+            "Receipt choice",
+            "No receipt",
+            "Order closed"
+          ],
+          "taps": 2
+        },
+        {
+          "id": "qr-receipt",
+          "label": "QR digital receipt",
+          "kind": "variant",
+          "n": 4,
+          "who": "Till A, Till M, Till H, Till C",
+          "desc": "A QR code gives the guest a digital receipt with nothing typed.",
+          "steps": [
+            "Payment approved",
+            "Show QR",
+            "Guest scans"
+          ],
+          "taps": 2
+        },
+        {
+          "id": "auto-email-customer",
+          "label": "Email to attached customer",
+          "kind": "variant",
+          "n": 3,
+          "who": "Till B, Till Q, Till A",
+          "desc": "With a customer attached, the receipt goes to their stored email automatically.",
+          "steps": [
+            "Attach customer",
+            "Take payment",
+            "Email sent"
+          ],
+          "taps": 3
+        },
+        {
+          "id": "print-only",
+          "label": "Print only",
+          "kind": "outlier",
+          "n": 2,
+          "who": "Till N, Till P",
+          "desc": "The till prints the receipt, automatically if set, with no digital option.",
+          "steps": [
+            "Take payment",
+            "Receipt prints"
+          ],
+          "taps": null
+        },
+        {
+          "id": "guest-chooses",
+          "label": "Guest picks on screen",
+          "kind": "outlier",
+          "n": 1,
+          "who": "Till D",
+          "desc": "The guest chooses on their own screen, with No receipt as the default.",
+          "steps": [
+            "Guest taps choice"
+          ],
+          "taps": 1
+        },
+        {
+          "id": "fully-automatic",
+          "label": "Automatic, zero taps",
+          "kind": "outlier",
+          "n": 1,
+          "who": "Till S",
+          "desc": "The receipt is emailed or texted, the check closes from the payment event and a review is asked for.",
+          "steps": [
+            "Guest pays",
+            "Receipt sent",
+            "Check closes"
+          ],
+          "taps": 0
+        }
+      ]
+    },
+    {
+      "id": "F17",
+      "name": "Offline",
+      "group": "operations",
+      "of": 16,
+      "patterns": [
+        {
+          "id": "auto-detect-indicator",
+          "label": "Detect, show, auto-sync",
+          "kind": "best",
+          "n": 6,
+          "who": "Till C, Till D, Till E, Till G, Till J, Till Q",
+          "desc": "The till detects the outage, shows a lasting indicator, publishes what is blocked and syncs on reconnect.",
+          "steps": [
+            "Connection drops",
+            "Banner shows",
+            "Keep selling",
+            "Syncs back"
+          ],
+          "taps": 0
+        },
+        {
+          "id": "offline-cards",
+          "label": "Cards offline, own risk",
+          "kind": "variant",
+          "n": 6,
+          "who": "Till C, Till D, Till H, Till F, Till I, Till K",
+          "desc": "Card payments are stored offline and authorised on reconnect, with declines at the merchant's risk.",
+          "steps": [
+            "Connection drops",
+            "Take card",
+            "Payment stored",
+            "Auth on reconnect"
+          ],
+          "taps": 3
+        },
+        {
+          "id": "cards-blocked",
+          "label": "Cards blocked offline",
+          "kind": "variant",
+          "n": 4,
+          "who": "Till G, Till J, Till L, Till Q",
+          "desc": "Card payments are blocked while offline; other selling continues.",
+          "steps": [
+            "Connection drops",
+            "Pay blocked",
+            "Wait for sync"
+          ],
+          "taps": null
+        },
+        {
+          "id": "manual-mode-switch",
+          "label": "Manual offline mode",
+          "kind": "variant",
+          "n": 3,
+          "who": "Till A, Till L, Till E",
+          "desc": "Staff switch the till into an offline or backup mode by hand, sometimes before the outage.",
+          "steps": [
+            "Open settings",
+            "Offline mode",
+            "Assign tables"
+          ],
+          "taps": 8
+        },
+        {
+          "id": "local-network",
+          "label": "iPads talk locally",
+          "kind": "outlier",
+          "n": 1,
+          "who": "Till K",
+          "desc": "Devices keep talking over the local network, so orders and the bar screen carry on without the internet.",
+          "steps": [
+            "Internet drops",
+            "Local sync",
+            "Keep serving"
+          ],
+          "taps": 0
+        },
+        {
+          "id": "pause-until-back",
+          "label": "Pause until reconnected",
+          "kind": "outlier",
+          "n": 1,
+          "who": "Till M",
+          "desc": "An unstable-connection popup pauses actions until the connection recovers.",
+          "steps": [
+            "Connection drops",
+            "Popup blocks",
+            "Wait for reconnect"
+          ],
+          "taps": null
+        }
+      ]
+    }
+  ],
+  "products": [
+    {
+      "slug": "till-a",
+      "name": "Till A"
+    },
+    {
+      "slug": "till-b",
+      "name": "Till B"
+    },
+    {
+      "slug": "till-c",
+      "name": "Till C"
+    },
+    {
+      "slug": "till-d",
+      "name": "Till D"
+    },
+    {
+      "slug": "till-e",
+      "name": "Till E"
+    },
+    {
+      "slug": "till-f",
+      "name": "Till F"
+    },
+    {
+      "slug": "till-g",
+      "name": "Till G"
+    },
+    {
+      "slug": "till-h",
+      "name": "Till H"
+    },
+    {
+      "slug": "till-i",
+      "name": "Till I"
+    },
+    {
+      "slug": "till-j",
+      "name": "Till J"
+    },
+    {
+      "slug": "till-k",
+      "name": "Till K"
+    },
+    {
+      "slug": "till-l",
+      "name": "Till L"
+    },
+    {
+      "slug": "till-m",
+      "name": "Till M"
+    },
+    {
+      "slug": "till-n",
+      "name": "Till N"
+    },
+    {
+      "slug": "till-o",
+      "name": "Till O"
+    },
+    {
+      "slug": "till-p",
+      "name": "Till P"
+    },
+    {
+      "slug": "till-q",
+      "name": "Till Q"
+    },
+    {
+      "slug": "till-r",
+      "name": "Till R"
+    },
+    {
+      "slug": "till-s",
+      "name": "Till S"
+    },
+    {
+      "slug": "till-t",
+      "name": "Till T"
+    }
+  ]
+}

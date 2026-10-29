@@ -1,0 +1,3 @@
+# The sdist carries the example, so a wheel built from it has saltflow/example (see setup.py).
+graft examples/saltpos
+global-exclude runs.json __pycache__/* *.pyc .gitignore .DS_Store

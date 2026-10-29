@@ -1,0 +1,248 @@
+{
+ "schema": "saltflow/v1/flow",
+ "id": "void-a-line",
+ "name": "Take a line off the tab, with a reason",
+ "says": "Tap the line for its actions. Before it is sent, Remove takes it off freely. After it is sent, Void asks for a reason from one list whose reason decides the effect (never made: no stock used; comp, waste, staff drink: stock used and booked as not a sale), with a manager PIN in place where the role needs it.",
+ "product": "saltPOS",
+ "stage": "during",
+ "path": "variation",
+ "jobs": [
+  {
+   "ref": "saltPOS:jobs#void-a-line",
+   "ends": [
+    "removed",
+    "voided"
+   ]
+  }
+ ],
+ "links": [
+  {
+   "kind": "ruling",
+   "ref": "saltPOS:decisions#taps-with-a-reason",
+   "state": "ruled",
+   "quote": "Moves that are not a sale are taps with a reason. A void after sending is a counter-entry, never a deletion."
+  }
+ ],
+ "world": {
+  "sent": [
+   true,
+   false
+  ],
+  "gated": [
+   true,
+   false
+  ]
+ },
+ "entry": "tab",
+ "steps": {
+  "tab": {
+   "surface": "home.tab-card",
+   "place": "home",
+   "primitive": "visit",
+   "built": true,
+   "behind": "none",
+   "size": "part",
+   "features": [
+    "tabs"
+   ],
+   "says": "a tab with two sent lines reading 'At the bar' and one in 'Not sent'"
+  },
+  "line-unsent": {
+   "surface": "line.sheet",
+   "place": "zoom",
+   "primitive": "visit",
+   "built": true,
+   "variant": "unsent",
+   "state": "unsent",
+   "behind": "recede",
+   "size": "part",
+   "says": "'Not sent yet' under the name; the stepper is live; the last row reads Remove"
+  },
+  "line-sent": {
+   "surface": "line.sheet",
+   "place": "zoom",
+   "primitive": "visit",
+   "built": true,
+   "variant": "sent",
+   "state": "sent",
+   "behind": "recede",
+   "size": "part",
+   "says": "'Sent to the bar' under the name; the stepper is disabled under 'Sent lines can’t change, only be voided. A void is a counter-entry, never erased.'; the last row reads Void…"
+  },
+  "reason": {
+   "surface": "reason.sheet",
+   "place": "zoom",
+   "primitive": "money",
+   "built": true,
+   "behind": "recede",
+   "size": "part",
+   "features": [
+    "own-use"
+   ],
+   "patterns": [
+    "saltPOS:patterns#made-or-never-made"
+   ]
+  },
+  "pin": {
+   "surface": "pin.sheet",
+   "place": "zoom",
+   "primitive": "rules",
+   "built": true,
+   "behind": "recede",
+   "size": "part",
+   "features": [
+    "override"
+   ],
+   "patterns": [
+    "saltPOS:patterns#manager-pin-in-place"
+   ]
+  },
+  "removed": {
+   "surface": "home.toast",
+   "place": "overlay",
+   "primitive": "visit",
+   "built": true,
+   "variant": "voided",
+   "state": "voided",
+   "behind": "none",
+   "end": "done",
+   "says": "'Removed Flat white': the line is gone from the tab and nothing is booked, as nothing was sent"
+  },
+  "voided": {
+   "surface": "home.toast",
+   "place": "overlay",
+   "primitive": "money",
+   "built": true,
+   "variant": "voided",
+   "state": "voided",
+   "behind": "none",
+   "end": "done",
+   "features": [
+    "exceptions"
+   ],
+   "says": "'Voided Flat white: a counter-entry with a reason': the line stays in the journal, countered, with its reason, and the day's exceptions list it"
+  }
+ },
+ "moves": [
+  {
+   "id": "tap-unsent-line",
+   "from": "tab",
+   "to": "line-unsent",
+   "kind": "forward",
+   "trigger": "Tap the line in Not sent",
+   "needs": {
+    "sent": false
+   }
+  },
+  {
+   "id": "tap-sent-line",
+   "from": "tab",
+   "to": "line-sent",
+   "kind": "forward",
+   "trigger": "Tap a sent line",
+   "needs": {
+    "sent": true
+   }
+  },
+  {
+   "id": "remove",
+   "from": "line-unsent",
+   "to": "removed",
+   "kind": "forward",
+   "trigger": "Remove"
+  },
+  {
+   "id": "void",
+   "from": "line-sent",
+   "to": "reason",
+   "kind": "forward",
+   "trigger": "Void…"
+  },
+  {
+   "id": "pick-reason",
+   "from": "reason",
+   "to": "voided",
+   "kind": "forward",
+   "trigger": "Pick the reason, then Confirm",
+   "needs": {
+    "gated": false
+   }
+  },
+  {
+   "id": "needs-manager",
+   "from": "reason",
+   "to": "pin",
+   "kind": "forward",
+   "trigger": "Pick the reason: this role needs a manager",
+   "needs": {
+    "gated": true
+   }
+  },
+  {
+   "id": "manager-pin",
+   "from": "pin",
+   "to": "voided",
+   "kind": "forward",
+   "trigger": "The manager types their PIN"
+  },
+  {
+   "id": "pin-cancel",
+   "from": "pin",
+   "to": "reason",
+   "kind": "cancel",
+   "trigger": "Cancel"
+  },
+  {
+   "id": "reason-close",
+   "from": "reason",
+   "to": "line-sent",
+   "kind": "back",
+   "trigger": "Close; the line stays"
+  },
+  {
+   "id": "done-unsent",
+   "from": "line-unsent",
+   "to": "tab",
+   "kind": "back",
+   "trigger": "Done, or Close; the line stays"
+  },
+  {
+   "id": "done-sent",
+   "from": "line-sent",
+   "to": "tab",
+   "kind": "back",
+   "trigger": "Done, or Close; the line stays"
+  }
+ ],
+ "runs": [
+  {
+   "id": "remove-before-send",
+   "job": "saltPOS:jobs#void-a-line",
+   "world": {
+    "sent": false,
+    "gated": false
+   },
+   "expect": "done",
+   "why": "Remove freely before sending: two taps."
+  },
+  {
+   "id": "void-after-send",
+   "job": "saltPOS:jobs#void-a-line",
+   "world": {
+    "sent": true,
+    "gated": false
+   },
+   "expect": "done"
+  },
+  {
+   "id": "void-needs-manager",
+   "job": "saltPOS:jobs#void-a-line",
+   "world": {
+    "sent": true,
+    "gated": true
+   },
+   "expect": "done",
+   "why": "The manager's PIN is asked in place; the barista never leaves the tab."
+  }
+ ]
+}

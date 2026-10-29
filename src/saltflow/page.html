@@ -1,0 +1,1540 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>saltFlow</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="saltFlow">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f3f5f8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f1720" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="/icon.png">
+<link rel="icon" href="/icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<style>
+__TOKENS_CSS__
+</style>
+<style>
+__GLASS_CSS__
+</style>
+<style>
+__SALTFLOW_CSS__
+</style>
+<style>
+/* The page. saltglass and saltFlow's own layer are inlined above (src/saltflow/vendor): the tinted ground, the
+   frosted sidebar, the floating card, the sheets, the chips and capsules. What follows is the review itself: the map
+   on the tint, the crop on the card, the sheets' content. */
+html, body { height: 100%; margin: 0; background: #000; }
+.app :where(input, textarea, select) { font: inherit; color: inherit; }
+
+/* the sidebar: Today */
+.item .st { white-space: normal; text-align: left; }
+.item .accent-ico.live { color: var(--gl-live); }
+.rail .empty { padding: 18px 16px; font-size: 14px; }
+.popover.top { top: 70px; bottom: auto; }
+.popover .row .check { margin-left: auto; }
+.rail-top .heading { margin: 0; padding: 0; min-width: 0; }
+.ref { cursor: copy; }
+.refs .row-sub { white-space: normal; }
+
+/* the map, on the tint */
+.results { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.results .dim { color: var(--dim); font-size: 13px; }
+.map { flex: 1; min-height: 0; padding: 0 14px 18px; display: grid; place-items: start start; overflow: auto; }
+.map svg { width: var(--w); height: var(--h); max-width: none; display: block; font-family: var(--font); }
+.node { cursor: pointer; }
+.node .frame { fill: var(--wash); }
+.node.sel .frame { fill: var(--wash-2); stroke: var(--ink); stroke-width: 1.5; }
+.node .r-ghost { fill: color-mix(in srgb, var(--ink) 7%, transparent); }
+.node .r-arrive { fill: color-mix(in srgb, var(--ink) 22%, transparent); stroke: color-mix(in srgb, var(--ink) 55%, transparent); stroke-width: 1; }
+.node.unbuilt .r-arrive { fill: none; stroke-dasharray: 4 3; }
+.node .r-line { fill: color-mix(in srgb, var(--ink) 42%, transparent); }
+.node .r-act { fill: color-mix(in srgb, var(--ink) 85%, transparent); }
+.node .name { fill: var(--ink); font-size: 13px; font-weight: 600; }
+.node .place { fill: var(--dim); font-size: 11.5px; }
+.node .badge { font-size: 11.5px; font-weight: 650; }
+.node .here { stroke: var(--gl-live); stroke-width: 2; fill: none; }
+.node .heretext { fill: var(--gl-live); font-size: 11.5px; font-weight: 600; }
+.node .notecount { fill: var(--dim); font-size: 11px; }
+.edge { fill: none; stroke: color-mix(in srgb, var(--ink) 50%, transparent); stroke-width: 1.5; }
+.edge.back { stroke-dasharray: 5 4; stroke: color-mix(in srgb, var(--ink) 32%, transparent); }
+.edge.system { stroke-dasharray: 2 4; }
+.edge.cancel { stroke-dasharray: 5 4; }
+.edge.loop { stroke-dasharray: 1 3; }
+.edge.error { stroke: var(--fault); }
+.edge.onpath { stroke-width: 2.5; stroke: var(--ink); }
+.elabel { font-size: 11px; fill: var(--dim); paint-order: stroke; stroke: var(--gl-ground); stroke-width: 3px; stroke-linejoin: round; }
+.elabel.error { fill: var(--fault); }
+.lane { font-size: 11px; font-weight: 600; letter-spacing: .08em; fill: var(--dim); }
+.lanerule { stroke: var(--hair); }
+.empty { align-self: center; max-width: 44ch; text-align: center; color: var(--dim); display: grid; gap: 10px; padding: 24px; }
+.empty b { color: var(--ink); font-size: 17px; }
+.empty code { font: 13px ui-monospace, "SF Mono", Menlo, monospace; color: var(--ink); }
+
+/* the card: the step */
+.detail { overflow: hidden; }
+.detail-head .tag { font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--dim); }
+.crop { margin: 4px 20px 8px; border-radius: 14px; overflow: hidden; background: var(--wash); display: flex; align-items: center; justify-content: center; aspect-ratio: 4 / 3; }
+.crop img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.crop .none { color: var(--dim); font-size: 14px; text-align: center; padding: 18px 22px; max-width: 32ch; }
+.crop-note { margin: -4px 20px 8px; font-size: 12.5px; color: var(--dim); }
+.crop.unbuilt { background: transparent; box-shadow: inset 0 0 0 1.5px var(--hair); outline: 1.5px dashed var(--faint); outline-offset: -8px; }
+.crop svg { width: 100%; height: 100%; display: block; }
+.tc-meta { padding: 0 20px 6px; display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 13px; color: var(--dim); }
+.tc-meta b { color: var(--ink); font-weight: 600; }
+.tc-meta code { font: 12.5px ui-monospace, "SF Mono", Menlo, monospace; }
+.lines .group-h { padding-left: 0; padding-right: 0; }
+.line.plain { cursor: default; }
+.line.plain:active { opacity: 1; }
+.line .line-mark.g { font-size: 14px; text-align: center; }
+.unsent .line:last-child { box-shadow: none; }
+.acts .round.frost { color: var(--ink); }
+.detail-pills .tagbtn.mono { cursor: default; font-family: ui-monospace, Menlo, monospace; font-weight: 500; }
+
+/* the sheets: Why, and the note */
+@keyframes from-right { from { transform: translateX(calc(100% + 40px)); } }
+@keyframes grow { from { transform: scale(.9); opacity: 0; } }
+.layer.place-right .sheet { animation: from-right 460ms var(--gl-ease); }
+.layer.place-zoom .sheet { animation: grow 420ms var(--gl-ease); }
+.layer.place-zoom { place-items: center; }
+.sheet-body .bars { display: grid; gap: 2px; }
+.facts .quote { display: block; padding: 12px 0; font-size: 15px; line-height: 1.4; }
+.facts .quote span { display: block; color: var(--dim); font-size: 13px; margin-top: 4px; }
+.facts > div.stance { gap: 8px; justify-content: flex-start; }
+.stance b { font-size: 12.5px; letter-spacing: .05em; text-transform: uppercase; }
+.rowbar { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: center; flex: 1; min-width: 0; }
+.rowbar .track { display: block; height: 5px; border-radius: 3px; background: var(--wash-2); margin-top: 6px; overflow: hidden; }
+.rowbar .fill { height: 100%; background: var(--dim); }
+.row.chosen .rowbar .fill { background: var(--accent); }
+.textrow textarea { width: 100%; min-height: 110px; border: 0; background: transparent; outline: none; resize: vertical; padding: 10px 0; }
+.sheet-foot .primary { flex: none; margin-left: auto; }
+.layer { animation: none; }
+
+/* the left: the product's flows by area; the feed is a drawer beside it */
+.flowrow .item-label { font-weight: 500; }
+.flowrow .st { font-size: 12.5px; }
+.rail-foot .heading { flex: 1; }
+.rail-foot .who span { font-size: 13px; }
+.feed { position: absolute; z-index: 7; top: 12px; bottom: 12px; left: 312px; width: 400px; display: flex; flex-direction: column;
+  border-radius: 22px; overflow: hidden; transform: translateX(-24px); opacity: 0; pointer-events: none;
+  transition: transform 320ms var(--gl-ease), opacity 220ms ease; }
+.app .feed.frost::before { display: none; }   /* solid: the map must not read through the list */
+.app .feed[data-gl-appearance=light] { background: #e8ebf0; }
+.app .feed[data-gl-appearance=dark] { background: #1b2027; }
+.feed.onboard { left: 18px; top: 66px; }
+.feed.open { transform: none; opacity: 1; pointer-events: auto; }
+.feed-head { display: flex; align-items: center; gap: 10px; padding: 16px 16px 8px 20px; }
+.feed-head h2 { margin: 0; font: 650 19px var(--font); flex: 1; }
+.feed-tabs { display: flex; gap: 6px; padding: 4px 14px 10px; flex-wrap: wrap; }
+.feed-tabs .cat { font-size: 13.5px; padding: 6px 11px; }
+.feed .rail-list { padding-top: 0; }
+.mid-head { padding: 4px 22px 2px; }
+.mid-head h1 { margin: 0; font: 700 24px var(--font); color: var(--ink); }
+.mid-head p { margin: 4px 0 0; color: var(--dim); font-size: 14px; max-width: 80ch; }
+.results { padding: 8px 22px 4px; }
+.crop.live { cursor: zoom-in; position: relative; }
+.crop.live::after { content: 'Open live'; position: absolute; right: 10px; bottom: 10px; font: 600 12.5px var(--font); padding: 5px 10px;
+  border-radius: 999px; background: color-mix(in srgb, var(--gl-ground) 80%, transparent); color: var(--ink); opacity: 0; transition: opacity 160ms; }
+.crop.live:hover::after { opacity: 1; }
+.livebox { position: absolute; inset: 14px; display: flex; flex-direction: column; border-radius: 22px; overflow: hidden; }
+.livebar { display: flex; align-items: center; gap: 12px; padding: 12px 16px; flex-wrap: wrap; }
+.livebar h3 { margin: 0; font: 650 17px var(--font); }
+.livebar .trail { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; color: var(--dim); font-size: 13px; flex: 1; }
+.livebar .trail b { color: var(--ink); font-weight: 600; }
+.livebar .trail .done { color: var(--ink); }
+.livestage { flex: 1; min-height: 0; display: grid; place-items: center; background: #000; overflow: hidden; }
+.livestage iframe { border: 0; background: #fff; }
+.livestage .clip { position: relative; overflow: hidden; border-radius: 14px; box-shadow: 0 20px 60px rgb(0 0 0 / .35); }
+.livestage .clip iframe { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+.livestate { padding: 8px 16px 12px; font-size: 13.5px; color: var(--dim); }
+.livestate.fault { color: var(--fault); }
+/* the journey board: stages as columns, flows as tiles: the board is home, a flow opens inside it */
+#board { position: absolute; inset: 0; z-index: 4; display: flex; flex-direction: column; padding: 18px 18px 0; color: var(--ink); }
+#board[hidden] { display: none; }
+.bd-top { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+.bd-top h1 { margin: 0; font: 700 23px var(--font); }
+.bd-top .heading { all: unset; cursor: pointer; display: flex; align-items: baseline; gap: 8px; }
+.bd-top .sub { color: var(--dim); font-size: 13.5px; }
+.bd-top .grow { flex: 1; }
+.pathf { display: flex; gap: 6px; }
+.pathf .cat, .bd-top .capsule { font-size: 13px; }
+.bd-cols { flex: 1; min-height: 0; display: grid; gap: 10px; overflow-x: auto; padding-bottom: 18px; }
+.bd-band { border-radius: 16px; padding: 10px 12px; background: color-mix(in srgb, var(--accent) 16%, color-mix(in srgb, var(--ink) 6%, transparent));
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap; cursor: pointer; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 40%, transparent); }
+.bd-band:hover { box-shadow: inset 0 0 0 1.5px var(--ink); }
+.bd-band b { font: 650 14px var(--font); }
+.bd-band .k { font-size: 11px; letter-spacing: .07em; text-transform: uppercase; color: var(--dim); }
+.bd-band { flex-wrap: nowrap; min-width: 0; overflow: hidden; }
+.bd-band .arc { display: flex; gap: 4px; align-items: center; flex-wrap: nowrap; font-size: 12px; color: var(--dim); flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; mask-image: linear-gradient(90deg, #000 85%, transparent); }
+.bd-band b, .bd-band .k, .bd-band .ptag { white-space: nowrap; flex: none; }
+.bd-band .arc span { background: var(--wash); border-radius: 999px; padding: 2px 8px; color: var(--ink); }
+.bd-col { display: flex; flex-direction: column; min-height: 0; border-radius: 18px; background: color-mix(in srgb, var(--ink) 6%, transparent); }
+.bd-col h2 { margin: 0; padding: 12px 12px 0; font: 650 14px var(--font); display: flex; justify-content: space-between; }
+.bd-col h2 span { color: var(--dim); font-weight: 500; }
+.bd-col p { margin: 2px 12px 8px; color: var(--dim); font-size: 12px; min-height: 30px; }
+.bd-col .tiles { overflow: auto; padding: 0 8px 10px; display: grid; gap: 8px; align-content: start; }
+.tile { all: unset; cursor: pointer; display: block; border-radius: 13px; padding: 7px; background: color-mix(in srgb, var(--gl-ground) 88%, transparent); box-shadow: 0 1px 0 var(--hair); }
+.tile:hover { box-shadow: inset 0 0 0 1.5px var(--ink); }
+.tile .th { height: 74px; border-radius: 8px; overflow: hidden; background: var(--wash); margin-bottom: 7px; }
+.tile .th img { width: 100%; height: 100%; object-fit: cover; object-position: top left; display: block; }
+.tile .n { font: 600 13px/1.25 var(--font); }
+.tile .m { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 6px; font-size: 11.5px; color: var(--dim); }
+.ptag { font: 650 10.5px var(--font); letter-spacing: .02em; border-radius: 5px; padding: 1px 6px; }
+.ptag.happy { background: color-mix(in srgb, var(--ok) 22%, transparent); color: var(--ok); }
+.ptag.variation { background: var(--wash-2); color: var(--dim); }
+.ptag.edge { background: color-mix(in srgb, var(--warn) 22%, transparent); color: var(--warn); }
+.ptag.none { background: transparent; box-shadow: inset 0 0 0 1px var(--hair); color: var(--dim); }
+/* the same journey in the sidebar, compact */
+.jgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 0 10px 4px; }
+.jt { all: unset; cursor: pointer; position: relative; border-radius: 10px; padding: 7px 18px 8px 9px; font-size: 12.5px; line-height: 1.22; background: var(--wash); min-height: 34px; }
+.jt.sel { background: var(--wash-2); box-shadow: inset 0 0 0 1.5px var(--ink); }
+.jt .dot { position: absolute; right: 7px; top: 9px; width: 7px; height: 7px; border-radius: 50%; }
+.dot.happy { background: var(--ok); } .dot.variation { background: var(--faint); } .dot.edge { background: var(--warn); } .dot.none { box-shadow: inset 0 0 0 1px var(--dim); }
+.jt .br { display: block; color: var(--fault); font-size: 11px; margin-top: 3px; }
+.rail .pathf { padding: 2px 14px 8px; flex-wrap: wrap; }
+.rail .pathf .cat { padding: 5px 10px; font-size: 12.5px; }
+.backboard { all: unset; cursor: pointer; font-size: 13px; color: var(--dim); padding: 2px 20px 6px; display: block; }
+/* a decision or a note beside the step: two panels over the map, the step stays the context */
+#side { position: absolute; z-index: 6; top: 14px; bottom: 14px; right: 14px; width: 410px; display: flex; flex-direction: column; border-radius: var(--r-lg); overflow: hidden; }
+#side[hidden] { display: none; }
+#side .sheet-body { flex: 1; overflow: auto; }
+.base.beside .detail { position: absolute; z-index: 5; top: 0; bottom: 0; right: 424px; width: 400px; }
+.base.beside .detail.frost::before { display: none; }
+.base.beside .detail { background: color-mix(in srgb, var(--deep) 92%, #000); }
+#side .sheet { width: 100%; max-width: none; height: 100%; max-height: none; margin: 0; display: flex; flex-direction: column; }
+#side .nav h3 { white-space: normal; line-height: 1.25; }
+.side-step { display: flex; gap: 8px; align-items: center; padding: 6px 18px 12px; font-size: 13px; color: var(--dim); }
+.side-step button { all: unset; cursor: pointer; padding: 4px 10px; border-radius: 999px; background: var(--wash); color: var(--ink); }
+.side-step button[disabled] { opacity: .35; cursor: default; }
+/* the strip of icons and the list panel beside it */
+.strip { position: absolute; z-index: 6; left: 0; top: 0; bottom: 0; width: 64px; display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 16px 0 14px; background: color-mix(in srgb, var(--gl-ground) 72%, transparent); -webkit-backdrop-filter: blur(30px); backdrop-filter: blur(30px);
+  box-shadow: inset -.5px 0 0 var(--hair); color: var(--ink); }
+.strip .grow { flex: 1; }
+.si { all: unset; cursor: pointer; position: relative; width: 52px; padding: 7px 0 6px; border-radius: 12px; display: grid; justify-items: center; gap: 3px; font: 500 10.5px var(--font); color: var(--dim); }
+.si .icon { width: 20px; height: 20px; color: var(--ink); }
+.si.on { background: var(--wash-2); color: var(--ink); font-weight: 600; }
+.si:hover:not(.on) { background: var(--wash); }
+.si .badge { position: absolute; top: 2px; right: 4px; min-width: 16px; height: 16px; padding: 0 4px; box-sizing: border-box; border-radius: 8px; font: 650 10px/16px var(--font); font-style: normal; text-align: center; background: var(--wash-2); color: var(--ink); }
+.si .badge.hot { background: var(--accent); color: #fff; }
+.avatar.sm { width: 30px; height: 30px; font-size: 13px; }
+.base { left: 64px; grid-template-columns: 284px 1fr 400px; }
+#board { left: 64px !important; }
+.app.panel-over #base { visibility: hidden; }
+.app.panel-over #base .rail { visibility: visible; }
+.app.panel-over #board { left: 348px !important; }
+.side-seg { margin: 2px 14px 8px; }
+.side-seg button { font-size: 12.5px; height: 28px; white-space: nowrap; padding: 0 6px; }
+.bd-top .side-seg { margin: 0; width: 330px; }
+.rail-section .cnt { float: right; font-weight: 500; color: var(--faint); }
+.jt-edge { display: block; font-size: 10.5px; color: var(--warn); margin-top: 3px; }
+.jt .br { display: block; font-size: 11px; margin-top: 3px; }
+/* map: words only where you look */
+.edge.far { opacity: .45; }
+/* step card: provenance folded */
+.tc-details { margin: 0 20px 6px; font-size: 13px; color: var(--dim); }
+.tc-details summary { cursor: pointer; list-style: none; padding: 4px 0; }
+.tc-details summary::before { content: '›'; display: inline-block; margin-right: 6px; transition: transform 160ms; }
+.tc-details[open] summary::before { transform: rotate(90deg); }
+.tc-details .tc-meta { padding: 4px 0 6px; }
+.crop { position: relative; }
+.crop-chip { position: absolute; left: 10px; bottom: 10px; font: 600 11.5px var(--font); padding: 4px 9px; border-radius: 999px; background: color-mix(in srgb, var(--gl-ground) 82%, transparent); color: var(--dim); }
+/* board: content on the tint, not cards in panes */
+.bd-col { background: transparent !important; }
+.bd-col h2 { position: sticky; top: 0; }
+.tile { background: color-mix(in srgb, var(--ink) 8%, transparent) !important; box-shadow: none !important; padding: 10px !important; border-radius: 14px !important; }
+.tile.happy { box-shadow: inset 3px 0 0 var(--ok) !important; }
+.tile .th { height: 70px; }
+.tile .m { font-size: 12px; }
+.bd-cols { gap: 8px !important; }
+/* light mode: the page itself turns light ("dark tiles on blue" was the one gap). The product's colours stay as a
+   pale wash under a white scrim; ink goes dark; the one action is the product's deep colour. */
+.app[data-gl-appearance="light"] {
+  --gl-ground: color-mix(in srgb, var(--deep) 7%, #f3f5f8);
+  --ground-scrim: color-mix(in srgb, #f3f5f8 78%, transparent);
+  --gl-accent: var(--deep);
+  --gl-on-accent: #fff;
+  --gl-ok: #248a3d; --gl-warn: #b25000; --gl-fault: #d70015;   /* saltglass's status family is tuned for dark */
+}
+html[data-theme="light"], html[data-theme="light"] body { background: #f3f5f8; }
+.app[data-gl-appearance="light"] .tile { background: color-mix(in srgb, #fff 72%, transparent) !important; box-shadow: 0 .5px 0 var(--hair), 0 1px 3px rgb(7 12 19 / .06) !important; }
+.app[data-gl-appearance="light"] .tile.happy { box-shadow: inset 3px 0 0 var(--ok), 0 1px 3px rgb(7 12 19 / .06) !important; }
+.app[data-gl-appearance="light"] .tile:hover { box-shadow: inset 0 0 0 1.5px var(--ink) !important; }
+.app[data-gl-appearance="light"] .base.beside .detail { background: color-mix(in srgb, var(--deep) 6%, #fff); }
+/* the iPad, landscape by default: 1194 or 1180 wide in landscape. The columns
+   narrow, the map's capsules keep their icons, and nothing hides behind the floating card. Touch has no hover and no
+   keyboard hints; a double tap never zooms. */
+@media (max-width: 1320px) {
+  .base { grid-template-columns: 248px minmax(0, 1fr) 356px; }
+  .app.panel-over #board { left: 312px !important; }
+  .floatbar { min-width: 0; }
+  .floatbar .capsule .lbl { display: none; }
+  .floatbar .capsule { padding: 0 13px; }
+  .bd-col { min-width: 0; }
+  .side-seg button { font-size: 12px; padding: 0 4px; }
+}
+.si .badge { right: -1px; top: 0; }
+@media (max-width: 1000px) {                      /* portrait: the map keeps the most room */
+  .base { grid-template-columns: 210px minmax(0, 1fr) 320px; }
+  .app.panel-over #board { left: 274px !important; }
+}
+/* a decision's answers, side by side in the middle */
+.dm-stage.examples { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; align-content: start; padding: 4px 22px 18px; overflow: auto; }
+.excard { all: unset; cursor: pointer; display: flex; flex-direction: column; gap: 10px; padding: 10px; border-radius: 16px; background: var(--wash); box-shadow: inset 0 0 0 1px var(--hair); }
+.excard[aria-disabled="true"] { cursor: default; }
+.excard.on { box-shadow: inset 0 0 0 2px var(--gl-accent); background: var(--wash-2); }
+.excard .expic { width: 100%; max-height: 52vh; object-fit: contain; border-radius: 10px; display: block; min-height: 120px; }
+.excard .sketch.expic { padding: 8px; box-sizing: border-box; aspect-ratio: 4 / 3; }
+.exlabel { display: flex; gap: 8px; align-items: center; font-size: 14px; color: var(--ink); }
+/* in decision mode the decision panel (424px with its gap) is wider than the card column it sits over; the middle
+   stops where the panel starts */
+.app:not(.phone) .base.deciding #mid { margin-right: 24px; }
+@media (max-width: 1320px) { .app:not(.phone) .base.deciding #mid { margin-right: 68px; } }
+@media (max-width: 1000px) { .app:not(.phone) .base.deciding #mid { margin-right: 104px; } }
+.oex { display: none; }
+.app.phone .decision .row:has(.oex) { flex-wrap: wrap; }
+.app.phone .decision .oex { display: block; grid-column: 1 / -1; width: 100%; max-height: 180px; object-fit: contain; border-radius: 8px; margin-top: 6px; }
+/* the product switcher at the head of the strip, ruled off from what belongs to the product */
+.si.prod { padding: 4px 0 6px; gap: 4px; color: var(--ink); font-weight: 600; }
+.mono { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; font: 700 17px var(--font-display); color: #fff; object-fit: cover; box-sizing: border-box; flex: none; }
+img.mono { background: transparent; box-shadow: 0 0 0 .5px var(--hair); }
+.mono.sm { width: 28px; height: 28px; border-radius: 8px; font-size: 13px; }
+.si.prod .pname { max-width: 56px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10.5px; }
+.strip-rule { flex: none; width: 40px; margin: 8px 0 12px; border-radius: 1px; height: 1.5px; background: currentColor; opacity: .22; }
+#prodpop { position: absolute; z-index: 9; left: 70px; top: 12px; bottom: auto; right: auto; height: auto; max-height: calc(100% - 24px); overflow: auto; width: 300px; }
+#prodpop .row { gap: 10px; }
+.rail-top .heading, .bd-top .heading { cursor: default; }
+/* the phone: the local page runs there too, one pane at a time, as an
+   iPhone app does. The list, the map, the step (or the decision) each take the screen; a bar on top goes back. In
+   portrait a header and a glass capsule at the bottom (below); in landscape it stays on the left, where height is short. */
+#pback { display: none; }
+.app.phone { --pl: 64px; --pb: 0px; }
+.app.phone .base { left: var(--pl) !important; top: var(--pt, 0px); bottom: var(--pb); grid-template-columns: minmax(0, 1fr) !important; }
+.app.phone .base > * { grid-column: 1; grid-row: 1; }
+.app.phone .detail { margin: 8px; }
+.app.phone:not([data-pane="list"]) #rail, .app.phone:not([data-pane="map"]) #mid, .app.phone:not([data-pane="card"]) #card { display: none; }
+.app.phone .base.beside .detail { display: none; }
+.app.phone #side { left: calc(var(--pl) + 8px); right: 8px; top: calc(var(--pt, 0px) + 8px); bottom: calc(var(--pb) + 8px); width: auto; }
+.app.phone:not([data-pane="card"]) #side { display: none; }
+.app.phone #board { left: var(--pl) !important; bottom: var(--pb); padding: 12px 12px 0; }
+.app.phone.panel-over #board { display: none; }
+.app.phone.panel-over #base { visibility: visible; }
+.app.phone .bd-top .side-seg { width: auto; }
+.app.phone .floatbar { max-width: calc(100% - 16px); }
+.app.phone #pback { all: unset; display: flex; align-items: center; gap: 4px; position: absolute; z-index: 7; top: 0; left: var(--pl); right: 0; height: 44px; box-sizing: border-box;
+  padding: 0 14px; font: 500 16px var(--font); color: var(--ink); cursor: pointer; background: color-mix(in srgb, var(--gl-ground) 72%, transparent); -webkit-backdrop-filter: blur(30px); backdrop-filter: blur(30px); box-shadow: inset 0 -.5px 0 var(--hair); }
+.app.phone #pback[hidden] { display: none; }
+#pback .back { transform: rotate(180deg); }
+.app.phone .detail { overflow-y: auto; }
+.app.phone .detail > * { flex-shrink: 0; }   /* a short screen scrolls the card; it never squashes the picture */
+/* Safari on the iPhone, also from the Home Screen.
+   The notch: in landscape the strip takes the inset on the notch side and the content keeps clear of the other; from
+   the Home Screen the page can run under the status bar, so the top takes its inset too. */
+.app.phone { --pl: calc(64px + env(safe-area-inset-left)); --pr: env(safe-area-inset-right); }
+.app.phone.portrait { --pl: 0px; --pr: 0px; }
+.app.phone:not(.portrait) .strip { width: var(--pl); box-sizing: border-box; padding-left: env(safe-area-inset-left); }
+.app.phone .base, .app.phone #board { right: var(--pr) !important; }
+.app.phone #pback { top: env(safe-area-inset-top); }
+.app.phone #board { top: env(safe-area-inset-top); }
+.app.phone:not(.portrait) .strip { padding-top: calc(16px + env(safe-area-inset-top)); }
+/* landscape is short: the flow's title and words scroll away with the map instead of standing over it */
+.app.phone:not(.portrait) #mid { overflow-y: auto; }
+.app.phone:not(.portrait) #mid > .map { flex: none; overflow: visible; }
+/* the journey on a phone: two whole columns to a screen, and a swipe settles on a column, never mid-word */
+.app.phone.portrait .bd-cols { grid-template-columns: repeat(var(--nc), calc((100% - 8px) / 2)) !important; scroll-snap-type: x mandatory; }
+.app.phone.portrait .bd-col { scroll-snap-align: start; }
+/* Safari zooms into any text box under 16px when it gets the cursor; at 16px it stays put */
+@media (hover: none) { .app :where(input, textarea, select) { font-size: 16px; } }
+/* Upright, the phone is laid out like a chat app: a header with the product on top, which a back bar replaces once you go into something, and
+   Journey, Decide and Feed in a floating glass capsule at the bottom. */
+#phead { display: none; }
+.app.phone.portrait { --pb: calc(var(--gl-tab-h) + var(--gl-bar-inset) + 8px); --tabclear: calc(var(--gl-tab-h) + var(--gl-bar-inset) + 16px); }
+/* the lists run to the bottom and scroll under the glass, padded so their last row clears it (saltglass: "the list
+   scrolls under it"); a card with its own button at its foot keeps stopping above the bar */
+.app.phone.portrait #board, .app.phone.portrait[data-pane="list"] .base, .app.phone.portrait[data-pane="map"] .base { bottom: 0; }
+.app.phone.portrait #board .bd-cols { padding-bottom: 0; }
+.app.phone.portrait #board .bd-col .tiles, .app.phone.portrait .rail-list, .app.phone.portrait #mid .map { padding-bottom: var(--tabclear); }
+/* the header: saltglass's top bar. The product's icon and name switch product; the appearance is a button in it. */
+.app.phone.portrait #phead { display: flex; align-items: center; gap: 10px; position: absolute; z-index: 7; left: 0; right: 0; top: 0; height: var(--pt); box-sizing: border-box;
+  padding: env(safe-area-inset-top) 12px 0 14px; }
+.app.phone.portrait.drilled #phead { display: none; }
+.app.phone.portrait #pback { top: 0; height: var(--pt); padding-top: env(safe-area-inset-top); }
+.ph-prod { all: unset; cursor: pointer; display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1; }
+.ph-prod .mono { width: 34px; height: 34px; border-radius: 10px; }
+.ph-prod b { font: 750 21px/1.1 var(--font-display); letter-spacing: -.01em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ph-prod .down { transform: rotate(90deg); width: 14px; height: 14px; opacity: .6; flex: none; }
+.ph-caps { display: flex; align-items: center; gap: 8px; }
+.ph-caps .gl-btn { width: 44px; height: 44px; padding: 0; display: grid; place-items: center; cursor: pointer; }
+.ph-caps .gl-btn .icon { width: 20px; height: 20px; color: currentColor; }
+.ph-caps .avatar { width: 36px; height: 36px; margin: 0; }
+/* the bottom: saltglass's tab bar (.gl-tabbar), as wide as its three tabs and centred, never stretched to the
+   screen: it fits its icons, as native tab bars do */
+.app.phone.portrait .strip.gl-tabbar { top: auto; left: 50%; right: auto; transform: translateX(-50%); bottom: var(--gl-bar-inset); width: auto; flex-direction: row; gap: 0; }
+.app.phone.portrait .strip > :not(.tabi) { display: none; }
+.app.phone.portrait .strip .gl-tab { padding: 0; font: 600 11px var(--font); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.app.phone.portrait .strip .gl-tab .icon { width: 24px; height: 24px; color: currentColor; }
+.app.phone.portrait .strip .gl-tab .badge { position: absolute; top: 3px; left: calc(50% + 6px); min-width: 16px; height: 16px; padding: 0 4px; box-sizing: border-box; border-radius: 8px; font: 650 10px/16px var(--font); font-style: normal; text-align: center; background: var(--gl-open-fill); color: var(--gl-ink); }
+.app.phone.portrait .strip .gl-tab .badge.hot { background: var(--accent); color: #fff; }
+.app.phone.portrait #prodpop { left: 12px; top: calc(var(--pt) + 6px); bottom: auto; max-height: calc(100% - var(--pt) - var(--pb) - 20px); }
+/* the header names the product, so the board and the lists below it don't say it again */
+.app.phone.portrait .bd-top .heading h1, .app.phone.portrait .rail-top .product-name { display: none; }
+.app.phone.portrait #board { top: var(--pt); }
+html { -webkit-text-size-adjust: 100%; }
+body { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+@media (hover: none) { .keys { display: none !important; } }
+/* the decision: the question is the title */
+.decision .side-nav h3 { font-size: 13px; color: var(--dim); font-weight: 600; }
+.pager { display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 12.5px; color: var(--dim); padding: 0 0 6px; }
+.pager .round { width: 30px; height: 30px; }
+.decision .sheet-foot { flex-direction: column; align-items: stretch; gap: 6px; }
+.decision .sheet-foot .gl-action { margin: 0; width: 100%; }
+.decision .sheet-foot .keys { text-align: center; white-space: nowrap; max-width: none; }
+.decision .textrow .grow-field { min-height: 0; }
+.pager .back { transform: rotate(180deg); }
+.dq { font: 650 20px/1.3 var(--font); margin: 4px 0 8px; }
+.dwhy { margin: 0 0 6px; color: var(--dim); font-size: 14px; line-height: 1.45; }
+.dwhy b { color: var(--ink); font-weight: 600; }
+.okey { width: 20px; height: 20px; flex: none; border-radius: 6px; display: grid; place-items: center; font: 600 11px var(--font); color: var(--dim); box-shadow: inset 0 0 0 1px var(--hair); }
+.row .rec { color: var(--dim); font-weight: 400; font-size: 12.5px; }
+.row-sub.then b { font-weight: 600; color: var(--ink); }
+.app[data-gl-appearance="light"] .bd-band { background: color-mix(in srgb, #fff 72%, transparent); box-shadow: inset 3px 0 0 var(--deep), 0 1px 3px rgb(7 12 19 / .06); }
+.decision .sheet-body > * { flex-shrink: 0; }
+.node .xr { color: color-mix(in srgb, var(--ink) 30%, transparent); }
+.node .xr .lit, .node .xr .lit * { color: var(--gl-live); stroke: var(--gl-live); }
+.node.unbuilt .xr .lit { stroke-dasharray: none; }
+.sketch { width: 100%; height: 100%; display: grid; place-items: center; color: var(--ink); }
+.sketch svg { width: 100%; height: 100%; max-height: 100%; display: block; overflow: visible; }
+.sketch .focus, .sketch .focus * { color: var(--gl-live); stroke: var(--gl-live); }
+.sketch.big { padding: 32px; box-sizing: border-box; max-width: 760px; margin: auto; }
+.tile .th.sk { background: transparent; padding: 4px; box-sizing: border-box; }
+.crop .sketch { padding: 18px; box-sizing: border-box; min-height: 220px; }   /* a long panel scrolls; it never squeezes the options away */
+.grow-field { width: 100%; border: 0; background: transparent; outline: none; resize: none; padding: 10px 0; }
+.dref { margin: 10px 0 0; font-size: 12px; color: var(--faint); }
+.sheet-foot .keys { font-size: 12px; }
+/* decision mode's middle */
+.dm-design { margin: 0 22px 8px; padding: 8px 14px; border-radius: 12px; background: var(--wash); font-size: 13.5px; color: var(--dim); }
+.dm-design summary { cursor: pointer; list-style: none; }
+.dm-design p { margin: 6px 0 0; }
+.livestate.quiet:not(.fault) { visibility: hidden; }
+.livestate.quiet.fault { color: var(--warn); }
+.livestate.quiet.fault::before { content: '▲ '; font-size: 10px; }
+.dm-pop { position: absolute; top: 56px; right: 22px; left: auto; bottom: auto; width: 260px; }
+.dm-bar { position: relative; }
+.wbtn-round { font-size: 13px; letter-spacing: 1px; }
+/* live: the product's tint behind the surface, not black */
+.livestage { background: transparent !important; }
+/* decision mode */
+.base.deciding .detail { visibility: hidden; }
+.modes { display: flex; gap: 6px; padding: 0 14px 8px; }
+.modes .cat { flex: 1; justify-content: center; font-size: 13px; }
+.dm-bar { display: flex; align-items: center; gap: 10px; padding: 18px 22px 8px; flex-wrap: wrap; }
+.dm-where { flex: 1; min-width: 0; font-size: 15px; color: var(--dim); display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.dm-where b { color: var(--ink); font-weight: 650; font-size: 17px; }
+.dm-stage { background: transparent; flex: 1; min-height: 0; }
+.dm-crop { margin: 8px 22px 18px; flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; }
+.dm-crop img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 14px; display: block; }
+#mid { display: flex; flex-direction: column; }
+.decrow .item-sub { white-space: normal; }
+.term { margin: 0; padding: 14px 16px; width: 100%; height: 100%; box-sizing: border-box; overflow: auto; background: #101418; color: #d8e1e8;
+  font: 12.5px/1.5 ui-monospace, "SF Mono", Menlo, monospace; white-space: pre-wrap; text-align: left; }
+.crop .term { font-size: 10.5px; padding: 10px 12px; }
+.livestage .term { font-size: 14px; padding: 22px 26px; place-self: stretch; }
+</style>
+</head>
+<body>
+<div class="app" id="app" data-gl-appearance="dark">
+  <div class="ground" aria-hidden="true"></div>
+  <div class="base" id="base">
+    <aside class="rail frost on-panel" id="rail"></aside>
+    <section class="middle on-tint" id="mid"></section>
+    <aside class="detail frost float on-tint" id="card" data-surface="card.step"></aside>
+  </div>
+  <div id="layers"></div>
+</div>
+
+<script>
+// A snapshot (saltflow publish) carries its data here; the live page fetches it from the local server.
+const INLINE = __INLINE__
+
+// ── a few icons (SF Symbols in spirit, stroke 1.8) ──
+const ICON = {
+  search: '<circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  close: '<path d="M6 6l12 12M18 6 6 18"/>',
+  check: '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+  chevron: '<path d="m9 6 6 6-6 6"/>',
+  person: '<circle cx="12" cy="8" r="3.5"/><path d="M5 20c.8-3.6 3.6-5.5 7-5.5s6.2 1.9 7 5.5"/>',
+  people: '<circle cx="9" cy="9" r="3"/><circle cx="16.5" cy="10" r="2.4"/><path d="M3.5 19c.6-3 2.8-4.6 5.5-4.6s4.9 1.6 5.5 4.6M15 14.6c2.6-.3 4.8 1.2 5.4 4"/>',
+  send: '<path d="m4 12 16-7-6 16-3-6-7-3Z"/>',
+  receipt: '<path d="M6 3.5h12v17l-2-1.3-2 1.3-2-1.3-2 1.3-2-1.3-2 1.3v-17Z"/><path d="M9 8.5h6M9 12h6M9 15.5h3"/>',
+  moon: '<path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5Z"/>',
+  disc: '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="2.5"/>',
+  split: '<path d="M12 20v-7M12 13 6 6M12 13l6-7"/><path d="M6 10V6h4M18 10V6h-4"/>',
+  card: '<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18M7 15h4"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/>',
+  flag: '<path d="M5 21V4h11l-1.5 4L16 12H5"/>',
+}
+const icon = (n, cls = 'icon') => { const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); s.setAttribute('class', cls); s.setAttribute('viewBox', '0 0 24 24'); s.setAttribute('fill', 'none'); s.setAttribute('stroke', 'currentColor'); s.setAttribute('stroke-width', '1.8'); s.setAttribute('stroke-linecap', 'round'); s.setAttribute('stroke-linejoin', 'round'); s.setAttribute('aria-hidden', 'true'); s.innerHTML = ICON[n]; return s }
+const h = (tag, attrs = {}, ...kids) => { const e = document.createElement(tag); for (const k in attrs) k === 'class' ? e.className = attrs[k] : k.startsWith('on') ? e[k] = attrs[k] : attrs[k] != null && attrs[k] !== false && e.setAttribute(k, attrs[k] === true ? '' : attrs[k]); for (const k of kids.flat()) if (k != null) e.append(k); return e }
+// the reviewer's initial, from the name the server sends with the product (git's user.name); ? when it sends none
+const avatar = () => { const who = ((product && product.reviewer) || '').trim(); return h('span', { class: 'avatar sm', title: who || null }, who ? who[0].toUpperCase() : '?') }
+
+// ── words ──
+const PLACE_WORDS = { right: 'from the right', left: 'from the left', top: 'from the top', zoom: 'grows from the tap', out: 'zoomed out', overlay: 'over home', home: 'home', same: 'same pane, next page' }
+const PLACE_GLYPH = { right: '→|', left: '|←', top: '↓', zoom: '⤢', out: '⊡', overlay: '⌂+', home: '⌂', same: '=' }
+const BEHIND_WORDS = { none: 'nothing behind', recede: 'home recedes', tile: 'home as a tile' }
+const OUTCOME = { done: ['ok', 'Done'], kept: ['info', 'Kept open'], stuck: ['fault', 'Stuck'], 'not-built': ['warn', 'Not built'], 'no-step-offers': ['warn', 'No step'], 'dummy-disagrees': ['fault', 'Capture disagrees'] }
+const KIND_GLYPH = { question: '?', change: '△', bug: '✕', story: '§', break: '✕', decision: '◇' }
+const worldWords = w => Object.entries(w).map(([k, v]) => v === true ? k : v === false ? 'not ' + k : `${k} ${v}`).join(' · ')
+const jobName = ref => (bundle && bundle.jobs[ref]) || (today && today.jobs[ref.split('#').pop()]) || ref.split('#').pop()
+const ago = iso => iso ? iso.replace('T', ' ').slice(0, 16) : ''
+
+// ── state ──
+let product = null, productName = null, products = [], flows = [], flowId = null, bundle = null, today = null, sel = null, layer = null, order = []
+const hashParts = () => decodeURIComponent(location.hash.slice(1)).split('/').filter(Boolean)
+function writeHash() { const parts = view === 'board' ? [productName] : view === 'decide' ? [productName, 'decide', decId].filter(Boolean) : [productName, flowId, sel].filter(Boolean); const next = '#' + parts.map(encodeURIComponent).join('/'); if (location.hash !== next) history.replaceState(null, '', next) }
+const refOf = (...parts) => parts.filter(Boolean).join('/')
+let pane = 'map'   // the phone shows one pane: list, map or card
+const PHONE = matchMedia('(max-width: 700px), (max-height: 500px)')
+let section = 'journey', feedOpen = false, feedFilter = 'waiting', feedScroll = {}, view = 'board', pathFilter = 'variation', side = null, journeyPick = {}
+const LIVE = /[?&]live=/.test(location.search)   // this page, opened inside its own live view: it keeps no state
+if (!LIVE) try { journeyPick = JSON.parse(localStorage.getItem('saltflow.journey') || '{}'); pathFilter = localStorage.getItem('saltflow.path') || 'variation'; feedFilter = localStorage.getItem('saltflow.feed') || 'waiting'; if (feedFilter === 'decide') feedFilter = 'waiting'; section = sessionStorage.getItem('saltflow.section') || 'journey'; feedScroll = JSON.parse(sessionStorage.getItem('saltflow.feedScroll') || '{}') } catch (e) { /* no storage; the default holds */ }
+let scheme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+
+async function api(path, body) {
+  if (INLINE) {
+    if (path === '/api/product') return INLINE.product
+    if (path === '/api/today') return INLINE.today
+    if (path.startsWith('/api/flow/')) return INLINE.flows[path.slice(10)]
+    throw new Error('This is a snapshot: it cannot write. Open the page from the local server to leave a note.')
+  }
+  if (productName && !path.startsWith('/api/products')) path += (path.includes('?') ? '&' : '?') + 'product=' + encodeURIComponent(productName)
+  const r = await fetch(path, body ? { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : undefined)
+  const j = await r.json()
+  if (!r.ok) throw new Error(j.error || r.statusText)
+  return j
+}
+async function load(keepSel) {
+  if (!INLINE) {
+    products = await api('/api/products')
+    const [hp, hf, hs] = hashParts()
+    if (!productName) { productName = products.some(p => p.name === hp) ? hp : (products.find(p => p.default) || products[0] || {}).name; if (hp === productName) { if (hf === 'decide') { view = 'decide'; decId = hs || null } else { flowId = flowId || hf || null; sel = sel || hs || null } } }
+  }
+  product = await api('/api/product'); flows = product.flows.slice().sort((a, b) => (b.breaks - a.breaks) || a.name.localeCompare(b.name)); today = await api('/api/today')
+  if (flowId && !flows.some(f => f.id === flowId)) flowId = null
+  if (view === 'decide') { bundle = null; order = []; return showDecision() }
+  view = flowId ? 'flow' : 'board'
+  bundle = flowId ? await api('/api/flow/' + flowId) : null
+  order = bundle ? layout(bundle.flow).order : []
+  if (!bundle || !bundle.flow.steps[sel]) sel = bundle ? firstInteresting() : null   // a step from the address bar or the last draw stays
+  drawAll()
+}
+async function switchProduct(name) { productName = name; flowId = null; sel = null; seen = null; closeLayer(); closeSide(); await load() }
+function toBoard() { leaveDecide(); view = 'board'; flowId = null; bundle = null; sel = null; closeSide(); toggleFeed(false); drawAll() }
+function firstInteresting() {
+  const bad = bundle.runs.find(r => 'expect' in r && r.verdict !== 'ok')
+  return bad ? bad.at : bundle.flow.entry
+}
+function leaveDecide() { if (view !== 'decide') return; side = null; const el = document.getElementById('side'); if (el) { el.hidden = true; el.replaceChildren() } decToken++ }
+async function openFlow(id, step) { leaveDecide(); view = 'flow'; flowId = id; const fj = (flows.find(f => f.id === id) || {}).journey; if (fj && journeys().some(x => x.id === fj)) journeyPick[productName] = fj; bundle = await api('/api/flow/' + id); order = layout(bundle.flow).order; sel = step && bundle.flow.steps[step] ? step : firstInteresting(); pane = 'map'; drawAll() }
+
+function applyScheme() {
+  document.documentElement.setAttribute('data-theme', scheme)
+  document.getElementById('app')?.setAttribute('data-gl-appearance', scheme)
+  for (const el of document.querySelectorAll('.on-panel')) el.setAttribute('data-gl-appearance', scheme)
+}
+function toast(text, ms = 3200) {
+  const t = h('div', { class: 'toast frost heavy on-panel float', role: 'status', 'data-gl-appearance': scheme }, text)
+  document.getElementById('app').append(t); setTimeout(() => t.remove(), ms)
+}
+
+// ── the journey: stages in order, flows tagged happy, variation or edge by the product's session ──
+const AREA_WORDS = { all: 'Every line' }
+const areaName = a => a ? (AREA_WORDS[a] || a[0].toUpperCase() + a.slice(1)) : 'Other'
+const PATH_WORDS = { happy: 'Happy path', variation: 'Variation', edge: 'Edge case' }
+const PATH_FILTERS = [['happy', 'Happy path'], ['variation', '+ variations'], ['all', 'Everything']]
+const PATH_RANK = { happy: 0, variation: 1, edge: 2 }
+const shown = f => !f.path || pathFilter === 'all' || f.path === 'happy' || (pathFilter === 'variation' && f.path === 'variation')
+// A flow whose steps are whole inner flows is the journey itself: a band across the stages it spans, never a tile:
+// a flow of flows gets its own row across the columns.
+const isArc = f => (f.inner || []).length >= 2
+// A product may carry several journeys (an owner's, and a made thing's own operation); the board shows one at a time.
+const journeys = () => (product && product.journeys) || []
+const curJourney = () => { const js = journeys(); return js.find(x => x.id === journeyPick[productName]) || js[0] || null }
+const inJourney = f => { const js = journeys(), cur = curJourney(); return !cur || (f.journey || js[0].id) === cur.id }
+const jflows = () => flows.filter(inJourney)
+function journeyChips() {
+  const js = journeys(); if (js.length < 2) return null
+  return h('div', { class: 'pathf cats', 'aria-label': 'Journey' }, ...js.map(x => h('button', { class: `cat ${x.id === curJourney().id ? 'on' : ''}`, 'aria-pressed': x.id === curJourney().id, title: x.says || x.name, onclick: () => { journeyPick[productName] = x.id; try { LIVE || localStorage.setItem('saltflow.journey', JSON.stringify(journeyPick)) } catch (e) { /* fine */ } drawAll() } }, x.name)))
+}
+function stagesOf() {
+  // the product's journey, else its jobs' areas, so a product with no journey yet still has columns
+  const j = (curJourney() || {}).stages || []
+  const flows = jflows()
+  if (j.length) {
+    const cols = j.map(st => ({ id: st.id, name: st.name, says: st.says || '', flows: flows.filter(f => f.stage === st.id && !isArc(f)) }))
+    const loose = flows.filter(f => !isArc(f) && !j.some(st => st.id === f.stage))
+    if (loose.length) cols.push({ id: '', name: 'Not placed yet', says: 'no stage tagged by the session', flows: loose })
+    return cols
+  }
+  const areas = [...new Set(flows.map(f => f.area || ''))]
+  return areas.map(a => ({ id: a, name: areaName(a), says: '', flows: flows.filter(f => (f.area || '') === a && !isArc(f)) }))
+}
+const sortTiles = fs => fs.slice().sort((a, b) => (PATH_RANK[a.path] ?? 3) - (PATH_RANK[b.path] ?? 3) || a.name.localeCompare(b.name))
+function pathChips() {
+  return h('div', { class: 'pathf cats', 'aria-label': 'Show' }, ...PATH_FILTERS.map(([k, w]) => h('button', { class: `cat ${k === pathFilter ? 'on' : ''}`, 'aria-pressed': k === pathFilter, onclick: () => { pathFilter = k; try { LIVE || localStorage.setItem('saltflow.path', k) } catch (e) { /* fine */ } drawAll() } }, w)))
+}
+function drawBoard() {
+  let board = document.getElementById('board')
+  if (!board) { board = h('section', { id: 'board', class: 'on-tint', 'aria-label': 'The journey', 'data-surface': 'board.journey' }); document.getElementById('app').insertBefore(board, document.getElementById('layers')) }
+  board.hidden = view !== 'board'
+  document.getElementById('base').style.visibility = view === 'board' ? 'hidden' : ''
+  if (view !== 'board') return
+  const decide = today ? today.waiting.filter(r => r.kind === 'decision') : []
+  const cols = stagesOf()
+  const noJourney = !journeys().length
+  board.replaceChildren(
+    h('div', { class: 'bd-top' },
+      h('div', { class: 'heading' }, h('h1', {}, product ? product.product : 'saltFlow'), h('span', { class: 'sub' }, noJourney ? `${flows.length} flows · no journey yet: grouped by area` : `${(curJourney() || {}).name || 'the journey'} · ${jflows().length} flows`)),
+      journeyChips(), seg(PATH_FILTERS, pathFilter, k => { pathFilter = k; try { LIVE || localStorage.setItem('saltflow.path', k) } catch (e) { /* fine */ } drawAll() }, 'Show'), h('span', { class: 'grow' }),
+      h('button', { class: 'wbtn', onclick: runWalk, title: 'Walk every flow against its jobs' }, icon('send', 'icon sm'), 'Walk'),
+      decide.length ? h('button', { class: 'gl-action primary', onclick: () => { section = 'decide'; enterDecide() } }, `Decide · ${decide.length}`) : null),
+    boardCols(cols, decide))
+}
+function boardCols(cols, decide) {
+  const arcs = jflows().filter(isArc).filter(shown)
+  const grid = h('div', { class: 'bd-cols' })
+  grid.style.gridTemplateColumns = `repeat(${cols.length}, minmax(${cols.length > 7 ? 148 : 170}px, 1fr))`; grid.style.setProperty('--nc', cols.length)
+  grid.style.gridTemplateRows = `${arcs.map(() => 'auto').join(' ')} minmax(0, 1fr)`
+  arcs.forEach((f, i) => {
+    const idx = (f.inner || []).map(id => cols.findIndex(c => c.flows.some(x => x.id === id))).filter(x => x >= 0)
+    const a = idx.length ? Math.min(...idx) : 0, b = idx.length ? Math.max(...idx) : cols.length - 1
+    const band = h('div', { class: 'bd-band', role: 'button', tabindex: 0, title: f.says || f.name, onclick: () => openFlow(f.id) },
+      h('span', { class: 'k' }, 'The whole journey'), h('b', {}, f.name), h('span', { class: `ptag ${f.path || 'none'}` }, PATH_WORDS[f.path] || 'Not tagged'),
+      h('span', { class: 'arc' }, ...(f.inner || []).flatMap((id, k) => [k ? '→' : null, h('span', {}, (flows.find(x => x.id === id) || {}).name || id)]).filter(Boolean)),
+      f.breaks ? h('span', { class: 'st fault' }, `${f.breaks}`) : null)
+    const end = Math.min(cols.length, Math.max(b + 1, a + 2))   // at least two columns wide
+    band.style.gridColumn = `${Math.max(1, Math.min(a + 1, end - 1))} / ${end + 1}`; band.style.gridRow = String(i + 1)
+    grid.append(band)
+  })
+  cols.forEach((c, ci) => {
+      const fs = sortTiles(c.flows.filter(shown))
+      const col = h('section', { class: 'bd-col', 'aria-label': c.name },
+        h('h2', {}, c.name, h('span', {}, fs.length === c.flows.length ? `${c.flows.length}` : `${fs.length} of ${c.flows.length}`)), h('p', {}, c.says),
+        h('div', { class: 'tiles' }, ...fs.map(f => {
+          const dn = decide.filter(d => d.flow === f.id).length
+          // a picture only when there is one; status as words in one line (the design review: no grey placeholders)
+          const th = f.thumb && !INLINE ? h('div', { class: 'th' }, h('img', { src: `/api/crop/${f.thumb[scheme] || f.thumb.light || f.thumb.dark}?product=${encodeURIComponent(productName)}`, alt: '', loading: 'lazy' })) : f.sketch && !INLINE ? h('div', { class: 'th sk' }, sketchEl(f.sketch)) : null
+          const bits = [f.path && f.path !== 'happy' ? PATH_WORDS[f.path].toLowerCase() : null, dn ? `${dn} to decide` : null, f.unbuilt ? `${f.unbuilt} not built` : null].filter(Boolean)
+          return h('button', { class: `tile ${f.path === 'happy' ? 'happy' : ''}`, 'data-move': 'open-tile', 'data-words': "a flow's tile", title: f.says || f.name, onclick: () => openFlow(f.id) }, th, h('div', { class: 'n' }, f.name),
+            h('div', { class: 'm' }, f.breaks ? h('span', { class: 'st fault' }, `${f.breaks} broke`) : null, bits.length ? h('span', {}, bits.join(' · ')) : null))
+        })))
+      col.style.gridColumn = String(ci + 1); col.style.gridRow = String(arcs.length + 1)
+      grid.append(col)
+  })
+  return grid
+}
+function modeSwitch() {
+  const n = decisionsAll().filter(decOpen).length
+  return h('div', { class: 'modes cats', role: 'tablist', 'aria-label': 'Navigate by' },
+    h('button', { class: `cat ${view !== 'decide' ? 'on' : ''}`, role: 'tab', 'aria-selected': view !== 'decide', onclick: () => { if (view === 'decide') { closeSide(); toBoard() } } }, 'Journey'),
+    h('button', { class: `cat ${view === 'decide' ? 'on' : ''}`, role: 'tab', 'aria-selected': view === 'decide', onclick: () => { if (view !== 'decide') enterDecide() } }, `Decide · ${n}`))
+}
+const firstLine = t => { const m = (t || '').match(/^[^?.!]*[?.!]/); return fit((m ? m[0] : t || '').trim(), 70) }
+function decideList() {
+  const L = decList()
+  const list = h('div', { class: 'rail-list', role: 'listbox', 'aria-label': 'Decisions' })
+  let group = null, sec = null
+  for (const d of L) {
+    const g = d.area ? areaName(d.area) : 'The whole product'
+    if (g !== group) { group = g; sec = h('section', {}, h('h3', { class: 'rail-section' }, g, h('span', { class: 'cnt' }, String(L.filter(x => (x.area ? areaName(x.area) : 'The whole product') === g).length)))); list.append(sec) }
+    const fl = d.flow ? ((flows.find(f => f.id === d.flow) || {}).name || d.flow) : 'the whole product'
+    sec.append(h('button', { class: `item decrow ${d.id === decId ? 'sel' : ''}`, role: 'option', 'aria-selected': d.id === decId, onclick: () => { decId = d.id; pane = 'card'; showDecision() } },
+      h('span', { class: 'item-body' }, h('span', { class: 'item-main' }, h('span', { class: 'item-label' }, d.title)),
+        h('span', { class: 'item-sub' }, decOpen(d) ? firstLine(d.text) : `✓ ${(d.options.find(o => o.id === d.choice) || {}).label || 'in your words'}`))))
+  }
+  if (!L.length) list.append(h('p', { class: 'empty' }, decFilter === 'open' ? 'Nothing to decide.' : 'Nothing decided yet.'))
+  return list
+}
+// The strip: Journey, Decide, Feed, each with its count; the panel beside it is the list of the one picked.
+function drawStrip() {
+  let strip = document.getElementById('strip')
+  if (!strip) { strip = h('nav', { id: 'strip', class: 'strip', 'aria-label': 'Navigate' }); document.getElementById('app').insertBefore(strip, document.getElementById('base')) }
+  strip.setAttribute('data-gl-appearance', scheme)
+  const nDecide = decisionsAll().filter(decOpen).length, nFeed = today ? today.waiting.filter(r => r.kind !== 'decision').length + today.broke.length : 0
+  const MOVE = { feed: section === 'feed' ? 'close-feed' : 'open-feed step-back', decide: 'open-decide', journey: section === 'feed' ? 'close-feed' : null }
+  const item = (k, ico, word, n, go) => h('button', { class: `si tabi ${section === k ? 'on' : ''}`, 'data-move': MOVE[k] || null, 'aria-current': section === k ? 'page' : null, title: word, onclick: go }, icon(ico), h('span', {}, word), n ? h('i', { class: k === 'decide' ? 'badge hot' : 'badge' }, String(n)) : null)
+  strip.replaceChildren(
+    prodTile(),
+    h('span', { class: 'strip-rule', role: 'separator' }),
+    item('journey', 'split', 'Journey', 0, () => { section = 'journey'; if (view === 'decide') toBoard(); else if (view === 'board') { drawStrip(); drawRail(); placeBoard() } else { pane = 'list'; drawStrip(); drawRail(); placePhone() } }),
+    item('decide', 'person', 'Decide', nDecide, () => { section = 'decide'; enterDecide() }),
+    item('feed', 'receipt', 'Feed', nFeed, () => toggleFeed(section !== 'feed')),
+    h('span', { class: 'grow' }),
+    h('button', { class: 'si', title: 'Switch appearance', onclick: () => { scheme = scheme === 'dark' ? 'light' : 'dark'; drawAll() } }, icon(scheme === 'dark' ? 'sun' : 'moon')),
+    avatar())
+  // the phone's header, the way chat apps head theirs: the product's icon and name switch product;
+  // the appearance and the reviewer sit in a glass capsule on the right. Shown only on a phone held upright.
+  let head = document.getElementById('phead')
+  if (!head) { head = h('header', { id: 'phead', class: 'gl-glass-bar gl-bar-top' }); document.getElementById('app').insertBefore(head, strip) }
+  head.setAttribute('data-gl-appearance', scheme)
+  const cur = products.find(p => p.name === productName) || { name: productName, look: (product || {}).look }
+  head.replaceChildren(
+    h('button', { class: 'ph-prod', 'aria-label': `Product: ${productName}${products.length > 1 ? '. Switch product' : ''}`, 'aria-haspopup': 'menu', onclick: e => { e.stopPropagation(); openProducts() } },
+      mono(cur), h('b', {}, productName || 'saltFlow'), products.length > 1 ? icon('chevron', 'icon sm down') : null),
+    h('span', { class: 'ph-caps' },
+      h('button', { class: 'gl-btn', title: 'Switch appearance', 'aria-label': 'Switch appearance', onclick: () => { scheme = scheme === 'dark' ? 'light' : 'dark'; drawAll() } }, icon(scheme === 'dark' ? 'sun' : 'moon')),
+      avatar()))
+  tabClasses()
+}
+function tabClasses() {          // upright on a phone, the strip is saltglass's tab bar and its three items its tabs
+  const app = document.getElementById('app'), strip = document.getElementById('strip'), tabs = app.classList.contains('phone') && app.classList.contains('portrait')
+  if (strip) { strip.classList.toggle('gl-tabbar', tabs); strip.querySelectorAll('.tabi').forEach(b => { b.classList.toggle('gl-tab', tabs); b.classList.toggle('si', !tabs) }) }   // .si's own look would cover saltglass's
+}
+function placePhone() {
+  const app = document.getElementById('app'), on = PHONE.matches && !STAGE
+  app.classList.toggle('phone', on); app.classList.toggle('portrait', on && innerWidth < innerHeight)
+  tabClasses()
+  if (!on) { app.removeAttribute('data-pane'); return }
+  const p = view === 'decide' && pane === 'map' ? 'card' : pane
+  app.setAttribute('data-pane', p)
+  let b = document.getElementById('pback')
+  if (!b) { b = h('button', { id: 'pback' }); app.insertBefore(b, document.getElementById('layers')) }
+  const to = view === 'flow' ? (p === 'card' ? ['map', 'The flow'] : p === 'map' ? ['list', 'Flows'] : null) : view === 'decide' && p === 'card' ? ['list', 'Decisions'] : null
+  b.hidden = !to; app.classList.toggle('drilled', !!to)
+  app.style.setProperty('--pt', app.classList.contains('portrait') ? 'calc(56px + env(safe-area-inset-top))' : to ? 'calc(44px + env(safe-area-inset-top))' : 'env(safe-area-inset-top)')
+  if (to) { b.replaceChildren(icon('chevron', 'icon sm back'), h('span', {}, to[1])); b.onclick = () => { pane = to[0]; placePhone() } }
+}
+addEventListener('resize', () => placePhone())
+// The product switcher heads the strip, at the top of the left panel and clearly apart from the journey:
+// the product's own icon, or its initial on its deep colour, and its name; a rule below parts it
+// from Journey, Decide and Feed, which belong to the product picked here.
+function mono(p, cls) {
+  const look = (p && p.look) || {}, name = (p && (p.name || p.product)) || 'saltFlow'
+  if (p && p.icon) return h('img', { class: `mono ${cls || ''}`, src: '/api/icon?product=' + encodeURIComponent(name), alt: '' })
+  const m = h('span', { class: `mono ${cls || ''}`, 'aria-hidden': 'true' }, name.replace(/^salt/i, '').charAt(0).toUpperCase() || name.charAt(0).toUpperCase())
+  m.style.background = look.deep || '#1d3754'; m.style.boxShadow = `inset 0 -3px 0 ${look.accent || '#ff6a4d'}`
+  return m
+}
+function prodTile() {
+  const cur = products.find(p => p.name === productName) || { name: productName, look: (product || {}).look }
+  return h('button', { class: 'si prod', title: products.length > 1 ? 'Switch product' : productName, 'aria-label': `Product: ${productName}${products.length > 1 ? '. Switch product' : ''}`, 'aria-haspopup': 'menu', onclick: e => { e.stopPropagation(); openProducts() } },
+    mono(cur), h('span', { class: 'pname' }, productName || 'saltFlow'))
+}
+function placeBoard() {
+  // on the board the panel shows only for the feed; elsewhere it is always there
+  const app = document.getElementById('app')
+  app.classList.toggle('panel-over', view === 'board' && section === 'feed')
+}
+function drawRail() {
+  const rail = document.getElementById('rail')
+  const keep = rail.querySelector('.rail-list') ? rail.querySelector('.rail-list').scrollTop : 0
+  rail.setAttribute('data-gl-appearance', scheme)
+  const surfaceNow = section === 'feed' ? 'feed.today' : section === 'decide' ? null : 'rail.flows'   // one element, three lists
+  surfaceNow ? rail.setAttribute('data-surface', surfaceNow) : rail.removeAttribute('data-surface')
+  const decide = today ? today.waiting.filter(r => r.kind === 'decision').length : 0
+  const waiting = today ? today.waiting.length - decide : 0
+  const arcs = jflows().filter(isArc).filter(shown)
+  const list = h('div', { class: 'rail-list', role: 'listbox', 'aria-label': 'The journey' },
+    arcs.length ? h('section', {}, h('h3', { class: 'rail-section' }, 'The whole journey'), h('div', { class: 'jgrid', style: 'grid-template-columns:1fr' }, ...arcs.map(f => h('button', { class: `jt ${f.id === flowId ? 'sel' : ''}`, onclick: () => openFlow(f.id) }, f.name)))) : null,
+    ...stagesOf().map(c => { const fs = sortTiles(c.flows.filter(shown)); return fs.length ? h('section', {}, h('h3', { class: 'rail-section' }, `${c.name} · ${fs.length}`),
+      h('div', { class: 'jgrid' }, ...fs.map(f => h('button', { class: `jt ${f.id === flowId ? 'sel' : ''}`, role: 'option', 'aria-selected': f.id === flowId, title: `${f.name} · ${PATH_WORDS[f.path] || 'not tagged'}`, onclick: () => openFlow(f.id) },
+        f.name.replace(/,.*$/, ''), f.path === 'edge' ? h('span', { class: 'jt-edge' }, 'edge') : null, f.breaks ? h('span', { class: 'st fault br' }, `${f.breaks} broke`) : null)))) : null }))
+  rail.replaceChildren(
+    h('div', { class: 'rail-top' },
+      h('div', { class: 'heading' },
+        h('span', { class: 'product' }, h('span', { class: 'product-name' }, product ? product.product : 'saltFlow'),
+          h('span', { class: 'product-sub' }, product ? `${flows.length} flow${flows.length === 1 ? '' : 's'}${product.head ? ` · read at ${product.head}` : ''}` : '')))),
+    ...(section === 'decide' ? [
+      seg([['open', 'Open'], ['decided', 'Decided']], decFilter, k => { decFilter = k; decId = null; enterDecide() }, 'Decisions'),
+      decideList()] : section === 'feed' ? [
+      seg(FEED_TABS.map(([k, w]) => [k, `${w} · ${feedRows(k).length}`]), feedFilter, k => { feedScroll[feedFilter] = (rail.querySelector('.rail-list') || {}).scrollTop || 0; feedFilter = k; try { LIVE || localStorage.setItem('saltflow.feed', k) } catch (e) { /* fine */ } drawRail() }, 'Feed', { broke: 'tap-break' }),
+      feedList()] : [
+      view === 'flow' ? h('button', { class: 'backboard', 'data-move': 'to-board', onclick: toBoard }, '‹ The journey board') : '',
+      journeyChips() || '', seg(PATH_FILTERS, pathFilter, k => { pathFilter = k; try { LIVE || localStorage.setItem('saltflow.path', k) } catch (e) { /* fine */ } drawAll() }, 'Show'), list]))
+  const shownList = rail.querySelector('.rail-list')
+  if (shownList && section !== 'feed') { shownList.scrollTop = keep; const on = shownList.querySelector('.sel'); if (on && !keep) on.scrollIntoView({ block: 'center' }) }
+}
+
+// ── the feed: a drawer beside the flows; it keeps its filter and its place between openings ──
+const FEED_TABS = [['waiting', 'Waiting on me'], ['broke', 'Broke'], ['done', 'Done']]   // decisions have their own mode
+function feedRows(tab) {
+  if (!today) return []
+  const flowName = id => (flows.find(f => f.id === id) || {}).name || id
+  if (tab === 'decide') return today.waiting.filter(r => r.kind === 'decision').sort((a, b) => (a.area || '~').localeCompare(b.area || '~') || a.title.localeCompare(b.title))
+    .map(r => ({ group: r.area ? areaName(r.area) : 'The whole product', ico: 'person', b: r.title, r: ago(r.when).slice(5, 10), st: ['new', r.flow ? `${flowName(r.flow)} · from ${r.origin}` : `the whole product · from ${r.origin}`], flow: r.flow, step: r.step, decision: r, key: r.id }))
+  if (tab === 'waiting') return today.waiting.filter(r => r.kind !== 'decision').map(r => ({ group: r.kind === 'pair' ? 'Job pairs to confirm' : 'Questions', ico: 'person', b: r.title || r.text, r: r.kind === 'pair' ? 'pair' : ago(r.when).slice(5, 10), st: ['info', r.sub], flow: r.flow, step: r.step, note: r.id && r.kind !== 'pair' ? r : null, key: r.id || r.text }))
+  if (tab === 'broke') return today.broke.map(r => ({ group: r.kind === 'lint' ? 'Checks on the drawing' : 'Runs that break', ico: 'split', b: r.text, r: flowName(r.flow), st: [r.kind === 'lint' ? 'warn' : 'fault', r.kind === 'lint' ? r.sub : (r.step ? 'at ' + r.step : 'a feature with no step')], flow: r.flow, step: r.step, note: r.id ? r : null, key: r.id || r.text }))
+  return [
+    ...today.working.map(r => ({ group: 'A session is on it', ico: 'disc', live: true, b: r.text, r: ago(r.when).slice(5, 10), st: ['new', r.sub], flow: r.flow, step: r.step, key: r.id })),
+    ...today.answered.map(r => ({ group: 'Answered', ico: 'check', b: r.title || r.text, r: ago(r.when).slice(5, 10), st: [r.kind === 'decision' && !r.ruling ? 'warn' : 'ok', r.sub], flow: r.flow, step: r.step, decision: r.kind === 'decision' ? r : null, note: r.kind !== 'decision' ? r : null, key: r.id })),
+    ...today.changed.map(r => r.kind === 'iteration'
+      ? ({ group: 'Commits', ico: 'receipt', b: r.subject || r.text, r: r.commit || '', st: ['info', r.sub], commit: r, key: r.commit })
+      : ({ group: 'The last walk', ico: 'send', b: r.text, r: '', st: ['info', r.sub + ' · no commit recorded yet: saltflow hook install records each one'], plain: true, key: r.text })),
+  ]
+}
+// The feed is the third list beside the strip; it keeps its tab and scroll.
+function toggleFeed(force) {
+  const on = force ?? section !== 'feed'
+  section = on ? 'feed' : (view === 'decide' ? 'decide' : 'journey')
+  try { LIVE || sessionStorage.setItem('saltflow.section', section) } catch (e) { /* fine */ }
+  if (on) pane = 'list'                          // on a phone the feed is the list pane; it has to come to the front
+  drawStrip(); drawRail(); placeBoard(); placePhone()
+}
+function drawFeed() { /* the feed lives in the sidebar now */ }
+function feedList() {
+  const rows = feedRows(feedFilter)
+  const list = h('div', { class: 'rail-list', role: 'listbox', 'aria-label': 'Feed', onscroll: e => { feedScroll[feedFilter] = e.target.scrollTop; try { LIVE || sessionStorage.setItem('saltflow.feedScroll', JSON.stringify(feedScroll)) } catch (er) { /* fine */ } } })
+  let group = null, sec = null
+  for (const r of rows) {
+    if (r.group !== group) { group = r.group; sec = h('section', {}, h('h3', { class: 'rail-section' }, group)); list.append(sec) }
+    const isSel = r.step && r.step === sel && r.flow === flowId
+    sec.append(h(r.plain ? 'div' : 'button', { 'data-move': r.plain ? null : feedFilter === 'broke' ? 'tap-break' : r.decision ? 'tap-decision' : null, 'data-words': 'a row', role: 'option', 'aria-selected': isSel, class: `item ${isSel ? 'sel' : ''}`, style: r.plain ? 'cursor:default' : null, onclick: r.plain ? null : async () => {
+      if (r.commit) return openCommit(r.commit)
+      const nl = rows.filter(x => x.decision || x.note), at = nl.indexOf(r)
+      if (r.decision || r.note) return openItem(nl, at)
+      if (r.flow) await openFlow(r.flow, r.step)
+    } },
+      h('span', { class: 'item-body' },
+        h('span', { class: 'item-main' }, h('span', { class: 'item-label' }, r.b), h('span', { class: 'item-total' }, r.r)),
+        h('span', { class: 'item-sub' }, h('span', { class: `st ${r.st[0]}` }, r.st[1])))))
+  }
+  if (!rows.length) list.append(h('p', { class: 'empty' }, { waiting: 'Nothing waiting on you.', broke: 'Nothing broke.', done: 'Nothing answered or committed yet.' }[feedFilter]))
+  setTimeout(() => { list.scrollTop = feedScroll[feedFilter] || 0 }, 0)
+  return list
+}
+// a segmented control, the platform's own: one track, the selection a raised cell, never a white capsule
+function seg(options, current, pick, label, via = {}) {
+  return h('div', { class: 'segmented side-seg', role: 'tablist', 'aria-label': label || '' }, ...options.map(([k, w]) => h('button', { class: k === current ? 'on' : '', role: 'tab', 'aria-selected': k === current, 'data-move-via': via[k] || null, onclick: () => pick(k) }, w)))
+}
+function openProducts() {
+  if (INLINE || !products.length) return
+  const old = document.getElementById('prodpop'); if (old) return old.remove()
+  const pop = h('div', { id: 'prodpop', class: 'popover frost on-panel', 'data-gl-appearance': scheme, role: 'menu', 'aria-label': 'Products' },
+    ...products.map(p => h('button', { class: 'row', role: 'menuitemradio', 'aria-checked': p.name === productName, onclick: () => { pop.remove(); if (p.name !== productName) switchProduct(p.name) } },
+      mono(p, 'sm'), h('span', { class: 'row-main' }, h('span', {}, p.name), h('span', { class: 'row-sub' }, p.error ? p.error : `${p.flows} flow${p.flows === 1 ? '' : 's'} · ${p.breaks} break${p.breaks === 1 ? '' : 's'} · ${p.notes_open} open · ${p.head}`)),
+      p.name === productName ? h('span', { class: 'check' }, '✓') : null)))
+  document.getElementById('app').append(pop)
+  setTimeout(() => document.addEventListener('click', e => { if (!pop.contains(e.target)) pop.remove() }, { once: true }), 0)
+}
+async function runWalk() {
+  toast('Walking every flow against its jobs…', 1500)
+  try {
+    const r = await api('/api/walk', {})
+    const bits = [`${r.broken} break${r.broken === 1 ? '' : 's'}`, `${r.unbuilt} stop at a step not built yet`]
+    if (r.new_notes) bits.push(`${r.new_notes} new break note${r.new_notes === 1 ? '' : 's'}`)
+    if (r.closed) bits.push(`${r.closed} old break note${r.closed === 1 ? '' : 's'} closed`)
+    toast(`Walked ${r.flows} flows at ${r.commit} (${r.runs} paths, ${r.seconds} s): ${bits.join(' · ')}. The map and the feed are up to date.`, 7000); await load(true)
+  }
+  catch (e) { toast(e.message, 5000) }
+}
+
+// ── the map: laid out from the flow file ──
+const W = 150, H = 96, GX = 64, GY = 76, MX = 20, MY = 30
+const fit = (t, n = 24) => t.length > n ? t.slice(0, n - 1).trimEnd() + '…' : t
+const PANES = ['left', 'right', 'top', 'zoom', 'out']
+function layout(flow) {
+  const steps = flow.steps, moves = flow.moves
+  const lane = {}, col = {}, pred = {}
+  const q = [flow.entry]; col[flow.entry] = 0; lane[flow.entry] = PANES.includes(steps[flow.entry].place) ? 1 : 0
+  while (q.length) {
+    const s = q.shift()
+    for (const m of moves) {
+      if (m.from !== s || m.kind === 'back' || m.kind === 'cancel' || m.to in col) continue
+      const t = steps[m.to]
+      col[m.to] = col[s] + 1
+      lane[m.to] = t.place === 'same' ? 2 : PANES.includes(t.place) ? 1 : 0
+      q.push(m.to)
+    }
+  }
+  let extra = Math.max(-1, ...Object.values(col)) + 1
+  for (const id in steps) if (!(id in col)) { col[id] = extra++; lane[id] = PANES.includes(steps[id].place) ? 1 : steps[id].place === 'same' ? 2 : 0 }
+  const cells = {}
+  for (const id in steps) (cells[`${lane[id]}:${col[id]}`] ??= []).push(id)
+  const lanes = Math.max(...Object.values(lane)) + 1
+  const rows = Array.from({ length: lanes }, (_, l) => Math.max(1, ...Object.entries(cells).filter(([k]) => k.startsWith(l + ':')).map(([, v]) => v.length)))
+  const laneY = []; let y = MY
+  for (let l = 0; l < lanes; l++) { laneY.push(y); y += rows[l] * (H + 50) + GY - 50 }
+  const pos = {}
+  for (const k in cells) { const [l, c] = k.split(':').map(Number); cells[k].forEach((id, i) => { pos[id] = { x: MX + c * (W + GX), y: laneY[l] + i * (H + 50) } }) }
+  const width = MX * 2 + (Math.max(...Object.values(col)) + 1) * (W + GX) - GX, height = y
+  const ordered = Object.keys(steps).sort((a, b) => col[a] - col[b] || lane[a] - lane[b] || pos[a].y - pos[b].y)
+  const laneNames = Array.from({ length: lanes }, (_, l) => l === 0 ? 'HOME' : l === 1 ? 'ONE PANE IN' : 'THE SAME PANE, DEEPER')
+  return { pos, laneY, laneNames, width, height, order: ordered, col, lane }
+}
+function surfaceBox(step) {
+  // where the arriving surface sits inside the 150×96 screen, by its place
+  const p = step.place
+  if (p === 'right') return [52, 4, 45, 92]
+  if (p === 'left') return [3, 4, 45, 92]
+  if (p === 'top') return [3, 4, 94, 60]
+  if (p === 'zoom') return [20, 10, 60, 80]
+  if (p === 'out') return [10, 8, 80, 84]
+  if (p === 'overlay') return [25, 78, 50, 14]
+  if (p === 'same') return [52, 4, 45, 92]
+  return step.size === 'whole' ? [3, 4, 94, 92] : [72, 4, 25, 92]
+}
+function regionKind(r) { return ['action', 'confirm', 'danger', 'cancel', 'option'].includes(r.role) ? 'act' : 'line' }
+function drawNode(el, g, id, step, surf, flow) {
+  el('rect', { width: W, height: H, rx: 14, class: 'frame' }, g)
+  const xr = xrayFor(step.surface)
+  if (xr) { for (const [k, v] of Object.entries({ x: 6, y: 5, width: W - 12, height: H - 10, preserveAspectRatio: 'xMidYMid meet' })) xr.setAttribute(k, v); g.appendChild(xr); return }
+  const home = [[3, 4, 22, 92], [28, 4, 40, 92], [72, 4, 25, 92]]
+  const box = surfaceBox(step)
+  if (step.place !== 'home' || step.size !== 'whole') for (const [x, y, w, hh] of home) el('rect', { x: x / 100 * W, y: y / 100 * H, width: w / 100 * W, height: hh / 100 * H, rx: 2, class: 'r-ghost' }, g)
+  const [bx, by, bw, bh] = box
+  el('rect', { x: bx / 100 * W, y: by / 100 * H, width: bw / 100 * W, height: bh / 100 * H, rx: 3, class: 'r-arrive' }, g)
+  for (const r of (surf && surf.regions) || []) {
+    const k = regionKind(r)
+    if (r.role === 'close' || r.role === 'map' || r.role === 'tray') continue
+    const x = bx + r.x / 100 * bw, y = by + r.y / 100 * bh, w = r.w / 100 * bw, hh = Math.max(2, r.h / 100 * bh * (k === 'act' ? 1 : .35))
+    el('rect', { x: x / 100 * W + 1.5, y: y / 100 * H + 1.5, width: Math.max(2, w / 100 * W - 3), height: hh / 100 * H, rx: k === 'act' ? 3 : 1, class: 'r-' + k }, g)
+  }
+}
+function anchor(pos, id, side, f = .5) { const p = pos[id]; return side === 'l' ? [p.x, p.y + H * f] : side === 'r' ? [p.x + W, p.y + H * f] : side === 't' ? [p.x + W * f, p.y] : [p.x + W * f, p.y + H] }
+function edge(pos, m) {
+  const a = pos[m.from], b = pos[m.to]
+  if (m.from === m.to) { const [x, y] = [a.x + W - 20, a.y]; return { d: `M${x},${y} C${x + 10},${y - 34} ${x + 44},${y - 10} ${x + 20},${y + 8}`, lx: x + 36, ly: y - 22 } }
+  const dx = b.x - a.x, dy = b.y - a.y
+  let p, q
+  if (dx > 1) { p = anchor(pos, m.from, 'r', m.kind === 'error' ? .7 : .4); q = anchor(pos, m.to, 'l', m.kind === 'error' ? .7 : .4) }
+  else if (dx < -1) { p = anchor(pos, m.from, 'l', .65); q = anchor(pos, m.to, 'r', .65) }
+  else if (dy > 0) { p = anchor(pos, m.from, 'b', .5); q = anchor(pos, m.to, 't', .5) }
+  else { p = anchor(pos, m.from, 't', .5); q = anchor(pos, m.to, 'b', .5) }
+  const [x1, y1] = p, [x2, y2] = q
+  const d = Math.abs(x1 - x2) < 2 || Math.abs(y1 - y2) < 2 ? `M${x1},${y1} L${x2},${y2}` : dx < -1 ? `M${x1},${y1} C${x1 - 40},${y1 + 30} ${x2 + 40},${y2 + 30} ${x2},${y2}` : `M${x1},${y1} C${(x1 + x2) / 2},${y1} ${(x1 + x2) / 2},${y2} ${x2},${y2}`
+  return { d, lx: (x1 + x2) / 2, ly: (y1 + y2) / 2 + (Math.abs(y1 - y2) < 2 ? -6 : dx < -1 ? 22 : 4) }
+}
+function drawMid() {
+  const mid = document.getElementById('mid')
+  const bar = h('div', { class: 'floatbar' },
+    h('label', { class: 'search frost chip' }, icon('search', 'icon sm'), h('input', { placeholder: 'Search steps, patterns, notes', 'aria-label': 'Search', oninput: e => search(e.target.value) })),
+    h('button', { class: 'capsule frost chip', onclick: runWalk, title: 'Walk every flow against its jobs, in every world, and update the breaks', 'aria-label': 'Walk' }, icon('send', 'icon sm'), h('span', { class: 'lbl' }, 'Walk')),
+    h('button', { class: 'capsule frost chip', onclick: openRefs, disabled: bundle ? null : true, title: 'References', 'aria-label': 'References' }, icon('flag', 'icon sm'), h('span', { class: 'lbl' }, 'References')))
+  if (!flows.length) return mid.replaceChildren(bar, h('div', { class: 'map' }, h('div', { class: 'empty' }, h('b', {}, `${product ? product.product : 'This product'} has no flows yet`), h('span', {}, 'A session that builds a screen writes the flow file beside the code, in flows/. See docs/model.md.'))))
+  if (!bundle) return mid.replaceChildren(bar)
+  const cats = h('header', { class: 'mid-head' }, h('h1', {}, bundle.flow.name), bundle.flow.says ? h('p', {}, bundle.flow.says) : null)
+  const flow = bundle.flow, L = layout(flow)
+  const named = bundle.runs.filter(r => 'expect' in r)
+  const counts = {}
+  for (const r of named) counts[r.outcome] = (counts[r.outcome] || 0) + 1
+  const results = h('div', { class: 'results' },
+    h('span', { class: 'dim' }, `${flow.jobs.length} job${flow.jobs.length === 1 ? '' : 's'} · ${Object.keys(flow.steps).length} steps · ${flow.moves.length} moves · ${bundle.runs.length} walks`),
+    ...Object.entries(counts).map(([o, n]) => h('span', { class: `st ${OUTCOME[o][0]}` }, `${n} ${OUTCOME[o][1].toLowerCase()}`)),
+    bundle.runs.length ? null : h('span', { class: 'st info' }, 'not walked yet'))
+  const NS = 'http://www.w3.org/2000/svg', svg = document.createElementNS(NS, 'svg')
+  svg.setAttribute('viewBox', `0 0 ${L.width} ${L.height}`); svg.setAttribute('preserveAspectRatio', 'xMinYMin meet'); svg.setAttribute('role', 'group'); svg.setAttribute('aria-label', `${flow.name}, as a map`)
+  const avail = mid.clientWidth - 28, k = Math.max(.6, Math.min(1, avail / L.width))
+  svg.style.setProperty('--w', Math.round(L.width * k) + 'px'); svg.style.setProperty('--h', Math.round(L.height * k) + 'px')
+  const el = (tag, attrs, parent, text) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (text != null) e.textContent = text; (parent || svg).appendChild(e); return e }
+  const defs = el('defs', {})
+  for (const id of ['ar', 'are', 'arb']) { const m = el('marker', { id, viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: 'auto-start-reverse' }, defs); el('path', { d: 'M0,0 L10,5 L0,10 z', fill: 'currentColor' }, m) }
+  L.laneY.forEach((y, i) => { el('text', { x: MX, y: y - 14, class: 'lane' }, null, L.laneNames[i]); el('line', { x1: MX, y1: y - 8, x2: L.width - MX, y2: y - 8, class: 'lanerule' }) })
+  const selRun = named.find(r => r.at === sel && r.verdict !== 'ok') || null
+  const onPath = new Set(); if (selRun) selRun.path.forEach((s, i) => i && onPath.add(selRun.path[i - 1] + '→' + s))
+  for (const m of flow.moves) {
+    const e = edge(L.pos, m)
+    const path = el('path', { d: e.d, class: `edge ${m.kind} ${onPath.has(m.from + '→' + m.to) ? 'onpath' : ''}`, 'marker-end': `url(#${m.kind === 'error' ? 'are' : m.kind === 'back' ? 'arb' : 'ar'})` })
+    path.style.color = m.kind === 'error' ? 'var(--fault)' : m.kind === 'back' ? 'color-mix(in srgb, var(--ink) 32%, transparent)' : 'color-mix(in srgb, var(--ink) 50%, transparent)'
+    // a move's words only where you are looking: the selected step's moves and the run's path (the design review)
+    const near = m.from === sel || m.to === sel || onPath.has(m.from + '→' + m.to)
+    if (!near) path.classList.add('far')
+    if (m.kind !== 'back' && near) el('text', { x: e.lx, y: e.ly, class: `elabel ${m.kind}`, 'text-anchor': 'middle' }, null, fit(m.trigger.split(/[:;(]/)[0], 30))
+  }
+  const noteCount = {}; for (const n of bundle.notes) if (n.step && n.status !== 'done') noteCount[n.step] = (noteCount[n.step] || 0) + 1
+  for (const id in flow.steps) {
+    const s = flow.steps[id], surf = bundle.surfaces[s.surface], p = L.pos[id]
+    const g = el('g', { 'data-move': 'tap-step', 'data-words': 'step on the map', class: `node ${s.made ? '' : 'unbuilt'} ${id === sel ? 'sel' : ''}`, transform: `translate(${p.x} ${p.y})`, role: 'button', tabindex: 0, 'aria-label': `${(surf || {}).name || s.surface}, ${PLACE_WORDS[s.place]}` })
+    g.addEventListener('click', () => { sel = id; pane = 'card'; drawAll() })
+    g.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); sel = id; drawAll() } })
+    drawNode(el, g, id, s, surf, flow)
+    el('text', { x: 0, y: H + 18, class: 'name' }, g, fit(((surf || {}).name || s.surface || s.says || id) + (s.variant ? ` · ${s.variant}` : '')))
+    el('text', { x: 0, y: H + 33, class: 'place' }, g, `${PLACE_GLYPH[s.place]} ${PLACE_WORDS[s.place]}${s.end ? ' · ' + (s.end === 'done' ? 'done' : 'kept open') : ''}`)
+    const bad = named.find(r => r.at === id && r.verdict !== 'ok')
+    if (bad) { const [cls, word] = OUTCOME[bad.outcome]; const t = el('text', { x: W - 2, y: -7, class: 'badge', 'text-anchor': 'end' }, g, (bad.outcome === 'stuck' ? '✕ ' : '▲ ') + word.toLowerCase()); t.style.fill = `var(--${cls})` }
+    if (noteCount[id]) el('text', { x: 0, y: -7, class: 'notecount' }, g, `${noteCount[id]} note${noteCount[id] === 1 ? '' : 's'}`)
+  }
+  mid.replaceChildren(bar, cats, results, h('div', { class: 'map', 'data-surface': 'map.flow' }, svg))
+}
+function search(q) {
+  q = q.trim().toLowerCase(); if (!q || !bundle) return
+  const flow = bundle.flow
+  const hit = Object.keys(flow.steps).find(id => id.includes(q) || ((bundle.surfaces[flow.steps[id].surface] || {}).name || '').toLowerCase().includes(q) || (flow.steps[id].patterns || []).some(p => p.toLowerCase().includes(q)))
+    || (bundle.notes.find(n => n.text.toLowerCase().includes(q)) || {}).step
+  if (hit) { sel = hit; drawMid(); drawCard() }
+}
+
+// A drawing of a surface, for a product with no screen to crop (a device, say): inline so it takes the ink and the theme, and
+// the part a step or decision is about (class "focus") in the live colour. Scripts and handlers are dropped.
+// An example of an answer: a drawing (svg, takes the page's ink) or a picture (png, jpeg, webp, as it is).
+function exampleEl(rel, cls) {
+  if (/\.svg$/i.test(rel)) return sketchEl(rel, cls)
+  return h('img', { class: cls, alt: '', loading: 'lazy', src: `/api/sketch/${rel}?product=${encodeURIComponent(productName)}` })
+}
+function sketchEl(rel, cls = '') {
+  const box = h('div', { class: `sketch ${cls}`, role: 'img', 'aria-label': 'A sketch' })
+  fetchSketch(rel).then(svg => box.replaceChildren(svg)).catch(e => box.replaceChildren(h('span', { class: 'dim' }, e.message)))
+  return box
+}
+async function fetchSketch(rel) {
+  const r = await fetch(`/api/sketch/${rel}?product=${encodeURIComponent(productName)}`)
+  if (!r.ok) throw new Error('not sketched yet')
+  const svg = new DOMParser().parseFromString(await r.text(), 'image/svg+xml').documentElement
+  if (svg.nodeName !== 'svg') throw new Error('not an svg')
+  svg.querySelectorAll('script, foreignObject').forEach(n => n.remove())
+  for (const n of [svg, ...svg.querySelectorAll('*')]) for (const a of [...n.attributes]) if (/^on/i.test(a.name) || /^\s*javascript:/i.test(a.value)) n.removeAttribute(a.name)
+  svg.removeAttribute('width'); svg.removeAttribute('height')
+  return document.importNode(svg, true)
+}
+// One see-through drawing of the whole made thing, an x-ray; each step lights the part it sits in. Groups carry
+// data-surface, a space-separated list of surface ids. Fetched once per product; the map redraws when it lands.
+let xray = { key: null, svg: null }
+function xrayFor(surface) {
+  const key = productName + '|' + (bundle && bundle.xray)
+  if (!bundle || !bundle.xray) return null
+  if (xray.key !== key) { xray = { key, svg: null }; fetchSketch(bundle.xray).then(s => { if (xray.key === key) { xray.svg = s; if (view === 'flow') drawAll() } }, () => {}) }
+  if (!xray.svg || !surface) return null
+  const parts = [...xray.svg.querySelectorAll('[data-surface]')]
+  const lit = parts.filter(p => p.getAttribute('data-surface').split(/\s+/).includes(surface))
+  if (!lit.length) return null
+  const c = xray.svg.cloneNode(true), all = [...c.querySelectorAll('[data-surface]')]
+  for (const p of all) if (p.getAttribute('data-surface').split(/\s+/).includes(surface)) p.classList.add('lit')
+  c.classList.add('xr')
+  return c
+}
+// ── the card: the step ──
+function cropFor(id, s, surf) {
+  const box = h('div', { 'data-move': 'open-live', 'data-words': 'the pane on the card', class: `crop ${s.made ? '' : 'unbuilt'} ${INLINE ? '' : 'live'}`, role: INLINE ? null : 'button', tabindex: INLINE ? null : 0, title: INLINE ? null : 'Open this step live', onclick: INLINE ? null : () => openLive(id), onkeydown: e => { if (!INLINE && e.key === 'Enter') openLive(id) } })
+  if (s.status === 'ruled-out') { box.append(h('div', { class: 'none' }, 'Ruled out of the product. ' + (s.design || s.says || ''))); return box }
+  const sk = !INLINE && (bundle.sketches || {})[id]
+  if (!s.made && sk) { box.append(sketchEl(sk), h('span', { class: 'crop-chip' }, `Sketch · ${s.status === 'making' ? 'being made' : 'not built'}`)); return box }
+  if (!s.made) { box.append(h('div', { class: 'none' }, (s.status === 'making' ? 'Being made. ' : 'Not built. ') + (s.design || (surf && surf.design) || 'Drawn in the flow; nothing to capture.'))); return box }
+  if (INLINE) { box.append(h('div', { class: 'none' }, STAGE ? 'On the stage: the fixture product has no crops.' : 'A snapshot carries no crops; open the local page.')); return box }
+  if (surf && surf.command) {   // a terminal surface: its real output, read now
+    const pre = h('pre', { class: 'term' }, `$ ${surf.command}\n…`); box.append(pre)
+    api('/api/terminal?cmd=' + encodeURIComponent(surf.command)).then(r => { pre.textContent = `$ ${r.command}\n${r.output}` }, e => { pre.textContent = e.message })
+    return box
+  }
+  const cap = (bundle.captures || {})[id]
+  const file = cap && cap.files ? (cap.files[scheme] || cap.files.light || cap.files.dark) : `${flowId}/${id}${scheme === 'dark' ? '.dark' : ''}.png`
+  const img = h('img', { src: `/api/crop/${file}?product=${encodeURIComponent(productName)}`, alt: `${(surf || {}).name}, ${callsIt()} at ${cap ? cap.commit : '?'}` })
+  img.onerror = () => box.replaceChildren(h('div', { class: 'none' }, 'Built, not captured yet: saltflow capture takes the real pane once a commit touches it.'))
+  box.append(img)
+  if (cap) box.append(h('span', { class: 'crop-chip' }, `Work in progress · ${cap.commit}`))
+  return box
+}
+function drawCard() {
+  const card = document.getElementById('card')
+  if (!bundle || !sel || !bundle.flow.steps[sel]) return card.replaceChildren(h('header', { class: 'detail-head' }, h('h2', {}, 'No step'), h('div', { class: 'detail-sub' }, h('span', {}, 'Pick a step on the map, or a row in Today.'))), h('div', { class: 'lines' }))
+  const flow = bundle.flow, s = flow.steps[sel], surf = bundle.surfaces[s.surface] || { name: s.surface, regions: [] }
+  const runs = bundle.runs.filter(r => 'expect' in r && r.path.includes(sel)), nts = bundle.notes.filter(n => n.step === sel)
+  const patterns = (s.patterns || []).map(ref => ({ ref, pt: bundle.patterns[ref] || { name: ref } }))
+  const links = [...(flow.links || []), ...(s.links || [])].filter(l => l.kind === 'ruling')
+  card.replaceChildren(...[
+    h('header', { class: 'detail-head' },
+      h('span', { class: 'tag' }, `${flow.name} · ${sel}`),
+      h('h2', {}, surf.name + (s.variant ? ` · ${s.variant}` : '')),
+      h('div', { class: 'detail-sub' }, h('span', {}, `${PLACE_GLYPH[s.place]} ${PLACE_WORDS[s.place]}${s.behind ? ' · ' + BEHIND_WORDS[s.behind] : ''}${s.end ? ' · ' + (s.says || s.end) : ''}`)),
+      h('div', { class: 'detail-pills' },
+        h('button', { class: 'tagbtn', 'data-move': 'why', onclick: () => openWhy(patterns[0] && patterns[0].ref, links), disabled: patterns.length || links.length ? null : true }, icon('people', 'icon sm'), h('span', {}, 'Why'), icon('chevron', 'icon sm')),
+        h('button', { class: 'tagbtn', onclick: openChanged }, icon('receipt', 'icon sm'), h('span', {}, 'What changed'), icon('chevron', 'icon sm')))),
+    cropFor(sel, s, surf),
+    (bundle.captures || {})[sel] && false ? h('div', { class: 'crop-note' }, `${cap1(callsIt())}, work in progress, at ${bundle.captures[sel].commit}, ${bundle.captures[sel].device || 'default device'}; not the design.`) : null,
+    h('details', { class: 'tc-details' }, h('summary', {}, 'Details'), h('div', { class: 'tc-meta' }, h('span', { class: 'ref', title: 'The reference: say it, or tap to copy', onclick: () => { const r = refOf(productName, flowId, sel); (navigator.clipboard ? navigator.clipboard.writeText(r) : Promise.reject()).then(() => toast('Copied ' + r), () => toast(r)) } }, 'ref ', h('b', {}, h('code', {}, refOf(productName, flowId, sel)))), h('span', {}, 'read at ', h('b', {}, h('code', {}, bundle.head || '?'))), (bundle.captures || {})[sel] ? h('span', {}, 'captured at ', h('b', {}, h('code', {}, bundle.captures[sel].commit)), bundle.captures[sel].agrees ? '' : ' ', bundle.captures[sel].agrees ? null : h('span', { class: 'st fault' }, 'capture disagrees')) : null, surf.aria ? h('span', {}, 'aria ', h('b', {}, surf.aria)) : surf.title ? h('span', {}, 'title ', h('b', {}, surf.title)) : null, h('span', {}, 'surface ', h('b', {}, h('code', {}, s.surface))), surf.file ? h('span', {}, 'in ', h('b', {}, h('code', {}, surf.file.split('/').pop()))) : null,
+      (bundle.captures || {})[sel] ? h('span', {}, `${cap1(callsIt())} at ${bundle.captures[sel].commit}, ${bundle.captures[sel].device || 'default device'}; work in progress, not the design`) : null)),
+    h('div', { class: 'lines' },
+      h('div', { class: 'group-h' }, `Runs through this step · ${runs.length}`),
+      ...runs.map(r => { const [cls, word] = OUTCOME[r.outcome]; const here = r.at === sel && r.verdict !== 'ok'; return h('div', { class: 'line plain' }, h('span', { class: 'line-mark g' }, here ? '●' : '○'), h('span', { class: 'line-body' }, h('span', { class: 'line-name' }, r.id), h('span', { class: 'line-mods' }, `${jobName(r.job)} · ${worldWords(r.world)}${r.why ? ' · ' + r.why : ''}${r.missing ? ' · no step offers ' + r.missing.join(', ') : ''}`), h('span', { class: 'line-state' }, h('span', { class: `st ${cls}` }, word + (here ? ' here' : '')), r.agrees === false ? h('span', { class: 'st warn' }, `expected ${r.expect}`) : null)), h('span', { class: 'line-val' })) }),
+      runs.length ? null : h('p', { class: 'empty', style: 'padding:6px 0;text-align:left' }, bundle.runs.length ? 'No named run passes here.' : 'Not walked yet.'),
+      h('div', { class: 'group-h' }, 'Patterns, and why'),
+      h('div', { class: 'detail-pills', style: 'padding: 2px 0 10px' }, ...patterns.map(({ ref, pt }) => h('button', { class: 'tagbtn', onclick: () => openWhy(ref, links) }, h('span', {}, pt.name), pt.stance ? h('span', { class: `st ${pt.stance === 'stick' ? 'ok' : 'info'}` }, pt.direction && pt.direction !== ref.split('/').pop() && !pt.own ? 'also' : pt.stance) : null, icon('chevron', 'icon sm'))), patterns.length ? null : h('span', { class: 'empty', style: 'padding:0' }, 'No pattern on this step.')),
+      (s.features || []).length ? h('div', { class: 'group-h' }, 'Features this step offers') : null,
+      (s.features || []).length ? h('div', { class: 'detail-pills', style: 'padding: 2px 0 10px' }, ...s.features.map(f => h('span', { class: 'tagbtn mono' }, f))) : null,
+      bundle.lint.filter(f => f.at === sel).length ? h('div', { class: 'group-h' }, 'Checks') : null,
+      ...bundle.lint.filter(f => f.at === sel).map(f => h('div', { class: 'line plain' }, h('span', { class: 'line-mark g' }, '▲'), h('span', { class: 'line-body' }, h('span', { class: 'line-name' }, f.text), h('span', { class: 'line-mods' }, f.kind)), h('span', { class: 'line-val' }))),
+      h('div', { class: 'group-h' }, `Notes · ${nts.length}${nts.length ? '' : ' · none on this step'}`),
+      ...nts.map(n => h('div', { class: 'line plain', style: n.kind === 'decision' ? 'cursor:pointer' : null, onclick: n.kind === 'decision' ? () => enterDecide(n.id) : null }, h('span', { class: 'line-mark g' }, KIND_GLYPH[n.kind] || '•'), h('span', { class: 'line-body' }, h('span', { class: 'line-name' }, n.title || n.text), h('span', { class: 'line-mods' }, `${n.kind} · ${n.origin} · ${ago(n.at)} · ${n.status}${n.commit_done ? ' at ' + n.commit_done : ''}${n.reply ? ' · ' + n.reply.text : ''}`)), h('span', { class: 'line-val' })))),
+    h('footer', { class: 'detail-foot' },
+      h('div', { class: 'acts' },
+        h('button', { class: 'round big frost chip', 'aria-label': 'Who is working here', onclick: () => toast('Live sessions on a step come in iteration two (ruled 11 October)') }, icon('people')),
+        h('button', { class: 'gl-action primary main-act', onclick: openNote, 'data-move': 'leave-note' }, icon('plus'), 'Leave a note')))].filter(x => x != null))
+}
+
+// ── sheets: Why, and the note ──
+function openLayer(place, sheet) {
+  closeLayer()
+  layer = h('div', { class: `layer place-${place}`, onclick: closeLayer }, sheet)
+  sheet.onclick = e => e.stopPropagation()
+  document.getElementById('layers').append(layer)
+  document.getElementById('base').classList.add('recede'); document.getElementById('base').setAttribute('inert', '')
+}
+function closeLayer() {
+  if (layer) layer.remove(); layer = null
+  document.getElementById('base').classList.remove('recede'); document.getElementById('base').removeAttribute('inert')
+}
+function nav(title, ok, sub, closeMove) {
+  return [h('div', { class: 'nav' }, h('button', { class: 'round', onclick: closeLayer, 'aria-label': 'Close', 'data-move': closeMove || null }, icon('close', 'icon sm')), h('h3', {}, title), ok ? h('button', { class: 'round ok', onclick: ok, 'aria-label': 'Done' }, icon('check', 'icon sm')) : h('span', {})), sub ? h('p', { class: 'sheet-sub' }, sub) : null]
+}
+function openWhy(ref, rulings = []) {
+  const pt = ref ? bundle.patterns[ref] : null
+  const max = pt ? Math.max(1, ...pt.others.map(o => o.n || 0)) : 1
+  const mine = pt ? ref.split('#').pop().split('/').pop() : null
+  const sheet = h('div', { class: 'sheet frost heavy on-panel float', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Why', 'data-surface': 'sheet.why', 'data-gl-appearance': scheme },
+    ...nav('Why', null, pt ? `${pt.area_name || pt.area} (the grid${pt.of ? ', ' + pt.of + ' products' : ''})` : 'The rulings this step rests on', 'why-close'),
+    h('div', { class: 'sheet-body' },
+      pt && pt.missing ? h('p', { class: 'warnbox' }, pt.missing) : null,
+      pt ? h('div', { class: 'group-h' }, 'The pattern') : null,
+      pt ? h('div', { class: 'facts' }, h('div', {}, h('span', {}, pt.name), pt.stance ? h('span', { class: `st ${pt.stance === 'stick' ? 'ok' : 'warn'}` }, pt.stance) : null), pt.desc && pt.desc !== pt.reason ? h('div', { class: 'quote' }, pt.desc) : null, pt.reason ? h('div', { class: 'quote' }, pt.reason, h('span', {}, pt.own ? "the product's own pattern, from its direction" : 'the direction for this area')) : null) : null,
+      pt && pt.stance ? h('div', { class: 'group-f' }, pt.stance === 'stick' ? 'Stick: what the best of the market do, and we do the same.' : pt.stance === 'new' ? 'New: no product in the grid does this; it is ruled.' : 'Diverge: on purpose, and this is the reason.') : null,
+      pt && pt.others.length ? h('div', { class: 'group-h' }, `What the ${pt.of} products do`) : null,
+      pt && pt.others.length ? h('div', { class: 'list' }, ...pt.others.map(o => h('div', { class: `row ${o.id === mine ? 'chosen' : ''}`, style: 'cursor:default' }, h('span', { class: 'rowbar' }, h('span', {}, h('span', {}, o.name + (o.id === pt.direction ? ' · our direction' : '')), h('span', { class: 'track' }, h('span', { class: 'fill', style: `display:block;width:${(o.n || 0) / max * 100}%` }))), h('span', { class: 'row-val' }, `${o.n} of ${pt.of}`)), o.id === mine ? h('span', { class: 'check' }, '✓') : null))) : null,
+      pt && pt.links && pt.links.length ? h('div', { class: 'group-h' }, 'Departs from') : null,
+      ...(pt && pt.links ? pt.links.map(l => h('div', { class: 'facts' }, h('div', { class: 'quote' }, l.quote, h('span', {}, l.ref)))) : []),
+      rulings.length ? h('div', { class: 'group-h' }, 'The ruling it rests on') : null,
+      ...rulings.map(l => h('div', { class: 'facts' }, h('div', { class: 'quote' }, `“${l.quote}”`, h('span', {}, `${l.ref.split('#').pop()} · ${l.state}`))))))
+  openLayer('right', sheet)
+}
+function openRefs() {
+  if (!bundle) return
+  const flow = bundle.flow
+  const files = [...new Set(Object.values(bundle.surfaces).map(s => s.file).filter(Boolean))]
+  const rulings = [...(flow.links || []), ...Object.values(flow.steps).flatMap(s => s.links || [])]
+  const list = (title, rows) => rows.length ? [h('div', { class: 'group-h' }, title), h('div', { class: 'list refs' }, ...rows)] : []
+  const row = (main, sub, val) => h('div', { class: 'row', style: 'cursor:default' }, h('span', { class: 'row-main' }, h('span', {}, main), sub ? h('span', { class: 'row-sub' }, sub) : null), val != null ? h('span', { class: 'row-val' }, val) : null)
+  const sheet = h('div', { class: 'sheet frost heavy on-panel float', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'References', 'data-gl-appearance': scheme },
+    ...nav('References', null, `${flow.name} · ${productName}/${flowId} · everything this flow rests on`),
+    h('div', { class: 'sheet-body' },
+      ...list(`Jobs it serves · ${flow.jobs.length}`, flow.jobs.map(j => row(jobName(j.ref), `${j.ref} · ends at ${j.ends.join(', ')}`))),
+      ...list(`Pattern groups it draws on · ${Object.keys(bundle.areas || {}).length}`, Object.entries(bundle.areas || {}).map(([id, a]) => row(a.name, `the grid · ${id}`, a.of ? `${a.of} products` : null))),
+      ...list(`Patterns · ${Object.keys(bundle.patterns).length}`, Object.entries(bundle.patterns).map(([ref, pt]) => h('button', { class: 'row', onclick: () => openWhy(ref, rulings.filter(l => l.kind === 'ruling')) }, h('span', { class: 'row-main' }, h('span', {}, pt.name), h('span', { class: 'row-sub' }, ref)), pt.stance ? h('span', { class: `st ${pt.stance === 'stick' ? 'ok' : 'info'}` }, pt.stance) : null, icon('chevron', 'icon sm')))),
+      ...list(`Rulings and evidence · ${rulings.length}`, rulings.map(l => row(`“${l.quote}”`, `${l.kind} · ${l.ref} · ${l.state}`))),
+      ...list(`Steps · ${Object.keys(flow.steps).length}`, Object.keys(flow.steps).map(id => h('button', { class: 'row', onclick: () => { closeLayer(); sel = id; drawAll() } }, h('span', { class: 'row-main' }, h('span', {}, (bundle.surfaces[flow.steps[id].surface] || {}).name || id), h('span', { class: 'row-sub' }, refOf(productName, flowId, id))), flow.steps[id].made ? null : h('span', { class: 'st warn' }, 'not built'), icon('chevron', 'icon sm')))),
+      ...list(`Moves · ${flow.moves.length}`, flow.moves.map(m => row(m.trigger, `${m.id} · ${m.from} → ${m.to} · ${m.kind}${m.built_as ? ' · built as: ' + m.built_as : ''}`, bundle.drives[m.id] ? 'drives' : null))),
+      ...list(`Files the surfaces come from · ${files.length}`, files.map(f => row(f.split('/').pop(), f))),
+      ...list(`Notes · ${bundle.notes.length}`, bundle.notes.map(n => row(n.title || n.text, `${n.id} · ${n.kind} · ${n.origin} · ${n.status}${n.step ? ' · ' + refOf(productName, flowId, n.step) : ''}`)))))
+  openLayer('right', sheet)
+}
+function openChanged() {
+  const its = (bundle.iterations || []).filter(it => (it.steps || []).includes(flowId + '/' + sel)).reverse()
+  const cap = (bundle.captures || {})[sel]
+  const sheet = h('div', { class: 'sheet frost heavy on-panel float', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'What changed', 'data-gl-appearance': scheme },
+    ...nav('What changed', null, `${refOf(productName, flowId, sel)} · the commits that touched this step`),
+    h('div', { class: 'sheet-body' },
+      cap && cap.prev ? h('div', { class: 'group-h' }, `Before (${cap.prev.commit}) and now (${cap.commit})`) : null,
+      cap && cap.prev ? h('div', { style: 'display:grid;grid-template-columns:1fr 1fr;gap:10px' },
+        h('div', { class: 'crop', style: 'margin:0' }, h('img', { src: `/api/crop/${cap.prev.files[scheme] || cap.prev.files.light}?product=${encodeURIComponent(productName)}`, alt: 'before' })),
+        h('div', { class: 'crop', style: 'margin:0' }, h('img', { src: `/api/crop/${cap.files[scheme] || cap.files.light}?product=${encodeURIComponent(productName)}`, alt: 'now' }))) : null,
+      h('div', { class: 'group-h' }, its.length ? `Commits · ${its.length}` : 'No commit has touched this step since iterations began'),
+      h('div', { class: 'list' }, ...its.map(it => h('div', { class: 'row', style: 'cursor:default' }, h('span', { class: 'row-main' }, h('span', {}, it.subject || it.commit), h('span', { class: 'row-sub' }, `${it.commit} · ${ago(it.at)} · ${(it.web_files || []).concat(it.flow_files || []).map(f => f.split('/').pop()).join(', ')}${it.walk ? ' · walk: ' + it.walk.disagree + ' disagree' : ''}${(it.capture || []).some(c => c.disagree) ? ' · capture disagrees' : ''}`))))),
+      its.length ? null : h('div', { class: 'group-f' }, 'Iterations are written by the commit hook (saltflow hook install) or by saltflow iterate.')))
+  openLayer('right', sheet)
+}
+// A decision: a session's question with its options, one recommended. The answer is one appended line in the
+// product's flows/notes.jsonl: the repo file is the truth, and it is answered here.
+function openDecision(d) {
+  const open = d.status === 'open' || d.status === 'taken'
+  let choice = open ? ((d.options.find(o => o.rec) || {}).id || null) : d.choice
+  const words = h('textarea', { placeholder: 'In your own words (optional, or instead of an option)', 'aria-label': 'Your words' })
+  if (!open && d.words) words.value = d.words
+  if (!open) words.disabled = true
+  const opts = h('div', { class: 'list' })
+  let drawOpts = () => opts.replaceChildren(...d.options.map((o, i) => h('button', { class: 'row', role: 'radio', 'aria-checked': o.id === choice, 'aria-disabled': !open, style: open ? null : 'cursor:default', onclick: open ? () => { choice = choice === o.id ? null : o.id; drawOpts() } : null },
+    h('span', { class: 'okey' }, String(i + 1)),
+    h('span', { class: 'row-main' }, h('span', {}, o.label, o.rec ? h('span', { class: 'rec' }, ' · recommended') : null), o.desc ? h('span', { class: 'row-sub' }, o.desc) : null, o.then ? h('span', { class: 'row-sub then' }, h('b', {}, 'Then '), o.then) : null),
+    h('span', { class: 'check' }, o.id === choice ? '✓' : ''), (d.examples || {})[o.id] ? exampleEl(d.examples[o.id], 'oex') : null)))
+  drawOpts()
+  const decide = async () => {
+    if (!choice && !words.value.trim()) { toast('Pick an option, or say it in your own words'); return }
+    try {
+      await api('/api/notes/' + d.id, { status: 'decided', choice, words: words.value.trim() }); toast(`Decided · in ${product.product}'s flows/notes.jsonl; ${d.origin} turns it into a ruling`, 4200)
+      const list = side ? side.list : [], at = side ? side.at : -1
+      if (view === 'decide') { const next = list[at + 1] || list[at - 1]; decId = next ? next.decision.id : null; await load(true); return }   // on to the next one
+      await load(true)
+      if (list.length > 1) { const rest = list.filter((x, i) => i !== at); openItem(rest, Math.min(at, rest.length - 1)) } else closeSide()
+    } catch (e) { toast(e.message, 5000) }
+  }
+  const where = refOf(productName, d.flow, d.step)
+  const label = () => { const o = d.options.find(x => x.id === choice); return o ? `Decide: ${fit(o.label, 28)}` : 'Decide in your words' }
+  const btn = h('button', { class: 'gl-action primary', onclick: decide, 'data-move': 'decide nothing-chosen', 'data-words': 'Decide' }, label())
+  const redraw = drawOpts; drawOpts = () => { redraw(); btn.textContent = label(); decChoice = choice; if (onDecChoice) onDecChoice(choice) }
+  decChoice = choice
+  words.rows = 1; words.className = 'grow-field'; words.onfocus = () => { words.rows = 4 }; words.onblur = () => { if (!words.value) words.rows = 1 }
+  decideKeys = { pick: i => { const o = d.options[i]; if (o && open) { choice = o.id; drawOpts() } }, decide: open ? decide : null, words }
+  const sheet = h('div', { class: 'sheet frost heavy on-panel float decision', role: 'dialog', 'aria-label': 'Decision', 'data-surface': 'sheet.decision', 'data-gl-appearance': scheme },
+    ...sideNav(d.title, null, null),
+    h('div', { class: 'sheet-body' },
+      h('h2', { class: 'dq' }, d.text),
+      d.why ? h('p', { class: 'dwhy' }, h('b', {}, 'Why it matters. '), d.why) : null,
+      h('div', { class: 'group-h' }, open ? 'Options' : 'Decided ' + ago(d.when)), opts,
+      h('div', { class: 'list' }, h('div', { class: 'row textrow', style: 'cursor:default' }, words)),
+      linked(d),
+      !open ? h('div', { class: 'group-f' }, d.ruling ? `Now a ruling: ${d.ruling}` : `Not yet a ruling: ${d.origin} quotes your words into its rulings next`) : null,
+      h('p', { class: 'dref' }, `${d.origin}${d.area ? ' · ' + d.area : ''} · ${where || 'the whole product'}`)),
+    open ? h('div', { class: 'sheet-foot' }, h('span', { class: 'dim keys' }, '↑↓ move · 1–9 pick · ⏎ decide'), btn) : null)
+  showSide(sheet)
+}
+// The questions this answer changes, and the ones whose answer changes this one (a decision's `touches`); a tap opens it.
+function linked(d) {
+  const all = decisionsAll(), by = new Map(all.map(x => [x.id, x]))
+  const out = (d.touches || []).map(id => by.get(id)).filter(Boolean).map(x => ['changes', x])
+  const inn = all.filter(x => (x.touches || []).includes(d.id)).map(x => ['changed by', x])
+  if (!out.length && !inn.length) return null
+  return h('div', {}, h('div', { class: 'group-h' }, 'Linked questions'), h('div', { class: 'list' }, ...[...out, ...inn].map(([how, x]) =>
+    h('button', { class: 'row', onclick: () => enterDecide(x.id) }, h('span', { class: 'row-main' }, h('span', {}, x.title), h('span', { class: 'row-sub' }, `this answer ${how === 'changes' ? 'changes it' : 'waits on it'}${x.status === 'decided' ? ' · decided' : ''}`)), icon('chevron', 'icon sm')))))
+}
+// A note (a break, a question, an answer) beside its step, read-only.
+function openNoteSide(n) {
+  const sheet = h('div', { class: 'sheet frost heavy on-panel float', role: 'dialog', 'aria-label': 'Note', 'data-gl-appearance': scheme },
+    ...sideNav(`${n.kind[0].toUpperCase() + n.kind.slice(1)} · ${n.status}`, null, `${n.origin || ''} · ${refOf(productName, n.flow, n.step) || 'the whole product'} · ${ago(n.when || n.at)}`),
+    h('div', { class: 'sheet-body' },
+      h('div', { class: 'facts' }, h('div', { class: 'quote' }, n.title || n.text), n.sub ? h('div', { class: 'quote' }, n.sub, h('span', {}, 'where it stands')) : null),
+      n.reply ? h('div', { class: 'facts' }, h('div', { class: 'quote' }, n.reply.text || n.reply, h('span', {}, 'the reply'))) : null))
+  showSide(sheet)
+}
+// Side panel: a decision or a note, beside the step card; previous and next walk the feed's list.
+function sideNav(title, ok, sub) {
+  const list = side ? side.list : [], at = side ? side.at : 0
+  const chev = (dir, dis, go, lbl) => h('button', { class: 'round', disabled: dis ? true : null, 'aria-label': lbl, onclick: go, 'data-move': lbl === 'Next' ? 'next-decision' : null }, icon('chevron', `icon sm ${dir}`))
+  return [h('div', { class: 'nav side-nav' }, h('button', { class: 'round', onclick: closeSide, 'aria-label': 'Close', 'data-move': 'decision-close' }, icon('close', 'icon sm')), h('h3', {}, title), h('span', {})),
+    list.length > 1 ? h('div', { class: 'pager' }, chev('back', at <= 0, () => openItem(list, at - 1), 'Previous'), h('span', {}, `${at + 1} of ${list.length}`), chev('', at >= list.length - 1, () => openItem(list, at + 1), 'Next')) : null,
+    sub ? h('p', { class: 'sheet-sub' }, sub) : null]
+}
+let decideKeys = null
+async function openItem(list, at) {
+  const r = list[at]; if (!r) return closeSide()
+  if (r.decision) { if (view === 'decide') { decId = r.decision.id; return showDecision() } return enterDecide(r.decision.id) }
+  side = { list, at }
+  if (r.flow && (r.flow !== flowId || (r.step && r.step !== sel))) await openFlow(r.flow, r.step)   // the step is the context
+  if (r.decision) openDecision(r.decision); else openNoteSide(r.note)
+}
+function showSide(sheet) {
+  let el = document.getElementById('side')
+  if (!el) { el = h('div', { id: 'side' }); document.getElementById('app').insertBefore(el, document.getElementById('layers')) }
+  el.hidden = false; el.replaceChildren(sheet)
+  document.getElementById('base').classList.toggle('beside', view === 'flow')
+}
+function closeSide() {
+  if (view === 'decide' && side) { side = null; return toBoard() }
+  side = null
+  const el = document.getElementById('side'); if (el) { el.hidden = true; el.replaceChildren() }
+  document.getElementById('base').classList.remove('beside')
+}
+function openNote() {
+  const s = bundle.flow.steps[sel], surf = bundle.surfaces[s.surface] || { name: s.surface }; let kind = 'question'
+  const text = h('textarea', { placeholder: 'What should change, or what do you want to know?', 'aria-label': 'Note' })
+  const kinds = h('div', { class: 'list' })
+  const drawKinds = () => kinds.replaceChildren(...['question', 'change', 'bug', 'story'].map(k => h('button', { class: 'row', role: 'radio', 'aria-checked': k === kind, onclick: () => { kind = k; drawKinds() } }, h('span', { class: 'row-main' }, k[0].toUpperCase() + k.slice(1)), h('span', { class: 'check' }, k === kind ? '✓' : ''))))
+  drawKinds()
+  const add = async () => {
+    if (!text.value.trim()) { text.focus(); return }
+    try { await api('/api/notes', { kind, text: text.value.trim(), flow: flowId, step: sel }); closeLayer(); toast(`Note left on ${surf.name} · in ${product.product}'s flows/notes.jsonl`); await load(true) }
+    catch (e) { toast(e.message, 5000) }
+  }
+  const sheet = h('div', { class: 'sheet frost heavy on-panel float', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Leave a note', 'data-surface': 'sheet.note', 'data-gl-appearance': scheme },
+    ...nav('Leave a note', add, `On ${surf.name} · ${bundle.flow.name} · ${product.product}`, 'note-close'),
+    h('div', { class: 'sheet-body' }, h('div', { class: 'group-h' }, 'Kind'), kinds, h('div', { class: 'group-h' }, 'The note'), h('div', { class: 'list' }, h('div', { class: 'row textrow', style: 'cursor:default' }, text))),
+    h('div', { class: 'sheet-foot' }, h('span', { class: 'dim' }, 'Lands in flows/notes.jsonl; the next building session reads it'), h('button', { class: 'gl-action primary', onclick: add, 'data-move': 'add-note no-text' }, 'Add note')))
+  openLayer('zoom', sheet); setTimeout(() => text.focus(), 50)
+}
+
+// ── a commit: what it touched, each step one tap away ──
+function openCommit(it) {
+  const steps = (it.steps || []).map(k => { const [f, st] = k.split('/'); return { f, st } })
+  const sheet = h('div', { class: 'sheet frost heavy on-panel float', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Commit', 'data-gl-appearance': scheme },
+    ...nav(it.subject || it.commit, null, `${it.commit} · ${ago(it.when)}`),
+    h('div', { class: 'sheet-body' },
+      h('div', { class: 'group-h' }, steps.length ? `Steps it touched · ${steps.length}` : 'It touched no step of a flow'),
+      h('div', { class: 'list' }, ...steps.map(({ f, st }) => h('button', { class: 'row', onclick: async () => { closeLayer(); toggleFeed(false); await openFlow(f, st) } },
+        h('span', { class: 'row-main' }, h('span', {}, `${(flows.find(x => x.id === f) || {}).name || f} · ${st}`), h('span', { class: 'row-sub' }, refOf(productName, f, st))), icon('chevron', 'icon sm')))),
+      (it.files || []).length ? h('div', { class: 'group-h' }, `Files · ${it.files.length}`) : null,
+      (it.files || []).length ? h('div', { class: 'list refs' }, ...it.files.map(f => h('div', { class: 'row', style: 'cursor:default' }, h('span', { class: 'row-main' }, h('span', {}, f.split('/').pop()), h('span', { class: 'row-sub' }, f))))) : null))
+  openLayer('right', sheet)
+}
+
+const callsIt = () => (product && product.calls_it) || 'the build'
+const cap1 = t => t[0].toUpperCase() + t.slice(1)
+// ── live: the product's own build, played by the flow's drives to the step, then left in your hands ──
+// The full view of a surface is live only.
+const sleep = ms => new Promise(r => setTimeout(r, ms))
+const ROLE_CSS = { button: 'button,[role=button],input[type=button],input[type=submit]', link: 'a[href],[role=link]', textbox: 'input:not([type]),input[type=text],input[type=search],input[type=number],textarea,[role=textbox]',
+  checkbox: 'input[type=checkbox],[role=checkbox]', radio: 'input[type=radio],[role=radio]', tab: '[role=tab]', option: 'option,[role=option]', menuitem: '[role=menuitem],[role=menuitemradio]', dialog: 'dialog,[role=dialog]', switch: '[role=switch]', heading: 'h1,h2,h3,h4,[role=heading]' }
+function liveDriver(doc, pane) {
+  const visible = el => !!(el.getClientRects().length) && getComputedStyle(el).visibility !== 'hidden'
+  const nameOf = el => (el.getAttribute('aria-label') || (el.getAttribute('aria-labelledby') && doc.getElementById(el.getAttribute('aria-labelledby'))?.textContent) || el.textContent || el.getAttribute('title') || el.value || el.getAttribute('placeholder') || '').replace(/\s+/g, ' ').trim()
+  const nameOk = (el, a) => !a.name ? true : a.name.startsWith('^') ? new RegExp(a.name).test(nameOf(el)) : a.exact ? nameOf(el) === a.name : nameOf(el).toLowerCase().includes(a.name.toLowerCase())
+  function find(a) {
+    let found
+    if (a.role) {
+      const sel = ROLE_CSS[a.role] || `[role=${a.role}]`
+      const pick = root => [...root.querySelectorAll(sel)].filter(el => visible(el) && nameOk(el, a))
+      const dialogs = [...doc.querySelectorAll(pane || '[role=dialog]')].filter(visible)
+      found = dialogs.length && pick(dialogs[dialogs.length - 1]).length ? pick(dialogs[dialogs.length - 1]) : pick(doc)
+    } else {
+      found = [...doc.querySelectorAll(a.css)]
+      if (a.hasText) found = found.filter(el => el.textContent.includes(a.hasText))
+      found = found.filter(visible)
+    }
+    return a.nth != null ? found[a.nth] : found[0]
+  }
+  async function waitFor(a) { for (let t = 0; t < 40; t++) { const el = find(a); if (el) return el; await sleep(100) } throw new Error(`nothing on screen matches ${a.role ? a.role + ' “' + (a.name || '') + '”' : a.css + (a.hasText ? ' with “' + a.hasText + '”' : '')}`) }
+  const win = doc.defaultView
+  const pointer = (el, type, x, y) => el.dispatchEvent(new win.PointerEvent(type, { bubbles: true, cancelable: true, clientX: x, clientY: y, pointerId: 1, isPrimary: true, pointerType: 'mouse' }))
+  const mid = el => { const b = el.getBoundingClientRect(); return [b.x + b.width / 2, b.y + b.height / 2] }
+  return async function perform(a) {
+    if (a.do === 'move') {                   // a derived drive: the marked control, else the key the code declares for it
+      const c = [...doc.querySelectorAll(`[data-move~="${a.id}"]`)].find(e => e.getClientRects().length)
+      if (!c) for (const e of doc.querySelectorAll('[data-move-keys]')) for (const pr of e.getAttribute('data-move-keys').split(/\s+/)) { const [m, k] = pr.split(':'); if (m === a.id) { const key = k.split('+').pop(); (doc.activeElement || doc.body).dispatchEvent(new win.KeyboardEvent('keydown', { key: key.length === 1 ? key.toLowerCase() : key, metaKey: /Meta/.test(k), shiftKey: /Shift/.test(k), ctrlKey: /Control/.test(k), altKey: /Alt/.test(k), bubbles: true })); return } }
+      a = { css: `[data-move~="${a.id}"]` }
+    }
+    if (a.optional) { const doc0 = doc; const el = doc0.querySelector(a.css); if (!el || !el.getClientRects().length) return }
+    if (a.key || a.do === 'press') { const key = a.key || a.text || 'Enter'; const t = doc.activeElement || doc.body; t.dispatchEvent(new win.KeyboardEvent('keydown', { key, bubbles: true })); t.dispatchEvent(new win.KeyboardEvent('keyup', { key, bubbles: true })); return }
+    if (a.do === 'drag') {
+      const from = await waitFor(a.from), [x1, y1] = mid(from), to = a.by ? from : await waitFor(a.to), [x2, y2] = a.by ? [x1 + a.by[0], y1 + a.by[1]] : mid(to)
+      pointer(from, 'pointerdown', x1, y1); for (let i = 1; i <= 12; i++) { pointer(doc.elementFromPoint(x1 + (x2 - x1) * i / 12, y1 + (y2 - y1) * i / 12) || to, 'pointermove', x1 + (x2 - x1) * i / 12, y1 + (y2 - y1) * i / 12); await sleep(16) }
+      if (!a.hold) pointer(to, 'pointerup', x2, y2); return
+    }
+    const el = await waitFor(a)
+    el.scrollIntoView({ block: 'nearest' })
+    if (a.do === 'fill') { const proto = el.tagName === 'TEXTAREA' ? win.HTMLTextAreaElement.prototype : win.HTMLInputElement.prototype; el.focus(); Object.getOwnPropertyDescriptor(proto, 'value').set.call(el, a.text || ''); el.dispatchEvent(new win.Event('input', { bubbles: true })); el.dispatchEvent(new win.Event('change', { bubbles: true })); return }
+    if (a.do === 'longpress') { const [x, y] = mid(el); pointer(el, 'pointerdown', x, y); await sleep(700); pointer(el, 'pointerup', x, y); return }
+    const [x, y] = mid(el); pointer(el, 'pointerdown', x, y); pointer(el, 'pointerup', x, y); typeof el.click === 'function' ? el.click() : el.dispatchEvent(new win.MouseEvent('click', { bubbles: true, cancelable: true, clientX: x, clientY: y }))
+  }
+}
+// The live player: plays the run's drives in the product's build, clipped to the surface, and follows it. Used by
+// the full-screen live view and by decision mode's middle: the actual interface, not a picture of it.
+function mountLive(info, stage, state, name, onStep) {
+  let frame, clip, whole = false, follow = null
+  const say = (t, bad) => { state.classList.add('livestate'); state.classList.toggle('fault', !!bad); state.textContent = t }
+  if (info.terminal) {
+    const pre = h('pre', { class: 'term' }, `$ ${info.terminal}\n…`); stage.replaceChildren(pre)
+    const run = async () => { try { const r = await api('/api/terminal?cmd=' + encodeURIComponent(info.terminal)); pre.textContent = `$ ${r.command}\n${r.output}`; onStep(0); say(`The real output of ${r.command} in ${productName}, run just now. Taking or closing a note is a session's act, in its own terminal.`) } catch (e) { say(e.message, true) } }
+    run(); return { play: run, toggle: () => false, terminal: true }
+  }
+  if (!info.has_dummy) { stage.replaceChildren(h('div', { class: 'empty' }, h('b', {}, `${productName} has no build to open`), h('span', {}, 'Live plays the product’s own build (its manifest’s “web”, built into dist/, or its “live” page). Build it once, and every step opens here.'))); return { play: () => {}, toggle: () => false, none: true } }
+  // Only the surface, never the build's harness or device frame, only the surface on the
+  // map: the view is clipped to the topmost pane when one is up, else the surface's own element, else the root.
+  const target = () => {
+    const doc = frame && frame.contentDocument; if (!doc || whole) return null
+    const vis = el => el && el.getClientRects().length
+    const own = info.css && [...doc.querySelectorAll(info.css)].find(vis)   // the surface's own element, when the product names it
+    if ((info.stage || info.place === 'overlay') && vis(own)) return own    // the staged component, or a toast over a pane
+    const panes = [...doc.querySelectorAll(info.pane || '[role=dialog]')].filter(vis)
+    if (panes.length) return panes[panes.length - 1]
+    if (vis(own)) return own
+    const root = info.root && doc.querySelector(info.root)
+    return vis(root) ? root : null
+  }
+  const fit = () => {
+    if (!frame || !clip) return
+    const [w, hh] = info.viewport, st = stage.getBoundingClientRect(), el = target()
+    if (!st.width) return
+    const r = el ? el.getBoundingClientRect() : { x: 0, y: 0, width: w, height: hh }
+    const k = Math.min(1.6, (st.width - 32) / r.width, (st.height - 32) / r.height)
+    clip.style.width = Math.round(r.width * k) + 'px'; clip.style.height = Math.round(r.height * k) + 'px'
+    frame.style.transform = `scale(${k}) translate(${-r.x}px, ${-r.y}px)`
+  }
+  addEventListener('resize', fit)
+  async function play() {
+    say(`Opening ${callsIt()}…`)
+    const [base, hash] = info.url.split('#'); frame = h('iframe', { src: base + (base.includes('?') ? '&' : '?') + 'live=' + Date.now() + (hash ? '#' + hash : ''), title: `${productName}, live`, width: info.viewport[0], height: info.viewport[1] })
+    frame.style.width = info.viewport[0] + 'px'; frame.style.height = info.viewport[1] + 'px'
+    clip = h('div', { class: 'clip' }, frame); stage.replaceChildren(clip); fit()
+    clearInterval(follow); follow = setInterval(() => { if (!document.body.contains(stage)) return clearInterval(follow); fit() }, 400)
+    await new Promise(r => frame.addEventListener('load', r, { once: true })); await sleep(600)
+    const perform = liveDriver(frame.contentDocument, null)
+    try {
+      for (let i = 0; i < info.actions.length; i++) {
+        say(`Playing: ${name(info.steps[i])}`)
+        for (const a of info.actions[i] || []) await perform(a)
+        await sleep((info.actions[i] || []).length ? 650 : 150); onStep(i)
+      }
+      const last = info.steps[info.steps.length - 1]
+      if (info.stop) say(`Stopped at ${name(last)}: ${info.stop}. ${cap1(callsIt())} is yours from here.`, true)
+      else if (info.stage) say(`${name(last)}: the product’s own component, in its state, from its code. Tap around.`)
+      else say(`You are at ${name(last)}${info.run ? ', by the run ' + info.run : ''}. ${cap1(callsIt())} is yours: tap around.`)
+    } catch (e) { say(`The drive stopped: ${e.message}. ${cap1(callsIt())} is yours from where it stopped.`, true) }
+  }
+  // events from the code: a staged component posts {saltflow: "move", id} when a move happens, clicked or by itself
+  const heard = e => { if (frame && e.source === frame.contentWindow && e.data && e.data.saltflow === 'move') say(`The code fired ${e.data.id}${e.data.to ? ' → ' + name(e.data.to) : ''}.`) }
+  window.addEventListener('message', heard)
+  const gone = new MutationObserver(() => { if (frame && !frame.isConnected) { window.removeEventListener('message', heard); gone.disconnect() } }); gone.observe(document.body, { childList: true, subtree: true })
+  play()
+  return { play, toggle: () => { whole = !whole; fit(); return whole } }
+}
+async function openLive(step) {
+  const s = bundle.flow.steps[step], surf = bundle.surfaces[s.surface] || { name: s.surface }
+  let info
+  try { info = await api(`/api/live/${flowId}/${step}`) } catch (e) { toast(e.message, 5000); return }
+  const name = id => (bundle.surfaces[bundle.flow.steps[id].surface] || {}).name || id
+  const trail = h('div', { class: 'trail' }), state = h('div', { class: 'livestate' }), stage = h('div', { class: 'livestage' })
+  const drawTrail = upto => trail.replaceChildren(...info.steps.flatMap((id, i) => [i ? h('span', {}, '→') : null, h(i === info.steps.length - 1 ? 'b' : 'span', { class: i <= upto ? 'done' : '' }, name(id))]).filter(Boolean))
+  const bar = h('div', { class: 'livebar' }, h('button', { class: 'round', 'aria-label': 'Close', 'data-move': 'live-close', onclick: closeLayer }, icon('close', 'icon sm')), h('h3', {}, `${surf.name} · live`), trail)
+  const box = h('div', { class: 'livebox frost heavy on-panel float', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Live', 'data-gl-appearance': scheme }, bar, stage, state)
+  openLayer('out', box); drawTrail(-1)
+  const live = mountLive(info, stage, state, name, drawTrail)
+  liveButtons(bar, live)
+}
+function liveButtons(bar, live) {
+  if (live.none) return
+  if (!live.terminal) bar.append(h('button', { class: 'capsule frost chip', 'aria-pressed': false, onclick: e => { const w = live.toggle(); e.currentTarget.setAttribute('aria-pressed', w); e.currentTarget.lastChild.textContent = w ? 'Surface only' : 'Whole build' } }, icon('disc', 'icon sm'), h('span', {}, 'Whole build')))
+  bar.append(h('button', { class: 'capsule frost chip', onclick: () => live.play() }, icon('send', 'icon sm'), live.terminal ? 'Run again' : 'Play again'))
+}
+
+// ── decision mode: the decisions on the left, the interface it is about in the middle, the decision on the right ──
+// The actual interface takes the middle panel where the journey sits, the decision keeps the right; it shows what
+// the decision needs and nothing else.
+let decId = null, decFilter = 'open', decToken = 0, decChoice = null, onDecChoice = null
+const decisionsAll = () => today ? [...today.waiting.filter(r => r.kind === 'decision'), ...today.answered.filter(r => r.kind === 'decision')] : []
+const decOpen = d => d.status === 'open' || d.status === 'taken'
+function decList() {
+  return decisionsAll().filter(d => decFilter === 'open' ? decOpen(d) : !decOpen(d))
+    .sort((a, b) => (a.area || '~').localeCompare(b.area || '~') || (a.title || '').localeCompare(b.title || ''))
+}
+async function enterDecide(id) {
+  view = 'decide'; flowId = null; bundle = null; sel = null; toggleFeed(false); pane = id ? 'card' : 'list'
+  if (id && !decList().some(d => d.id === id)) decFilter = decFilter === 'open' ? 'decided' : 'open'
+  const L = decList(); decId = id && L.some(d => d.id === id) ? id : (L[0] || {}).id || null
+  showDecision()
+}
+function showDecision() {
+  if (decId && !decList().some(d => d.id === decId) && decisionsAll().some(d => d.id === decId)) decFilter = decFilter === 'open' ? 'decided' : 'open'   // an address naming a decided one opens Decided
+  const L0 = decList(); if (!L0.some(d => d.id === decId)) decId = (L0[0] || {}).id || null   // the address may name none
+  const L = L0, at = L.findIndex(d => d.id === decId), d = L[at]
+  side = d ? { list: L.map(x => ({ decision: x, flow: x.flow, step: x.step })), at } : null
+  drawAll()
+  if (!d) { closeSide(); return }
+  openDecision(d)
+  drawDecideMid(d)
+}
+async function drawDecideMid(d) {
+  const mine = ++decToken
+  const mid = document.getElementById('mid')
+  const where = h('div', { class: 'dm-where' }), stage = h('div', { class: 'livestage dm-stage' }), state = h('div', { class: 'livestate' })
+  const bar = h('div', { class: 'dm-bar' }, where)
+  mid.replaceChildren(bar, stage, state)
+  onDecChoice = null
+  const ex = d.options.filter(o => (d.examples || {})[o.id])
+  if (ex.length) {
+    // each answer as it would look, side by side; a tap picks it
+    where.append(h('b', {}, `${ex.length === d.options.length ? 'Each answer' : `${ex.length} of the answers`}`), h('span', {}, ' · as it would look'))
+    if (d.flow) bar.append(h('button', { class: 'wbtn', onclick: () => openFlow(d.flow, d.step || undefined) }, 'Open in the map'))
+    const open = d.status === 'open' || d.status === 'taken'
+    const cards = ex.map(o => h('button', { class: 'excard', 'data-opt': o.id, 'aria-disabled': !open, onclick: () => { if (open && decideKeys) decideKeys.pick(d.options.indexOf(o)) } },
+      exampleEl(d.examples[o.id], 'expic'),
+      h('span', { class: 'exlabel' }, h('span', { class: 'okey' }, String(d.options.indexOf(o) + 1)), h('b', {}, o.label), o.rec ? h('span', { class: 'rec' }, ' · recommended') : null)))
+    stage.classList.add('examples'); stage.append(...cards)
+    onDecChoice = c => cards.forEach(el => el.classList.toggle('on', el.dataset.opt === c))
+    onDecChoice(open ? decChoice : d.choice)
+    state.textContent = open ? 'Tap one to pick it; decide on the right.' : 'The answer chosen is marked.'
+    return
+  }
+  if (!d.flow && d.sketch) {
+    where.append(h('b', {}, 'The whole product'), h('span', {}, ' · a sketch'))
+    stage.append(sketchEl(d.sketch, 'big')); return
+  }
+  if (!d.flow) {
+    where.append(h('b', {}, 'The whole product'), h('span', {}, ' · not pinned to one surface'))
+    stage.append(h('div', { class: 'empty' }, h('b', {}, 'This decision is about the whole product'), h('span', {}, 'No one surface shows it. The question and its reasons are on the right.'),
+      ...((d.links || []).map(l => h('span', {}, `“${l.quote}” · ${l.ref}`)))))
+    return
+  }
+  let b, info
+  try { b = await api('/api/flow/' + d.flow) } catch (e) { stage.append(h('div', { class: 'empty' }, h('b', {}, 'The flow could not load'), h('code', {}, e.message))); return }
+  if (mine !== decToken) return
+  const step = d.step && b.flow.steps[d.step] ? d.step : b.flow.entry, s = b.flow.steps[step], surf = b.surfaces[s.surface] || { name: s.surface || step }
+  const name = id => (b.surfaces[b.flow.steps[id].surface] || {}).name || id
+  where.append(h('span', {}, b.flow.name, ' › '), h('b', {}, surf.name + (s.variant ? ` · ${s.variant}` : '')),
+    s.made ? '' : h('span', { class: `st ${s.status === 'ruled-out' ? 'fault' : 'warn'}` }, s.status === 'ruled-out' ? 'ruled out' : 'not built yet'))
+  bar.append(h('button', { class: 'wbtn', onclick: () => openFlow(d.flow, step) }, 'Open in the map'))
+  if (!s.made && (s.design || surf.design)) stage.before(h('details', { class: 'dm-design' }, h('summary', {}, h('b', {}, 'Not built yet. '), fit(s.design || surf.design, 90)), h('p', {}, s.design || surf.design)))
+  const sk = d.sketch || (b.sketches || {})[step]   // the question's own drawing, else its step's
+  try { info = await api(`/api/live/${d.flow}/${step}`) } catch (e) { stage.append(h('div', { class: 'empty' }, h('b', {}, 'Live could not start'), h('code', {}, e.message))); return }
+  if (mine !== decToken) return
+  const cap = (b.captures || {})[step]   // no build to play: the step's last picture says more than a blank stage
+  if (!info.has_dummy && !info.terminal && cap && cap.files) { const file = cap.files[scheme] || cap.files.light || cap.files.dark; stage.replaceChildren(h('div', { class: 'dm-crop' }, h('img', { src: `/api/crop/${file}?product=${encodeURIComponent(productName)}`, alt: surf.name }))); state.textContent = `The step as ${callsIt()} last showed it${cap.commit ? `, at ${cap.commit}` : ''}. Build it, and this plays live.`; return }
+  if (!info.has_dummy && !info.terminal && sk) { stage.replaceChildren(sketchEl(sk, 'big')); state.textContent = 'A sketch of where the parts sit, not how it will look. The marked part is what the question is about.'; return }
+  const live = mountLive(info, stage, state, name, () => {})
+  state.classList.add('quiet')
+  if (!live.none) {
+    const menu = h('button', { class: 'round wbtn-round', 'aria-label': 'More', title: 'More' }, '•••')
+    menu.onclick = e => {
+      e.stopPropagation()
+      const pop = h('div', { class: 'popover frost on-panel dm-pop', 'data-gl-appearance': scheme, role: 'menu' },
+        live.terminal ? null : h('button', { class: 'row', onclick: () => { pop.remove(); const w = live.toggle(); toast(w ? 'The whole build' : 'The surface only', 1400) } }, 'Whole build, or the surface only'),
+        h('button', { class: 'row', onclick: () => { pop.remove(); live.play() } }, live.terminal ? 'Run again' : 'Play again'))
+      bar.append(pop); setTimeout(() => document.addEventListener('click', () => pop.remove(), { once: true }), 0)
+    }
+    bar.append(menu)
+  }
+}
+
+function drawAll() {
+  const app = document.getElementById('app'), look = (product && product.look) || {}
+  app.style.setProperty('--accent', look.accent || '#ff6a4d'); app.style.setProperty('--deep', look.deep || '#1d3754')
+  ;(look.ground || ['#3d76ad', '#2f8c8a', '#2a5687']).forEach((c, i) => app.style.setProperty(`--g${i + 1}`, c))
+  applyScheme(); drawBoard()
+  document.getElementById('base').classList.toggle('deciding', view === 'decide')
+  if (view === 'flow') { drawRail(); drawMid(); drawCard() }
+  if (view === 'decide') { section = 'decide'; drawRail() }
+  if (view !== 'decide' && section === 'decide') section = 'journey'
+  if (view === 'board' && section === 'feed') drawRail()
+  drawStrip(); placeBoard(); placePhone(); writeHash()
+}
+addEventListener('hashchange', async () => {
+  const [hp, hf, hs] = hashParts()
+  if (hp && hp !== productName) { productName = hp; flowId = hf || null; sel = hs || null; seen = null; await load(true); return }
+  if (hp && !hf && view !== 'board') return toBoard()
+  if (hf === 'decide') { if (view !== 'decide' || (hs && hs !== decId)) return enterDecide(hs); return }
+  if (hf && hf !== flowId) return openFlow(hf, hs)
+  if (hs && hs !== sel && bundle && bundle.flow.steps[hs]) { sel = hs; drawAll() }
+})
+addEventListener('resize', () => { if (bundle && view === 'flow') drawMid() })
+
+// The files are the source: a session editing flows/, a walk, a commit all show up here by themselves.
+let seen = null, codeSeen = null
+async function watch() {
+  if (INLINE) return
+  try {
+    const v = await api('/api/version')
+    if (codeSeen && v.code && v.code !== codeSeen) { location.reload(); return }   // saltFlow itself changed: take the new page
+    codeSeen = v.code
+    const key = productName + ':' + v.files + ':' + v.head
+    if (seen && key !== seen && seen.split(':')[0] === productName) { await load(true); toast(v.head !== seen.split(':')[2] ? `The product moved to ${v.head}` : 'The flows changed on disk', 2200) }
+    seen = key
+  } catch (e) { /* the server is away; try again */ }
+  setTimeout(watch, 2000)
+}
+watch()
+document.addEventListener('keydown', e => {
+  // decision mode: ↑↓ or j/k move through the list, 1–9 pick an option, Enter decides, / goes to your words
+  if (view === 'decide' && !layer && e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'INPUT') {
+    const L = decList(), at = L.findIndex(d => d.id === decId)
+    if (['ArrowDown', 'j'].includes(e.key) && at < L.length - 1) { e.preventDefault(); decId = L[at + 1].id; return showDecision() }
+    if (['ArrowUp', 'k'].includes(e.key) && at > 0) { e.preventDefault(); decId = L[at - 1].id; return showDecision() }
+    if (/^[1-9]$/.test(e.key) && decideKeys) { decideKeys.pick(+e.key - 1); return }
+    if (e.key === 'Enter' && decideKeys && decideKeys.decide) { e.preventDefault(); return decideKeys.decide() }
+    if (e.key === '/' && decideKeys) { e.preventDefault(); decideKeys.words.focus(); return }
+  }
+  if (e.key === 'Escape') { if (layer) return closeLayer(); if (side) return closeSide(); if (feedOpen) return toggleFeed(false); return }
+  if (layer || !bundle || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return
+  const i = order.indexOf(sel)
+  if (e.key === 'ArrowRight') { sel = order[(i + 1) % order.length]; drawAll() }
+  if (e.key === 'ArrowLeft') { sel = order[(i - 1 + order.length) % order.length]; drawAll() }
+})
+// saltFlow's own stage: ?stage=<surface>&state=<fixture> opens one component on the fixture the server inlined
+const STAGE = new URLSearchParams(location.search).get('stage')
+async function stageTo() {
+  const go = INLINE.go || {}
+  if (STAGE === 'board.journey') return toBoard()
+  if (STAGE === 'sheet.decision') return enterDecide(go.decision)
+  await openFlow(go.flow, go.step)
+  if (STAGE === 'feed.today') { feedFilter = go.feed || 'broke'; toggleFeed(true) }
+  if (STAGE === 'sheet.why') openWhy((bundle.flow.steps[sel].patterns || [])[0], [])
+  if (STAGE === 'sheet.note') openNote()
+}
+load().then(() => STAGE && INLINE ? stageTo() : null).catch(e => { document.getElementById('mid').replaceChildren(h('div', { class: 'map' }, h('div', { class: 'empty' }, h('b', {}, 'The page could not load'), h('code', {}, e.message)))) })
+</script>
+</body>
+</html>

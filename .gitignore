@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+
+# Node, for saltflow capture
+node_modules/
+
+# what saltflow writes into a product it reviews (the example included)
+flows/captures/
+!examples/*/flows/captures/
+examples/*/flows/runs.json
+tests/fixtures/*/flows/notes.jsonl
+tests/fixtures/*/flows/runs.json
+flows/saltflow-snapshot.html
+
+# editors and the OS
+.DS_Store
+.idea/
+.vscode/

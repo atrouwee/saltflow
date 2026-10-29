@@ -1,0 +1,67 @@
+{
+  "schema": "saltflow/v1/drives",
+  "client": "web",
+  "says": "How the web build performs each move, keyed by move id. A move with no entry can be walked on the graph but not clicked. A native client gets its own file.",
+  "moves": {
+    "open-bill": [
+      {
+        "css": ".tabcard .pay",
+        "do": "click"
+      }
+    ],
+    "card": [
+      {
+        "role": "button",
+        "name": "^Card",
+        "do": "click"
+      }
+    ],
+    "to-account": [
+      {
+        "role": "button",
+        "name": "^Charge to",
+        "do": "click"
+      }
+    ],
+    "tap": [
+      {
+        "role": "button",
+        "name": "^Simulate tap",
+        "do": "click"
+      }
+    ],
+    "decline": [
+      {
+        "role": "button",
+        "name": "Decline",
+        "do": "click"
+      }
+    ],
+    "reader-back": [
+      {
+        "role": "button",
+        "name": "Close",
+        "do": "click"
+      }
+    ],
+    "bill-back": [
+      {
+        "key": "Escape"
+      }
+    ],
+    "close-paid": [
+      {
+        "role": "button",
+        "name": "^Close tab",
+        "do": "click"
+      }
+    ],
+    "close-charged": [
+      {
+        "role": "button",
+        "name": "^Close tab",
+        "do": "click"
+      }
+    ]
+  }
+}

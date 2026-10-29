@@ -1,0 +1,96 @@
+[
+  {
+    "id": "ring-a-coffee",
+    "name": "Ring up a flat white with oat milk",
+    "moment": "service",
+    "line": "coffee",
+    "who": "barista",
+    "r1": true,
+    "today": {
+      "where": "the old till",
+      "how": "milk and cup as modifiers; the cup modifier is the only sign of sit-in or takeaway",
+      "guess": false
+    },
+    "features": [
+      "grid",
+      "modifier-prompt",
+      "search"
+    ]
+  },
+  {
+    "id": "open-a-tab",
+    "name": "Open a tab for a guest who sits, and add each later round to it",
+    "moment": "service",
+    "line": "coffee",
+    "who": "barista",
+    "r1": false,
+    "today": {
+      "where": "the old till",
+      "how": "order at the counter, sit, pay on leaving; the old till stamps tabs with the opening business day",
+      "guess": false
+    },
+    "features": [
+      "tabs",
+      "name-on-order",
+      "service-mode",
+      "floor",
+      "seats"
+    ]
+  },
+  {
+    "id": "take-payment-on-leaving",
+    "name": "Take payment when the guest leaves, which closes the visit",
+    "moment": "service",
+    "line": "coffee",
+    "who": "barista",
+    "r1": false,
+    "today": {
+      "where": "the old till",
+      "how": "card on the card terminal through the old till",
+      "guess": false
+    },
+    "features": [
+      "card",
+      "tabs",
+      "tips"
+    ]
+  },
+  {
+    "id": "handle-a-declined-card",
+    "name": "Handle a declined or timed-out card",
+    "moment": "service",
+    "line": "all",
+    "who": "barista",
+    "r1": true,
+    "today": {
+      "where": "the old till",
+      "how": "unknown",
+      "guess": true
+    },
+    "features": [
+      "card",
+      "tabs"
+    ],
+    "gap": "the decline path (try again, another card, leave on the tab) is an open decision with no feature row"
+  },
+  {
+    "id": "sell-through-an-outage",
+    "name": "Keep selling when the terminal, wifi or the payment provider fails, and get a faulty terminal replaced",
+    "moment": "service",
+    "line": "all",
+    "who": "barista",
+    "r1": true,
+    "today": {
+      "where": "the old till",
+      "how": "unknown",
+      "guess": true
+    },
+    "features": [
+      "offline",
+      "pay-link",
+      "manual-card",
+      "health",
+      "devices"
+    ]
+  }
+]

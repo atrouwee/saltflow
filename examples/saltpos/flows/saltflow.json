@@ -1,0 +1,86 @@
+{
+ "schema": "saltflow/v1/manifest",
+ "product": "saltPOS",
+ "says": "An example product: a trimmed copy of an iPad till's flows. The sources saltFlow reads in this repo; saltFlow writes only inside flows/.",
+ "flows": "flows",
+ "sources": {
+  "jobs": {
+   "path": "flows/jobs.json",
+   "kind": "ids",
+   "list": "jobs"
+  },
+  "graph": {
+   "path": "flows/jobs.json",
+   "kind": "ids",
+   "list": "jobs"
+  },
+  "decisions": {
+   "path": "decisions.md",
+   "kind": "quotes"
+  },
+  "patterns": {
+   "path": "flows/patterns.json",
+   "kind": "ids",
+   "list": "patterns"
+  },
+  "surfaces": {
+   "path": "flows/surfaces.json",
+   "kind": "ids",
+   "list": "surfaces"
+  },
+  "files": {
+   "path": ".",
+   "kind": "files"
+  }
+ },
+ "look": {
+  "accent": "#e3a33b",
+  "deep": "#1e3b34",
+  "ground": [
+   "#3f7a68",
+   "#2f6f78",
+   "#2c5a4c"
+  ]
+ },
+ "capture": {
+  "device": "iPad 11″",
+  "calls_it": "the practice till"
+ },
+ "lint": {
+  "needs_error_move": [
+   "money"
+  ]
+ },
+ "journey": [
+  {
+   "id": "arrive",
+   "name": "Arrive",
+   "says": "a guest comes in and sits, or orders to go"
+  },
+  {
+   "id": "order",
+   "name": "Order",
+   "says": "ringing what they want, and getting it made"
+  },
+  {
+   "id": "during",
+   "name": "During the visit",
+   "says": "changes while they stay"
+  },
+  {
+   "id": "pay",
+   "name": "Pay and leave",
+   "says": "the payment closes the visit"
+  }
+ ],
+ "primitives": [
+  "stock",
+  "resources",
+  "product",
+  "visit",
+  "money",
+  "signals",
+  "rules",
+  "surfaces"
+ ]
+}

@@ -1,0 +1,193 @@
+{
+ "schema": "saltflow/v1/flow",
+ "id": "ring-a-coffee",
+ "name": "Ring a coffee with options",
+ "says": "One tap on a tile rings a coffee; a drink with choices opens its options out of the tile, the usual choice already ticked; with nothing selected, the first tap opens a new order.",
+ "product": "saltPOS",
+ "stage": "order",
+ "path": "happy",
+ "jobs": [
+  {
+   "ref": "saltPOS:jobs#ring-a-coffee",
+   "ends": [
+    "line-added"
+   ]
+  }
+ ],
+ "links": [],
+ "world": {
+  "selected": [
+   "tab",
+   "none"
+  ],
+  "choices": [
+   true,
+   false
+  ]
+ },
+ "entry": "menu",
+ "steps": {
+  "menu": {
+   "surface": "home.catalogue",
+   "place": "home",
+   "primitive": "product",
+   "built": true,
+   "behind": "none",
+   "size": "whole",
+   "features": [
+    "grid",
+    "search"
+   ]
+  },
+  "options": {
+   "surface": "options.sheet",
+   "place": "zoom",
+   "primitive": "product",
+   "built": true,
+   "behind": "recede",
+   "size": "part",
+   "features": [
+    "modifier-prompt"
+   ],
+   "patterns": [
+    "saltPOS:patterns#options-open-on-tap"
+   ]
+  },
+  "order-started": {
+   "surface": "home.tab-card",
+   "place": "home",
+   "primitive": "visit",
+   "built": true,
+   "variant": "order-n",
+   "state": "order-n",
+   "behind": "none",
+   "size": "part",
+   "patterns": [
+    "saltPOS:patterns#ring-first-one-screen"
+   ]
+  },
+  "line-added": {
+   "surface": "home.tab-card",
+   "place": "home",
+   "primitive": "visit",
+   "built": true,
+   "behind": "none",
+   "size": "part",
+   "end": "done",
+   "says": "the line is on the tab, not sent yet",
+   "patterns": [
+    "saltPOS:patterns#send-on-leave-early-button"
+   ]
+  }
+ },
+ "moves": [
+  {
+   "id": "tap-tile",
+   "from": "menu",
+   "to": "options",
+   "kind": "forward",
+   "trigger": "Tap a tile with choices",
+   "needs": {
+    "selected": "tab",
+    "choices": true
+   }
+  },
+  {
+   "id": "tap-plain-tile",
+   "from": "menu",
+   "to": "line-added",
+   "kind": "forward",
+   "trigger": "Tap a tile without choices",
+   "needs": {
+    "selected": "tab",
+    "choices": false
+   }
+  },
+  {
+   "id": "ring-first",
+   "from": "menu",
+   "to": "order-started",
+   "kind": "forward",
+   "trigger": "Tap a tile with nothing selected: a new order opens at the counter",
+   "needs": {
+    "selected": "none"
+   },
+   "sets": {
+    "selected": "tab"
+   }
+  },
+  {
+   "id": "first-with-choices",
+   "from": "order-started",
+   "to": "options",
+   "kind": "system",
+   "trigger": "The options open at once, out of the tile",
+   "needs": {
+    "choices": true
+   },
+   "built_as": "the till opens the options first and starts the order on Add, so closing them leaves no empty order; the sheet scales in over the home rather than out of the tile"
+  },
+  {
+   "id": "first-plain",
+   "from": "order-started",
+   "to": "line-added",
+   "kind": "system",
+   "trigger": "The line lands on the new order",
+   "needs": {
+    "choices": false
+   }
+  },
+  {
+   "id": "add",
+   "from": "options",
+   "to": "line-added",
+   "kind": "forward",
+   "trigger": "Add"
+  },
+  {
+   "id": "close-options",
+   "from": "options",
+   "to": "menu",
+   "kind": "back",
+   "trigger": "Close the options; nothing is added",
+   "built_as": "closing cancels; whether the usual choice should go on instead is an open decision"
+  },
+  {
+   "id": "next-item",
+   "from": "line-added",
+   "to": "menu",
+   "kind": "loop",
+   "trigger": "Tap the next tile"
+  }
+ ],
+ "runs": [
+  {
+   "id": "with-choices",
+   "job": "saltPOS:jobs#ring-a-coffee",
+   "world": {
+    "selected": "tab",
+    "choices": true
+   },
+   "expect": "done"
+  },
+  {
+   "id": "plain",
+   "job": "saltPOS:jobs#ring-a-coffee",
+   "world": {
+    "selected": "tab",
+    "choices": false
+   },
+   "expect": "done"
+  },
+  {
+   "id": "ring-first-with-choices",
+   "job": "saltPOS:jobs#ring-a-coffee",
+   "world": {
+    "selected": "none",
+    "choices": true
+   },
+   "expect": "done",
+   "why": "Ring first: with nothing selected the first tap must open the order and the options together."
+  }
+ ]
+}

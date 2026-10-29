@@ -1,0 +1,346 @@
+{
+ "schema": "saltflow/v1/flow",
+ "id": "pay-on-leaving",
+ "name": "Pay on leaving",
+ "says": "A guest who sat and ordered pays once, when they leave; the payment closes the whole visit.",
+ "product": "saltPOS",
+ "stage": "pay",
+ "path": "happy",
+ "jobs": [
+  {
+   "ref": "saltPOS:jobs#take-payment-on-leaving",
+   "ends": [
+    "closed"
+   ]
+  },
+  {
+   "ref": "saltPOS:jobs#handle-a-declined-card",
+   "ends": [
+    "closed",
+    "left-on-tab"
+   ]
+  },
+  {
+   "ref": "saltPOS:jobs#sell-through-an-outage",
+   "ends": [
+    "closed"
+   ]
+  }
+ ],
+ "links": [
+  {
+   "kind": "ruling",
+   "ref": "saltPOS:decisions#pay-on-leaving",
+   "state": "ruled",
+   "quote": "Guests order, sit, order again, and are invited to pay only when they leave; the payment closes the whole visit."
+  }
+ ],
+ "world": {
+  "online": [
+   true,
+   false
+  ],
+  "card": [
+   "ok",
+   "declined"
+  ],
+  "settles": [
+   "now",
+   "account"
+  ]
+ },
+ "entry": "tab",
+ "steps": {
+  "tab": {
+   "surface": "home.tab-card",
+   "place": "home",
+   "primitive": "visit",
+   "built": true,
+   "behind": "none",
+   "size": "whole",
+   "features": [
+    "tabs"
+   ]
+  },
+  "bill": {
+   "surface": "pay.choose",
+   "place": "right",
+   "primitive": "money",
+   "built": true,
+   "behind": "recede",
+   "size": "part",
+   "features": [
+    "card",
+    "tabs",
+    "split"
+   ]
+  },
+  "bill-offline": {
+   "surface": "pay.choose",
+   "place": "right",
+   "primitive": "money",
+   "built": true,
+   "variant": "offline",
+   "state": "offline",
+   "behind": "recede",
+   "size": "part",
+   "features": [
+    "offline"
+   ],
+   "patterns": [
+    "saltPOS:patterns#offline-tabs-keep-working"
+   ]
+  },
+  "reader": {
+   "surface": "pay.reader",
+   "place": "same",
+   "primitive": "money",
+   "built": true,
+   "features": [
+    "card",
+    "tips"
+   ],
+   "patterns": [
+    "saltPOS:patterns#tip-on-terminal"
+   ]
+  },
+  "declined": {
+   "surface": "pay.declined",
+   "place": "same",
+   "primitive": "money",
+   "built": true,
+   "patterns": [
+    "saltPOS:patterns#decline-path"
+   ],
+   "design": "Try again, Another card, Leave on the tab"
+  },
+  "paid": {
+   "surface": "pay.paid",
+   "place": "same",
+   "primitive": "money",
+   "built": true,
+   "features": [
+    "receipt"
+   ]
+  },
+  "charged": {
+   "surface": "pay.charged",
+   "place": "same",
+   "primitive": "money",
+   "built": true,
+   "features": [
+    "invoice",
+    "customer-groups"
+   ]
+  },
+  "closed": {
+   "surface": "home.toast",
+   "place": "overlay",
+   "primitive": "visit",
+   "built": true,
+   "behind": "none",
+   "end": "done",
+   "says": "the visit is closed"
+  },
+  "left-on-tab": {
+   "surface": "home.tab-card",
+   "place": "home",
+   "primitive": "visit",
+   "built": true,
+   "behind": "none",
+   "end": "kept",
+   "says": "the visit stays open, as the guest chose"
+  }
+ },
+ "moves": [
+  {
+   "id": "open-bill",
+   "from": "tab",
+   "to": "bill",
+   "kind": "forward",
+   "trigger": "Pay on the tab card",
+   "needs": {
+    "online": true
+   }
+  },
+  {
+   "id": "open-bill-offline",
+   "from": "tab",
+   "to": "bill-offline",
+   "kind": "forward",
+   "trigger": "Pay on the tab card, with the wifi down",
+   "needs": {
+    "online": false
+   },
+   "built_as": "the Pay button is disabled and reads 'Pay waits for a connection', so the bill never opens offline"
+  },
+  {
+   "id": "card",
+   "from": "bill",
+   "to": "reader",
+   "kind": "forward",
+   "trigger": "Card",
+   "needs": {
+    "settles": "now"
+   }
+  },
+  {
+   "id": "to-account",
+   "from": "bill",
+   "to": "charged",
+   "kind": "forward",
+   "trigger": "Charge to account",
+   "needs": {
+    "settles": "account"
+   }
+  },
+  {
+   "id": "to-account-offline",
+   "from": "bill-offline",
+   "to": "charged",
+   "kind": "forward",
+   "trigger": "Charge to account",
+   "needs": {
+    "settles": "account"
+   }
+  },
+  {
+   "id": "tap",
+   "from": "reader",
+   "to": "paid",
+   "kind": "system",
+   "trigger": "Guest taps card or phone",
+   "needs": {
+    "card": "ok"
+   }
+  },
+  {
+   "id": "decline",
+   "from": "reader",
+   "to": "declined",
+   "kind": "error",
+   "trigger": "Reader says declined",
+   "needs": {
+    "card": "declined"
+   }
+  },
+  {
+   "id": "try-again",
+   "from": "declined",
+   "to": "reader",
+   "kind": "loop",
+   "trigger": "Try again"
+  },
+  {
+   "id": "another-card",
+   "from": "declined",
+   "to": "reader",
+   "kind": "loop",
+   "trigger": "Another card",
+   "sets": {
+    "card": "ok"
+   }
+  },
+  {
+   "id": "leave-on-tab",
+   "from": "declined",
+   "to": "left-on-tab",
+   "kind": "cancel",
+   "trigger": "Leave on the tab"
+  },
+  {
+   "id": "reader-back",
+   "from": "reader",
+   "to": "bill",
+   "kind": "back",
+   "trigger": "Close the reader page"
+  },
+  {
+   "id": "bill-back",
+   "from": "bill",
+   "to": "tab",
+   "kind": "back",
+   "trigger": "Close the bill"
+  },
+  {
+   "id": "bill-offline-back",
+   "from": "bill-offline",
+   "to": "tab",
+   "kind": "back",
+   "trigger": "Close the bill; the tab stays open"
+  },
+  {
+   "id": "back-online",
+   "from": "bill-offline",
+   "to": "bill",
+   "kind": "system",
+   "trigger": "Connection comes back",
+   "sets": {
+    "online": true
+   }
+  },
+  {
+   "id": "close-paid",
+   "from": "paid",
+   "to": "closed",
+   "kind": "forward",
+   "trigger": "Close tab"
+  },
+  {
+   "id": "close-charged",
+   "from": "charged",
+   "to": "closed",
+   "kind": "forward",
+   "trigger": "Close tab"
+  }
+ ],
+ "runs": [
+  {
+   "id": "happy",
+   "job": "saltPOS:jobs#take-payment-on-leaving",
+   "world": {
+    "online": true,
+    "card": "ok",
+    "settles": "now"
+   },
+   "expect": "done"
+  },
+  {
+   "id": "decline-then-another-card",
+   "job": "saltPOS:jobs#handle-a-declined-card",
+   "world": {
+    "online": true,
+    "card": "declined",
+    "settles": "now"
+   },
+   "expect": "done"
+  },
+  {
+   "id": "offline-card-guest-leaves",
+   "job": "saltPOS:jobs#sell-through-an-outage",
+   "world": {
+    "online": false,
+    "card": "ok",
+    "settles": "now"
+   },
+   "expect": "done",
+   "hold": [
+    "online"
+   ],
+   "why": "A guest paying by card must be able to leave paid while the wifi is down."
+  },
+  {
+   "id": "offline-account-guest-leaves",
+   "job": "saltPOS:jobs#sell-through-an-outage",
+   "world": {
+    "online": false,
+    "card": "ok",
+    "settles": "account"
+   },
+   "expect": "done",
+   "hold": [
+    "online"
+   ]
+  }
+ ]
+}

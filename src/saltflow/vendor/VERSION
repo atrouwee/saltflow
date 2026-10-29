@@ -1,0 +1,5 @@
+tokens.css, glass.css: saltglass, cut to the tokens and the six classes page.html uses
+  (gl-glass-bar, gl-bar-top, gl-tabbar, gl-tab, gl-action, gl-btn). saltglass is saltFlow's design system, under
+  saltFlow's licence. To refresh: copy both files from saltglass and cut them the same way.
+saltflow.css: saltFlow's own layer over saltglass (the page's frame, panels, lists, sheets). Not vendored; edit here.
+server.py inlines the three into page.html's placeholders in this order: tokens, glass, saltflow.

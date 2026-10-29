@@ -1,0 +1,159 @@
+/* saltglass, cut to the tokens saltFlow's page uses; the rest is in saltglass itself.
+   saltglass is saltFlow's design system, under the same licence as saltFlow (PolyForm Noncommercial 1.0.0,
+   LICENSE at the repo root). See VERSION. */
+/* saltglass — tokens.css
+   Nothing here paints; glass.css paints with these.
+
+   A host overrides the five identity inputs and nothing else. Everything
+   below the inputs is derived with color-mix(), so a host never writes an
+   rgba literal to adopt the system. Numbers that are not colours (blur,
+   saturation, durations, radii) are listed once so a host can tune them in
+   one place and so glass.css can contain no literal at all (saltglass
+   checks that in its own tests). A `@tier` comment names the tier of the tokens below it.
+
+   Five blocks, and no others:
+   1. :root -- the inputs, the appearance alphas (dark), the numbers.
+   2. [data-gl-appearance="dark"] -- a dark region inside a light page: the
+      dark inputs and alphas again, on that element.
+   3. :root[data-gl-appearance="light"], [data-gl-appearance="light"] -- the
+      light appearance, on the whole page or on one element (a light sidebar
+      inside a dark page).
+   4. @media (prefers-color-scheme: light) :root[data-gl-appearance="auto"] --
+      the light appearance when the host asked to follow the device. A page that
+      sets nothing stays dark.
+   5. :root, [data-gl-appearance] -- every colour derived from the inputs. It is
+      declared again on each element that carries the attribute, so a region
+      that changes its inputs recomputes its glass, rims and text; a derivation
+      declared only at :root would resolve once with the root's inputs and paint
+      dark glass on a light panel.
+   An appearance sets ground, ink, shadow and live and the appearance alphas. It
+   never sets the accent: the accent is the host's in every appearance. A host
+   that maps its own palette writes its mapping for each appearance it uses. */
+:root {
+  /* @tier identity */
+  /* identity: the five inputs a host maps to its own palette */
+  --gl-ground: #141d29;   /* the flat ground; also the glass fill's hue and the scrim's */
+  --gl-ink: #fffffc;      /* text; also every rim and the wash colour */
+  --gl-shadow: #070c13;   /* the dark of the etched seams and the floating shadow */
+  --gl-accent: #2f6fd0;   /* the one primary action and drop targets; never "where you are" */
+  --gl-live: #f75c03;     /* "what you hear": the playing row's time, the live dot */
+
+  /* @tier appearance */
+  /* the alphas an appearance sets: the dark values here, the light ones in block 3 */
+  --gl-dim-a: .55;        /* secondary text on the ground: ink at this alpha */
+  --gl-dim-glass-a: .75;  /* secondary text on glass */
+  --gl-rim-a: .40;        /* the 1px edge of a floating surface: ink at this alpha */
+  --gl-rim-hc-a: .50;     /* the rim under Increase Contrast */
+  --gl-catch-a: .14;      /* the light that catches an edge: the fixed near-white at this alpha (D1) */
+  --gl-seam-a: .55;       /* the seams' dark line: the shadow at this alpha */
+  --gl-float-a: .45;      /* the floating shadow: the shadow at this alpha */
+  --gl-action-a: .55;     /* the accent's alpha over the blur: the one primary action as tinted glass. Light is solid (1): a tint over a light ground cannot carry a white label */
+
+  /* @tier material */
+  /* the material */
+  --gl-glass-a: .60;      /* the glass fill's density: the ground at this alpha. .60 is glass; a host that wants frost (bright rooms) sets about .80 with --gl-blur near 40px */
+  --gl-blur: 16px;        /* backdrop blur of a floating surface */
+  --gl-sat: 180%;         /* backdrop saturation of a floating surface */
+  --gl-action-blur: 12px; /* the one action's backdrop blur: lighter, like the row's, it sits inside a bar */
+  --gl-action-sat: 160%;
+
+  /* motion */
+  --gl-ease: cubic-bezier(.32,.72,0,1);
+
+  /* shape */
+  --gl-r-pill: 99px;      /* fields and buttons in a bar; pills; the open row */
+  --gl-hit: 32px;         /* the height of a control (.gl-action, .gl-btn): the Mac's. A touch host sets 44px (the touch tier, DESIGN.md s4); the system does not guess from media queries */
+  --gl-tab-h: 62px;       /* .gl-tabbar's height: the iOS 26 floating tab bar, measured from the kit */
+  --gl-tab-sel-h: 54px;   /* the current tab's pill inside it: the bar less 4 a side, so the radii stay concentric */
+  --gl-tab-cell: 76px;    /* one tab's width: the bar hugs its tabs and is never stretched to the screen */
+  --gl-bar-inset: 21px;   /* a floating bar's distance from the bottom edge, inside the home indicator's 34 */
+
+  /* @tier status */
+  /* status: a family apart from the series, the accent and the live colour. Always
+     paired with a glyph or a word (ok check, warn triangle, fault cross, missed
+     hollow circle), never alone, never a wash or a ground, never on chrome.
+     Tuned for the dark appearance; a light status family is still open. */
+  --gl-ok: oklch(.80 .15 150);      /* fresh, made, up */
+  --gl-warn: oklch(.86 .14 95);     /* stale, close, watch */
+  --gl-fault: oklch(.74 .15 10);    /* failed, down; pink-red, away from the live orange */
+}
+
+[data-gl-appearance="dark"] {
+  --gl-ground: #141d29;
+  --gl-ink: #fffffc;
+  --gl-shadow: #070c13;
+  --gl-live: #f75c03;
+  --gl-dim-a: .55;
+  --gl-dim-glass-a: .75;
+  --gl-rim-a: .40;
+  --gl-rim-hc-a: .50;
+  --gl-catch-a: .14;
+  --gl-seam-a: .55;
+  --gl-float-a: .45;
+  --gl-action-a: .55;
+  color-scheme: dark;
+}
+
+:root[data-gl-appearance="light"], [data-gl-appearance="light"] {
+  --gl-ground: #f3f5f8;
+  --gl-ink: #141d29;
+  --gl-shadow: #070c13;
+  --gl-live: #d94f00;
+  --gl-dim-a: .62;
+  --gl-dim-glass-a: .70;
+  --gl-rim-a: .50;
+  --gl-rim-hc-a: .62;
+  --gl-catch-a: .70;
+  --gl-seam-a: .32;
+  --gl-float-a: .18;
+  --gl-action-a: 1;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: light) {
+  :root[data-gl-appearance="auto"] {
+    --gl-ground: #f3f5f8;
+    --gl-ink: #141d29;
+    --gl-shadow: #070c13;
+    --gl-live: #d94f00;
+    --gl-dim-a: .62;
+    --gl-dim-glass-a: .70;
+    --gl-rim-a: .50;
+    --gl-rim-hc-a: .62;
+    --gl-catch-a: .70;
+    --gl-seam-a: .32;
+    --gl-float-a: .18;
+    --gl-action-a: 1;
+    color-scheme: light;
+  }
+}
+
+:root, [data-gl-appearance] {
+  /* @tier derived */
+  /* derived colours: declared on every element with the attribute, so a region recomputes */
+  --gl-glass-fill: color-mix(in srgb, var(--gl-ground) calc(var(--gl-glass-a) * 100%), transparent);   /* the material's fill, at the density */
+  --gl-glass-fill-heavy: color-mix(in srgb, var(--gl-ground) 88%, transparent); /* the thickened fill: a full-height panel or sheet (.gl-heavy) */
+  --gl-rim: color-mix(in srgb, var(--gl-ink) calc(var(--gl-rim-a) * 100%), transparent);         /* the 1px edge of a floating surface */
+  --gl-rim-hc: color-mix(in srgb, var(--gl-ink) calc(var(--gl-rim-hc-a) * 100%), transparent);   /* the rim under Increase Contrast */
+  --gl-spec: color-mix(in srgb, #fffffc calc(var(--gl-catch-a) * 100%), transparent);            /* the 1px top highlight: the fixed near-white catch, never the ink (D1) */
+  --gl-dim: color-mix(in srgb, var(--gl-ink) calc(var(--gl-dim-a) * 100%), transparent);         /* secondary text on the ground */
+  --gl-dim-glass: color-mix(in srgb, var(--gl-ink) calc(var(--gl-dim-glass-a) * 100%), transparent); /* secondary text on glass (glass hosts re-declare --gl-dim to this) */
+  --gl-seam-dark: color-mix(in srgb, var(--gl-shadow) calc(var(--gl-seam-a) * 100%), transparent);        /* structure seam: the dark line */
+
+  /* endings: a surface that ends by its fill, not by a line */
+  --gl-open-fill: color-mix(in srgb, var(--gl-ink) 10%, transparent);       /* the open row in a list of names: a wash, not glass */
+  --gl-open-rim: color-mix(in srgb, var(--gl-ink) 18%, transparent);        /* the open row's 1px rim */
+
+  /* shadows */
+  --gl-shadow-float: 0 14px 28px color-mix(in srgb, var(--gl-shadow) calc(var(--gl-float-a) * 100%), transparent);
+
+  /* @tier control */
+  /* controls: the three the system owns -- the one action, the secondary button, the field */
+  --gl-action-fill: color-mix(in srgb, var(--gl-accent) calc(var(--gl-action-a) * 100%), transparent);  /* .gl-action's fill */
+  --gl-action-rim: color-mix(in srgb, var(--gl-ink) 22%, transparent);      /* .gl-action's 1px rim */
+  --gl-action-spec: color-mix(in srgb, #fffffc calc(var(--gl-catch-a) * 100% + 4%), transparent);  /* .gl-action's 1px top highlight */
+  --gl-on-accent: #fff;   /* the label on the accent: the one literal below the inputs, because no derivation of the ink is guaranteed to read on every accent. A host overrides it with its accent. */
+  --gl-btn-fill: var(--gl-open-fill);   /* .gl-btn, a secondary action: the open row's wash, as a button */
+  --gl-btn-rim: var(--gl-open-rim);     /* .gl-btn's 1px rim */
+  --gl-btn-off: color-mix(in srgb, var(--gl-ink) 5%, transparent);          /* .gl-btn disabled: a fainter wash, no rim */
+}

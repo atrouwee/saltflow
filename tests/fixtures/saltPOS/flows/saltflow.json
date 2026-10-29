@@ -1,0 +1,50 @@
+{
+  "schema": "saltflow/v1/manifest",
+  "product": "saltPOS",
+  "says": "The sources saltFlow reads in this repo. saltFlow writes only inside flows/.",
+  "flows": "flows",
+  "sources": {
+    "jobs": {
+      "path": "findings/23-job-map/jobs.json",
+      "kind": "ids"
+    },
+    "graph": {
+      "path": "findings/23-job-map/graph.json",
+      "kind": "ids",
+      "list": "jobs"
+    },
+    "grid": {
+      "path": "findings/22-ux-grid/grid.json",
+      "kind": "grid"
+    },
+    "decisions": {
+      "path": "decisions.md",
+      "kind": "quotes"
+    },
+    "patterns": {
+      "path": "flows/patterns.json",
+      "kind": "ids",
+      "list": "patterns"
+    },
+    "surfaces": {
+      "path": "flows/surfaces.json",
+      "kind": "ids",
+      "list": "surfaces"
+    },
+    "files": {
+      "path": ".",
+      "kind": "files"
+    }
+  },
+  "web": "web",
+  "primitives": [
+    "stock",
+    "resources",
+    "product",
+    "visit",
+    "money",
+    "signals",
+    "rules",
+    "surfaces"
+  ]
+}

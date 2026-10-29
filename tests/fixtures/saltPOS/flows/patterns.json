@@ -1,0 +1,202 @@
+{
+  "schema": "saltflow/v1/patterns",
+  "says": "The product's own patterns: where its direction departs from the grid's catalogue.",
+  "patterns": [
+    {
+      "id": "ring-first-one-screen",
+      "name": "Ring first, tab after",
+      "area": "saltPOS:grid#F02",
+      "area_name": "Start an order",
+      "stance": "diverge",
+      "reason": "Keeps the first-item start (13 of 17) but drops the per-device mode: a counter sale is a short visit, so one screen does both, and no guest count is asked.",
+      "steps": [
+        "Tap first item",
+        "Attach tab or name",
+        "Ring on"
+      ],
+      "links": [
+        {
+          "kind": "departs-from",
+          "ref": "saltPOS:grid#F02/ring-first",
+          "state": "ruled",
+          "quote": "First item starts it: 13 of 17 products (Till A, Till B, Till C, Till D, Till E, Till F, Till G, Till H, Till I, Till J, Till M, Till P, Till Q)"
+        }
+      ]
+    },
+    {
+      "id": "made-or-never-made",
+      "name": "One reason, two effects",
+      "area": "saltPOS:grid#F05",
+      "area_name": "Change a line",
+      "stance": "diverge",
+      "reason": "Tap-for-actions and void-with-reason are kept; the reason list also holds comp, waste and staff, so the reason decides whether stock was used (Till C's comp-versus-void, made general).",
+      "steps": [
+        "Tap line",
+        "Remove or reason",
+        "Made or never made",
+        "Confirm"
+      ],
+      "links": [
+        {
+          "kind": "departs-from",
+          "ref": "saltPOS:grid#F05/tap-line-actions",
+          "state": "ruled",
+          "quote": "Tap line for actions: 11 of 15 products (Till A, Till B, Till C, Till D, Till F, Till I, Till G, Till K, Till P, Till Q, Till J)"
+        }
+      ]
+    },
+    {
+      "id": "send-on-leave-early-button",
+      "name": "Sends on leaving, button early",
+      "area": "saltPOS:grid#F06",
+      "area_name": "Send to bar or kitchen",
+      "stance": "diverge",
+      "reason": "Forgetting Send is the failure the field documents; the button stays for an early send and names where things go, and each line shows Not sent, At the bar, Served.",
+      "steps": [
+        "Ring the round",
+        "Leave the tab",
+        "Lines go to bar",
+        "Served tap"
+      ],
+      "links": [
+        {
+          "kind": "departs-from",
+          "ref": "saltPOS:grid#F06/explicit-send",
+          "state": "ruled",
+          "quote": "Explicit Send button: 10 of 15 products (Till A, Till B, Till C, Till D, Till J, Till K, Till L, Till M, Till N, Till P)"
+        }
+      ]
+    },
+    {
+      "id": "split-by-payer",
+      "name": "Already split by payer",
+      "area": "saltPOS:grid#F09",
+      "area_name": "Split the bill",
+      "stance": "new",
+      "reason": "The payer on each line has done the split; Lines, Equal (any number) and Amount stay one tap away. Till L's parties are nearest; no product does this.",
+      "steps": [
+        "Pay",
+        "Grouped by payer",
+        "Pick a payer",
+        "Charge"
+      ],
+      "links": [
+        {
+          "kind": "departs-from",
+          "ref": "saltPOS:grid#F09/split-at-pay-items",
+          "state": "ruled",
+          "quote": "Pick items at pay: 16 of 20 products (Till A, Till C, Till D, Till E, Till F, Till G, Till H, Till J, Till L, Till M, Till N, Till O, Till P, Till S, Till T, Till R)"
+        }
+      ]
+    },
+    {
+      "id": "no-receipt-or-qr",
+      "name": "No receipt, or a QR",
+      "area": "saltPOS:grid#F11",
+      "area_name": "Receipt and close",
+      "stance": "diverge",
+      "reason": "The payment closes the visit and 'No receipt' is one tap, as in 9 of 19; no email or phone field, because recognition comes from the card.",
+      "steps": [
+        "Paid",
+        "No receipt or QR",
+        "Visit closes"
+      ],
+      "links": [
+        {
+          "kind": "departs-from",
+          "ref": "saltPOS:grid#F11/receipt-choice-after-pay",
+          "state": "ruled",
+          "quote": "Receipt choice, one tap: 9 of 19 products (Till A, Till D, Till F, Till G, Till I, Till J, Till K, Till Q, Till M)"
+        }
+      ]
+    },
+    {
+      "id": "payer-per-line",
+      "name": "Payer on each line",
+      "area": "saltPOS:grid#F13",
+      "area_name": "Customers and accounts",
+      "stance": "new",
+      "reason": "Keeps the one customer button (10) and charge-to-account (5); the payer per line and the hard stop on a regular tab are ruled, and 0 of 20 do the first.",
+      "steps": [
+        "Who is this for",
+        "Search or create",
+        "Lines take payer",
+        "Charge to account"
+      ],
+      "links": [
+        {
+          "kind": "departs-from",
+          "ref": "saltPOS:grid#F13/customer-button",
+          "state": "ruled",
+          "quote": "One customer button: 10 of 16 products (Till A, Till B, Till C, Till D, Till E, Till F, Till G, Till I, Till J, Till Q)"
+        }
+      ]
+    },
+    {
+      "id": "voucher-fills-line",
+      "name": "Voucher fills a line",
+      "area": "saltPOS:grid#F14",
+      "area_name": "Gift cards and vouchers",
+      "stance": "new",
+      "reason": "A voucher is one item from a set, so it fills a line and joins an open tab; stock and the ladder see the pick. Value vouchers would follow the field's line-in, payment-out.",
+      "steps": [
+        "Scan or count",
+        "Guest picks item",
+        "Line rings",
+        "Partner invoiced"
+      ],
+      "links": [
+        {
+          "kind": "departs-from",
+          "ref": "saltPOS:grid#F14/sell-line-redeem-pay",
+          "state": "ruled",
+          "quote": "Line in, payment out: 11 of 15 products (Till A, Till B, Till C, Till D, Till E, Till F, Till I, Till K, Till L, Till Q, Till T)"
+        }
+      ]
+    },
+    {
+      "id": "not-a-sale-taps",
+      "name": "One tap with a reason",
+      "area": "saltPOS:grid#F15",
+      "area_name": "Not a sale: comp, staff, waste",
+      "stance": "diverge",
+      "reason": "Ruled: never a fake discount. Till P's reason buttons are the shape; R&D logged against the lot is in no product.",
+      "steps": [
+        "Not a sale",
+        "R&D, staff, comp, waste",
+        "Pick items",
+        "Logged"
+      ],
+      "links": [
+        {
+          "kind": "departs-from",
+          "ref": "saltPOS:grid#F15/comp-as-discount",
+          "state": "ruled",
+          "quote": "Comp as 100% discount: 4 of 8 products (Till A, Till C, Till D, Till K)"
+        }
+      ]
+    },
+    {
+      "id": "card-payout-close",
+      "name": "Cards against payout",
+      "area": "saltPOS:grid#F18",
+      "area_name": "Shift and day close",
+      "stance": "diverge",
+      "reason": "The guided review with one confirm (4) and an automatic cut-off stay; there is no cash count (card only), so the check is card totals against the payment provider's payout.",
+      "steps": [
+        "Close the day",
+        "Each open tab moved",
+        "Cards vs the payment provider",
+        "One confirm"
+      ],
+      "links": [
+        {
+          "kind": "departs-from",
+          "ref": "saltPOS:grid#F18/expected-vs-counted",
+          "state": "ruled",
+          "quote": "Expected vs counted cash: 11 of 18 products (Till B, Till C, Till D, Till E, Till G, Till I, Till J, Till P, Till Q, Till A, Till K)"
+        }
+      ]
+    }
+  ]
+}

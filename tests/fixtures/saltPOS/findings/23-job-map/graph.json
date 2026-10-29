@@ -1,0 +1,52 @@
+{
+  "jobs": [
+    {
+      "id": "ring-a-coffee",
+      "switch": true,
+      "features": [
+        "grid",
+        "modifier-prompt",
+        "search"
+      ]
+    },
+    {
+      "id": "open-a-tab",
+      "switch": true,
+      "features": [
+        "tabs",
+        "name-on-order",
+        "service-mode",
+        "floor",
+        "seats"
+      ]
+    },
+    {
+      "id": "take-payment-on-leaving",
+      "switch": true,
+      "features": [
+        "card",
+        "tabs",
+        "tips"
+      ]
+    },
+    {
+      "id": "handle-a-declined-card",
+      "switch": true,
+      "features": [
+        "card",
+        "tabs"
+      ]
+    },
+    {
+      "id": "sell-through-an-outage",
+      "switch": true,
+      "features": [
+        "offline",
+        "pay-link",
+        "manual-card",
+        "health",
+        "devices"
+      ]
+    }
+  ]
+}

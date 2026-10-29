@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "saltflow"
+version = "0.2.0"
+description = "A review tool for products: the flow as the timeline, the real surface at every step, the reason behind every pattern."
+readme = "README.md"
+requires-python = ">=3.9"
+license = "PolyForm-Noncommercial-1.0.0"
+authors = [{ name = "Moonlabor" }]
+license-files = ["LICENSE"]
+dependencies = []
+keywords = ["review", "user flows", "product design", "ux", "playwright", "cli"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Environment :: Web Environment",
+    "Intended Audience :: Developers",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Quality Assurance",
+    "Topic :: Software Development :: User Interfaces",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[project.urls]
+Homepage = "https://github.com/atrouwee/saltflow"
+Source = "https://github.com/atrouwee/saltflow"
+Issues = "https://github.com/atrouwee/saltflow/issues"
+
+[project.scripts]
+saltflow = "saltflow.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+# Everything the page and capture read at run time. The example (examples/saltpos) goes in as saltflow/example by
+# the build hook in setup.py, so `saltflow demo` works from a wheel too; from a clone the demo finds it itself.
+[tool.setuptools.package-data]
+saltflow = ["page.html", "flows-guide.md", "capture.mjs", "icon.png", "icon.svg", "vendor/*.css", "vendor/VERSION"]

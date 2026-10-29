@@ -1,0 +1,274 @@
+{
+ "schema": "saltflow/v1/flow",
+ "id": "send-to-the-bar",
+ "name": "Send a round to the bar",
+ "says": "Lines not yet sent gather at the foot of the tab card and go to the bar when the barista leaves the tab, or earlier with Send; each line then reads At the bar, then Served. The till half is built; the bar half (a ticket by station with the tab's name, and the served tap) is not.",
+ "product": "saltPOS",
+ "stage": "order",
+ "path": "happy",
+ "jobs": [
+  {
+   "ref": "saltPOS:jobs#send-to-the-bar",
+   "ends": [
+    "served"
+   ]
+  }
+ ],
+ "links": [
+  {
+   "kind": "ruling",
+   "ref": "saltPOS:decisions#send-on-leaving-the-tab",
+   "state": "ruled",
+   "quote": "A round goes to the bar when the barista leaves the tab. The Send button stays for an early send."
+  }
+ ],
+ "world": {
+  "send": [
+   "leave",
+   "now"
+  ],
+  "asked": [
+   false,
+   true
+  ]
+ },
+ "entry": "tab",
+ "steps": {
+  "tab": {
+   "surface": "home.tab-card",
+   "place": "home",
+   "primitive": "visit",
+   "built": true,
+   "variant": "unsent",
+   "state": "unsent",
+   "behind": "none",
+   "size": "part",
+   "features": [
+    "tabs"
+   ],
+   "patterns": [
+    "saltPOS:patterns#send-on-leave-early-button"
+   ],
+   "says": "a tab with three lines in 'Not sent · Goes to the bar when you leave this tab'; the round Send button carries the count 3"
+  },
+  "ask": {
+   "surface": "home.ask-strip",
+   "place": "same",
+   "primitive": "visit",
+   "built": true,
+   "behind": "none",
+   "size": "part",
+   "features": [
+    "tabs",
+    "name-on-order"
+   ],
+   "links": [
+    {
+     "kind": "ruling",
+     "ref": "saltPOS:decisions#ask-once",
+     "state": "ruled",
+     "quote": "Ask who the order is for once, when it first goes to the bar."
+    }
+   ],
+   "says": "on the order's first Send, the tab card's foot turns into 'Who is it for?': one field for a first name or a #code, Send, Paying now and Skip"
+  },
+  "sent": {
+   "surface": "home.toast",
+   "place": "overlay",
+   "primitive": "visit",
+   "built": true,
+   "variant": "sent",
+   "state": "sent",
+   "behind": "none",
+   "says": "'Sent 3 to the bar' from the button, or 'Sent 3 to the bar from <tab>' on leaving. The toast names the count only; the design's send names the stations ('2 to bar, 1 to kitchen')"
+  },
+  "at-the-bar": {
+   "surface": "home.tab-card",
+   "place": "home",
+   "primitive": "visit",
+   "built": true,
+   "behind": "none",
+   "size": "part",
+   "patterns": [
+    "saltPOS:patterns#send-on-leave-early-button"
+   ],
+   "says": "the Not sent section is gone; every line reads 'At the bar'"
+  },
+  "bar-ticket": {
+   "surface": "bar.screen",
+   "place": "home",
+   "primitive": "surfaces",
+   "built": false,
+   "behind": "none",
+   "size": "whole",
+   "features": [
+    "prep-routing",
+    "prep-print",
+    "name-on-order"
+   ],
+   "design": "The round arrives at the bar as a ticket on the bar screen, or a printed slip: each line routed by its product's station, in the order rung, with the tab's name or place and the options chosen. It travels over the local network, so it works with the wifi down, like tabs."
+  },
+  "served": {
+   "surface": "home.tab-card",
+   "place": "home",
+   "primitive": "visit",
+   "built": false,
+   "behind": "none",
+   "size": "part",
+   "end": "done",
+   "features": [
+    "made-served"
+   ],
+   "design": "A tap on the bar screen marks the line made and the till's line reads 'Served' with its check. That tap is the visit moment the model needs: the wait from ring to served, and when the second round comes.",
+   "says": "the round is made and served; every line reads Served"
+  }
+ },
+ "moves": [
+  {
+   "id": "send-first",
+   "from": "tab",
+   "to": "ask",
+   "kind": "forward",
+   "trigger": "Send on an order that has never been sent: the strip asks once",
+   "needs": {
+    "send": "now",
+    "asked": false
+   }
+  },
+  {
+   "id": "answer-name",
+   "from": "ask",
+   "to": "sent",
+   "kind": "forward",
+   "trigger": "Type a first name, then Send",
+   "sets": {
+    "asked": true
+   }
+  },
+  {
+   "id": "answer-code",
+   "from": "ask",
+   "to": "sent",
+   "kind": "forward",
+   "trigger": "Type a #code, then Send",
+   "sets": {
+    "asked": true
+   }
+  },
+  {
+   "id": "answer-paying-now",
+   "from": "ask",
+   "to": "sent",
+   "kind": "forward",
+   "trigger": "Paying now",
+   "sets": {
+    "asked": true
+   }
+  },
+  {
+   "id": "skip-ask",
+   "from": "ask",
+   "to": "sent",
+   "kind": "forward",
+   "trigger": "Skip: the answer is recorded as skipped",
+   "sets": {
+    "asked": true
+   }
+  },
+  {
+   "id": "send-now",
+   "from": "tab",
+   "to": "sent",
+   "kind": "forward",
+   "trigger": "Send, the round button with the count (its label: 'Send 3 to the bar now')",
+   "needs": {
+    "send": "now",
+    "asked": true
+   }
+  },
+  {
+   "id": "leave-tab",
+   "from": "tab",
+   "to": "sent",
+   "kind": "forward",
+   "trigger": "Leave the tab: tap another tab in the sidebar",
+   "needs": {
+    "send": "leave"
+   }
+  },
+  {
+   "id": "lines-at-bar",
+   "from": "sent",
+   "to": "at-the-bar",
+   "kind": "system",
+   "trigger": "The lines read At the bar",
+   "needs": {
+    "send": "now"
+   }
+  },
+  {
+   "id": "back-to-tab",
+   "from": "sent",
+   "to": "at-the-bar",
+   "kind": "forward",
+   "trigger": "Come back to the tab: its lines read At the bar",
+   "needs": {
+    "send": "leave"
+   }
+  },
+  {
+   "id": "toast-fades",
+   "from": "sent",
+   "to": "tab",
+   "kind": "system",
+   "trigger": "The toast fades by itself after four seconds"
+  },
+  {
+   "id": "to-the-bar",
+   "from": "at-the-bar",
+   "to": "bar-ticket",
+   "kind": "system",
+   "trigger": "The round is on the bar screen, by station",
+   "built_as": "nothing leaves the till yet: no bar screen, no print, no routing by station; a line's sent flag is all there is"
+  },
+  {
+   "id": "made",
+   "from": "bar-ticket",
+   "to": "served",
+   "kind": "forward",
+   "trigger": "Made, tapped on the bar screen",
+   "built_as": "no tap marks a line served yet"
+  }
+ ],
+ "runs": [
+  {
+   "id": "leave-the-tab",
+   "job": "saltPOS:jobs#send-to-the-bar",
+   "world": {
+    "send": "leave"
+   },
+   "expect": "not-built",
+   "why": "The till half is done: leaving the tab sends the round by itself with a toast, and the lines read At the bar. Nothing is at the bar yet (no ticket, no print, no station, no served tap), so the job stops unbuilt at the bar screen."
+  },
+  {
+   "id": "send-now",
+   "job": "saltPOS:jobs#send-to-the-bar",
+   "world": {
+    "send": "now",
+    "asked": true
+   },
+   "expect": "not-built",
+   "why": "The early send works the same way on the till and stops at the same place: the bar screen is not built."
+  },
+  {
+   "id": "ask-once",
+   "job": "saltPOS:jobs#send-to-the-bar",
+   "world": {
+    "send": "now",
+    "asked": false
+   },
+   "expect": "not-built",
+   "why": "The first Send asks once (a name, a code, Paying now or Skip), then stops at the bar screen like the others."
+  }
+ ]
+}

@@ -152,37 +152,65 @@ TEXT_FILES = (".md", ".txt", ".json", ".jsonl", ".html", ".py", ".ts", ".tsx", "
 
 
 
+PLATFORM_NAMES = {"web": "Web", "ipad": "iPad", "iphone": "iPhone", "mac": "Mac", "watch": "Watch", "tv": "TV",
+                  "android": "Android", "native": "Native"}
+PLATFORM_ORDER = ("ipad", "iphone", "mac", "watch", "tv", "android", "native", "web")
+
+
+def platform_of(cap):
+    """Which platform a capture shows: the web build, or the device a native test ran on (iPad, iPhone, Mac...)."""
+    if cap.get("platform"):
+        return cap["platform"]
+    if (cap.get("client") or "web") == "web":
+        return "web"
+    dev = (cap.get("device") or "").lower()
+    for key, words in (("ipad", ("ipad",)), ("iphone", ("iphone",)), ("mac", ("mac",)), ("watch", ("watch",)),
+                       ("tv", ("apple tv", "tvos")), ("android", ("android", "pixel"))):
+        if any(w in dev for w in words):
+            return key
+    return "native"
+
+
 def load_captures(flows_dir, prefer=None):
-    """The captures of a product, web and native side by side. The web capture writes captures/index.json, the
-    native import captures/native.json; neither touches the other. A step captured by both shows the preferred
-    client's entry (the manifest's capture.prefer, else native) with the other under "alt"."""
-    def read(name):
-        p = os.path.join(flows_dir, "captures", name)
-        if not os.path.exists(p):
+    """The captures of a product, one set per platform, side by side. The web capture writes captures/index.json;
+    the native import writes captures/native/<platform>.json (ipad, iphone...). No capture overwrites another
+    platform's. A step captured on several platforms shows the preferred one first (the manifest's capture.prefer,
+    a platform or a list of them; else native before web) with the others under "alt"; "platforms" lists what exists."""
+    def read(path):
+        if not os.path.exists(path):
             return {}
-        with open(p, encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             try:
                 return json.load(f) or {}
             except ValueError:       # a broken index counts as no captures; capturing again rewrites it whole
                 return {}
-    web, nat = read("index.json"), read("native.json")
-    order = ("web", "native") if prefer == "web" else ("native", "web")
-    by = {"web": {}, "native": {}}
-    for k, v in (web.get("steps") or {}).items():
-        by[v.get("client") or "web"][k] = dict(v, client=v.get("client") or "web")   # an older import left native rows here
-    for k, v in (nat.get("steps") or {}).items():
-        by["native"][k] = dict(v, client="native")
+    cdir = os.path.join(flows_dir, "captures")
+    web = read(os.path.join(cdir, "index.json"))
+    sources = [web, read(os.path.join(cdir, "native.json"))]        # native.json: 0.2.2's single native index
+    ndir = os.path.join(cdir, "native")
+    if os.path.isdir(ndir):
+        sources += [read(os.path.join(ndir, n)) for n in sorted(os.listdir(ndir)) if n.endswith(".json")]
+    by = {}
+    for src in sources:
+        for k, v in (src.get("steps") or {}).items():
+            e = dict(v, client=v.get("client") or "web")
+            e["platform"] = platform_of(e)
+            by.setdefault(e["platform"], {})[k] = e
+    want = [prefer] if isinstance(prefer, str) else list(prefer or [])
+    order = [p for p in want if p in by] + [p for p in PLATFORM_ORDER if p in by and p not in want]
+    order += sorted(p for p in by if p not in order)
     steps = {}
-    for k in set(by["web"]) | set(by["native"]):
-        have = [by[c][k] for c in order if k in by[c]]
+    for k in set().union(*by.values()) if by else ():
+        have = [by[p][k] for p in order if k in by[p]]
         e = dict(have[0])
         if len(have) > 1:
-            e["alt"] = [have[1]]
+            e["alt"] = have[1:]
         steps[k] = e
-    out = dict(web or nat)
+    out = dict(web or {})
     out["steps"] = steps
-    out["disagree"] = (web.get("disagree") or []) + (nat.get("disagree") or [])
-    out["errors"] = (web.get("errors") or []) + (nat.get("errors") or [])
+    out["platforms"] = order
+    out["disagree"] = [d for src in sources for d in (src.get("disagree") or [])]
+    out["errors"] = [d for src in sources for d in (src.get("errors") or [])]
     return out
 
 

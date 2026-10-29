@@ -240,10 +240,9 @@ html, body { height: 100%; margin: 0; background: #000; }
 .tc-details[open] summary::before { transform: rotate(90deg); }
 .tc-details .tc-meta { padding: 4px 0 6px; }
 .crop { position: relative; }
-.crop-clients { position: absolute; right: 10px; top: 10px; z-index: 3; pointer-events: auto; display: flex; padding: 2px; gap: 2px; border-radius: 999px; background: color-mix(in srgb, var(--gl-ground) 82%, transparent); }
-.crop-clients button { all: unset; pointer-events: auto; cursor: pointer; font: 600 11.5px var(--font); padding: 3px 10px; border-radius: 999px; color: var(--dim); }
-.crop-clients button.on { background: var(--gl-open-fill, rgba(127,127,127,.18)); color: var(--ink); }
-.crop-clients button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.crop-chip.other { color: var(--ink); }
+.segmented.plat-seg { flex: none; width: auto; display: inline-flex; }
+.segmented.plat-seg button { flex: none; padding-left: 14px; padding-right: 14px; }
 .crop-chip { position: absolute; left: 10px; bottom: 10px; font: 600 11.5px var(--font); padding: 4px 9px; border-radius: 999px; background: color-mix(in srgb, var(--gl-ground) 82%, transparent); color: var(--dim); }
 /* board: content on the tint, not cards in panes */
 .bd-col { background: transparent !important; }
@@ -602,7 +601,7 @@ function drawBoard() {
   board.replaceChildren(
     h('div', { class: 'bd-top' },
       h('div', { class: 'heading' }, h('h1', {}, product ? product.product : 'saltFlow'), h('span', { class: 'sub' }, noJourney ? `${flows.length} flows · no journey yet: grouped by area` : `${(curJourney() || {}).name || 'the journey'} · ${jflows().length} flows`)),
-      journeyChips(), seg(PATH_FILTERS, pathFilter, k => { pathFilter = k; try { LIVE || localStorage.setItem('saltflow.path', k) } catch (e) { /* fine */ } drawAll() }, 'Show'), h('span', { class: 'grow' }),
+      journeyChips(), seg(PATH_FILTERS, pathFilter, k => { pathFilter = k; try { LIVE || localStorage.setItem('saltflow.path', k) } catch (e) { /* fine */ } drawAll() }, 'Show'), platformSwitch() || '', h('span', { class: 'grow' }),
       h('button', { class: 'wbtn', onclick: runWalk, title: 'Walk every flow against its jobs' }, icon('send', 'icon sm'), 'Walk'),
       decide.length ? h('button', { class: 'gl-action primary', onclick: () => { section = 'decide'; enterDecide() } }, `Decide · ${decide.length}`) : null),
     boardCols(cols, decide))
@@ -630,7 +629,7 @@ function boardCols(cols, decide) {
         h('div', { class: 'tiles' }, ...fs.map(f => {
           const dn = decide.filter(d => d.flow === f.id).length
           // a picture only when there is one; status as words in one line (the design review: no grey placeholders)
-          const th = f.thumb && !INLINE ? h('div', { class: 'th' }, h('img', { src: `/api/crop/${f.thumb[scheme] || f.thumb.light || f.thumb.dark}?product=${encodeURIComponent(productName)}`, alt: '', loading: 'lazy' })) : f.sketch && !INLINE ? h('div', { class: 'th sk' }, sketchEl(f.sketch)) : null
+          const tf = (f.thumbs || {})[curPlatform()] || f.thumb, th = tf && !INLINE ? h('div', { class: 'th' }, h('img', { src: `/api/crop/${tf[scheme] || tf.light || tf.dark}?product=${encodeURIComponent(productName)}`, alt: '', loading: 'lazy' })) : f.sketch && !INLINE ? h('div', { class: 'th sk' }, sketchEl(f.sketch)) : null
           const bits = [f.path && f.path !== 'happy' ? PATH_WORDS[f.path].toLowerCase() : null, dn ? `${dn} to decide` : null, f.unbuilt ? `${f.unbuilt} not built` : null].filter(Boolean)
           return h('button', { class: `tile ${f.path === 'happy' ? 'happy' : ''}`, 'data-move': 'open-tile', 'data-words': "a flow's tile", title: f.says || f.name, onclick: () => openFlow(f.id) }, th, h('div', { class: 'n' }, f.name),
             h('div', { class: 'm' }, f.breaks ? h('span', { class: 'st fault' }, `${f.breaks} broke`) : null, bits.length ? h('span', {}, bits.join(' · ')) : null))
@@ -750,7 +749,8 @@ function drawRail() {
     h('div', { class: 'rail-top' },
       h('div', { class: 'heading' },
         h('span', { class: 'product' }, h('span', { class: 'product-name' }, product ? product.product : 'saltFlow'),
-          h('span', { class: 'product-sub' }, product ? `${flows.length} flow${flows.length === 1 ? '' : 's'}${product.head ? ` · read at ${product.head}` : ''}` : '')))),
+          h('span', { class: 'product-sub' }, product ? `${flows.length} flow${flows.length === 1 ? '' : 's'}${product.head ? ` · read at ${product.head}` : ''}` : ''))),
+      platformSwitch() || ''),
     ...(section === 'decide' ? [
       seg([['open', 'Open'], ['decided', 'Decided']], decFilter, k => { decFilter = k; decId = null; enterDecide() }, 'Decisions'),
       decideList()] : section === 'feed' ? [
@@ -1008,9 +1008,18 @@ function xrayFor(surface) {
   c.classList.add('xr')
   return c
 }
-// a step captured by both builds shows the one picked last (web or native), remembered on this device
-let capClient = (() => { try { return localStorage.getItem('saltflow.client') } catch (_) { return null } })()
-const clientName = c => c.client === 'native' ? (/ipad/i.test(c.device || '') ? 'iPad' : /iphone/i.test(c.device || '') ? 'iPhone' : 'Native') : 'Web'
+// the platform the pictures show (web, iPad, iPhone...): one switch for the whole page, remembered on this device
+let platform = (() => { try { return localStorage.getItem('saltflow.platform') } catch (_) { return null } })()
+const platforms = () => (product && product.platforms) || []
+const curPlatform = () => { const ps = platforms().map(p => p.id); return ps.includes(platform) ? platform : ps[0] }
+const platformName = id => (platforms().find(p => p.id === id) || {}).name || id
+// a step's capture on the shown platform; else what it has, marked as another platform's
+function pickCap(c) { if (!c) return null; const all = [c, ...(c.alt || [])], want = curPlatform(); return all.find(e => (e.platform || 'web') === want) || c }
+function platformSwitch() {
+  const ps = platforms(); if (ps.length < 2) return null
+  const el = seg(ps.map(p => [p.id, p.name]), curPlatform(), k => { platform = k; try { LIVE || localStorage.setItem('saltflow.platform', k) } catch (e) { /* fine */ } drawAll(); if (view === 'decide' && decId) enterDecide() }, 'Platform')
+  el.classList.add('plat-seg'); el.title = 'Which platform the pictures show'; return el
+}
 // ── the card: the step ──
 function cropFor(id, s, surf) {
   const box = h('div', { 'data-move': 'open-live', 'data-words': 'the pane on the card', class: `crop ${s.made ? '' : 'unbuilt'} ${INLINE ? '' : 'live'}`, role: INLINE ? null : 'button', tabindex: INLINE ? null : 0, title: INLINE ? null : 'Open this step live', onclick: INLINE ? null : () => openLive(id), onkeydown: e => { if (!INLINE && e.key === 'Enter') openLive(id) } })
@@ -1024,15 +1033,13 @@ function cropFor(id, s, surf) {
     api('/api/terminal?cmd=' + encodeURIComponent(surf.command)).then(r => { pre.textContent = `$ ${r.command}\n${r.output}` }, e => { pre.textContent = e.message })
     return box
   }
-  const first = (bundle.captures || {})[id], all = first ? [first, ...(first.alt || [])] : []
-  const cap = all.find(c => c.client === capClient) || first   // web and native side by side: the one picked last
+  const cap = pickCap((bundle.captures || {})[id])
   const file = cap && cap.files ? (cap.files[scheme] || cap.files.light || cap.files.dark) : `${flowId}/${id}${scheme === 'dark' ? '.dark' : ''}.png`
   const img = h('img', { src: `/api/crop/${file}?product=${encodeURIComponent(productName)}`, alt: `${(surf || {}).name}, ${callsIt()}${cap && cap.commit ? ` at ${cap.commit}` : ''}` })
   img.onerror = () => box.replaceChildren(h('div', { class: 'none' }, 'Built, not captured yet: saltflow capture takes the real pane once a commit touches it.'))
   box.append(img)
-  if (cap) box.append(h('span', { class: 'crop-chip' }, cap.commit ? `Work in progress · ${cap.commit}` : 'Work in progress'))
-  if (all.length > 1) box.append(h('span', { class: 'crop-clients', role: 'group', 'aria-label': 'Which build' }, ...all.map(c =>
-    h('button', { class: c === cap ? 'on' : '', 'aria-pressed': String(c === cap), onclick: e => { e.stopPropagation(); capClient = c.client; try { localStorage.setItem('saltflow.client', capClient) } catch (_) {} ; box.replaceWith(cropFor(id, s, surf)) } }, clientName(c)))))
+  const other = cap && platforms().length > 1 && (cap.platform || 'web') !== curPlatform()   // not on the shown platform yet
+  if (cap) box.append(h('span', { class: `crop-chip ${other ? 'other' : ''}` }, [platforms().length > 1 ? platformName(cap.platform || 'web') + (other ? ` (no ${platformName(curPlatform())} picture yet)` : '') : '', cap.commit ? `Work in progress · ${cap.commit}` : 'Work in progress'].filter(Boolean).join(' · ')))
   return box
 }
 function drawCard() {
@@ -1051,9 +1058,9 @@ function drawCard() {
         h('button', { class: 'tagbtn', 'data-move': 'why', onclick: () => openWhy(patterns[0] && patterns[0].ref, links), disabled: patterns.length || links.length ? null : true }, icon('people', 'icon sm'), h('span', {}, 'Why'), icon('chevron', 'icon sm')),
         h('button', { class: 'tagbtn', onclick: openChanged }, icon('receipt', 'icon sm'), h('span', {}, 'What changed'), icon('chevron', 'icon sm')))),
     cropFor(sel, s, surf),
-    (bundle.captures || {})[sel] && false ? h('div', { class: 'crop-note' }, `${cap1(callsIt())}, work in progress, at ${bundle.captures[sel].commit}, ${bundle.captures[sel].device || 'default device'}; not the design.`) : null,
-    h('details', { class: 'tc-details' }, h('summary', {}, 'Details'), h('div', { class: 'tc-meta' }, h('span', { class: 'ref', title: 'The reference: say it, or tap to copy', onclick: () => { const r = refOf(productName, flowId, sel); (navigator.clipboard ? navigator.clipboard.writeText(r) : Promise.reject()).then(() => toast('Copied ' + r), () => toast(r)) } }, 'ref ', h('b', {}, h('code', {}, refOf(productName, flowId, sel)))), h('span', {}, 'read at ', h('b', {}, h('code', {}, bundle.head || '?'))), (bundle.captures || {})[sel] ? h('span', {}, 'captured at ', h('b', {}, h('code', {}, bundle.captures[sel].commit)), bundle.captures[sel].agrees ? '' : ' ', bundle.captures[sel].agrees ? null : h('span', { class: 'st fault' }, 'capture disagrees')) : null, surf.aria ? h('span', {}, 'aria ', h('b', {}, surf.aria)) : surf.title ? h('span', {}, 'title ', h('b', {}, surf.title)) : null, h('span', {}, 'surface ', h('b', {}, h('code', {}, s.surface))), surf.file ? h('span', {}, 'in ', h('b', {}, h('code', {}, surf.file.split('/').pop()))) : null,
-      (bundle.captures || {})[sel] ? h('span', {}, `${cap1(callsIt())} at ${bundle.captures[sel].commit}, ${bundle.captures[sel].device || 'default device'}; work in progress, not the design`) : null)),
+    (bundle.captures || {})[sel] && false ? h('div', { class: 'crop-note' }, `${cap1(callsIt())}, work in progress, at ${pickCap(bundle.captures[sel]).commit}, ${pickCap(bundle.captures[sel]).device || 'default device'}; not the design.`) : null,
+    h('details', { class: 'tc-details' }, h('summary', {}, 'Details'), h('div', { class: 'tc-meta' }, h('span', { class: 'ref', title: 'The reference: say it, or tap to copy', onclick: () => { const r = refOf(productName, flowId, sel); (navigator.clipboard ? navigator.clipboard.writeText(r) : Promise.reject()).then(() => toast('Copied ' + r), () => toast(r)) } }, 'ref ', h('b', {}, h('code', {}, refOf(productName, flowId, sel)))), h('span', {}, 'read at ', h('b', {}, h('code', {}, bundle.head || '?'))), (bundle.captures || {})[sel] ? h('span', {}, 'captured at ', h('b', {}, h('code', {}, pickCap(bundle.captures[sel]).commit)), pickCap(bundle.captures[sel]).agrees ? '' : ' ', pickCap(bundle.captures[sel]).agrees ? null : h('span', { class: 'st fault' }, 'capture disagrees')) : null, surf.aria ? h('span', {}, 'aria ', h('b', {}, surf.aria)) : surf.title ? h('span', {}, 'title ', h('b', {}, surf.title)) : null, h('span', {}, 'surface ', h('b', {}, h('code', {}, s.surface))), surf.file ? h('span', {}, 'in ', h('b', {}, h('code', {}, surf.file.split('/').pop()))) : null,
+      (bundle.captures || {})[sel] ? h('span', {}, `${cap1(callsIt())} at ${pickCap(bundle.captures[sel]).commit}, ${pickCap(bundle.captures[sel]).device || 'default device'}; work in progress, not the design`) : null)),
     h('div', { class: 'lines' },
       h('div', { class: 'group-h' }, `Runs through this step · ${runs.length}`),
       ...runs.map(r => { const [cls, word] = OUTCOME[r.outcome]; const here = r.at === sel && r.verdict !== 'ok'; return h('div', { class: 'line plain' }, h('span', { class: 'line-mark g' }, here ? '●' : '○'), h('span', { class: 'line-body' }, h('span', { class: 'line-name' }, r.id), h('span', { class: 'line-mods' }, `${jobName(r.job)} · ${worldWords(r.world)}${r.why ? ' · ' + r.why : ''}${r.missing ? ' · no step offers ' + r.missing.join(', ') : ''}`), h('span', { class: 'line-state' }, h('span', { class: `st ${cls}` }, word + (here ? ' here' : '')), r.agrees === false ? h('span', { class: 'st warn' }, `expected ${r.expect}`) : null)), h('span', { class: 'line-val' })) }),
@@ -1128,7 +1135,7 @@ function openRefs() {
 }
 function openChanged() {
   const its = (bundle.iterations || []).filter(it => (it.steps || []).includes(flowId + '/' + sel)).reverse()
-  const cap = (bundle.captures || {})[sel]
+  const cap = pickCap((bundle.captures || {})[sel])
   const sheet = h('div', { class: 'sheet frost heavy on-panel float', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'What changed', 'data-gl-appearance': scheme },
     ...nav('What changed', null, `${refOf(productName, flowId, sel)} · the commits that touched this step`),
     h('div', { class: 'sheet-body' },
@@ -1462,7 +1469,7 @@ async function drawDecideMid(d) {
   const sk = d.sketch || (b.sketches || {})[step]   // the question's own drawing, else its step's
   try { info = await api(`/api/live/${d.flow}/${step}`) } catch (e) { stage.append(h('div', { class: 'empty' }, h('b', {}, 'Live could not start'), h('code', {}, e.message))); return }
   if (mine !== decToken) return
-  const cap = (b.captures || {})[step]   // no build to play: the step's last picture says more than a blank stage
+  const cap = pickCap((b.captures || {})[step])   // no build to play: the step's last picture says more than a blank stage
   if (!info.has_dummy && !info.terminal && cap && cap.files) { const file = cap.files[scheme] || cap.files.light || cap.files.dark; stage.replaceChildren(h('div', { class: 'dm-crop' }, h('img', { src: `/api/crop/${file}?product=${encodeURIComponent(productName)}`, alt: surf.name }))); state.textContent = `The step as ${callsIt()} last showed it${cap.commit ? `, at ${cap.commit}` : ''}. Build it, and this plays live.`; return }
   if (!info.has_dummy && !info.terminal && sk) { stage.replaceChildren(sketchEl(sk, 'big')); state.textContent = 'A sketch of where the parts sit, not how it will look. The marked part is what the question is about.'; return }
   const live = mountLive(info, stage, state, name, () => {})

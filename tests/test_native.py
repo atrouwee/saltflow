@@ -124,3 +124,42 @@ class SideBySide(unittest.TestCase):
         self.assertEqual(steps["f/b"]["client"], "web")
         self.assertEqual(steps["f/c"]["client"], "native")            # an older import's row in the web index
         self.assertEqual(model.load_captures(self.fd, prefer="web")["steps"]["f/a"]["client"], "web")
+
+
+class Platforms(unittest.TestCase):
+    """Each native platform keeps its own index; the loader lists the platforms and shows the preferred one first."""
+    def test_ipad_iphone_and_web_side_by_side(self):
+        from saltflow import model
+        tmp = tempfile.mkdtemp()
+        try:
+            cd = os.path.join(tmp, "flows", "captures")
+            os.makedirs(os.path.join(cd, "native"))
+            def w(path, steps):
+                with open(path, "w") as f:
+                    json.dump({"steps": steps}, f)
+            w(os.path.join(cd, "index.json"), {"f/a": {"files": {"light": "f/a.png"}}})
+            w(os.path.join(cd, "native", "ipad.json"), {"f/a": {"client": "native", "device": "an iPad Pro", "files": {"light": "f/a.ipad.png"}}})
+            w(os.path.join(cd, "native", "iphone.json"), {"f/a": {"client": "native", "device": "an iPhone 17", "files": {"light": "f/a.iphone.png"}}})
+            c = model.load_captures(os.path.join(tmp, "flows"))
+            self.assertEqual(c["platforms"], ["ipad", "iphone", "web"])
+            self.assertEqual([c["steps"]["f/a"]["platform"]] + [x["platform"] for x in c["steps"]["f/a"]["alt"]], ["ipad", "iphone", "web"])
+            self.assertEqual(model.load_captures(os.path.join(tmp, "flows"), prefer="web")["platforms"][0], "web")
+        finally:
+            shutil.rmtree(tmp)
+
+    def test_older_layouts_move_to_their_platform(self):
+        tmp = tempfile.mkdtemp()
+        try:
+            cd = os.path.join(tmp, "captures")
+            os.makedirs(cd)
+            with open(os.path.join(cd, "index.json"), "w") as f:
+                json.dump({"steps": {"f/a": {"files": {}}, "f/b": {"client": "native", "device": "an iPad", "files": {}}}}, f)
+            with open(os.path.join(cd, "native.json"), "w") as f:
+                json.dump({"steps": {"f/c": {"client": "native", "device": "an iPhone", "files": {}}}}, f)
+            N.migrate(cd)
+            self.assertFalse(os.path.exists(os.path.join(cd, "native.json")))
+            with open(os.path.join(cd, "index.json")) as f:
+                self.assertEqual(list(json.load(f)["steps"]), ["f/a"])
+            self.assertEqual(sorted(os.listdir(os.path.join(cd, "native"))), ["ipad.json", "iphone.json"])
+        finally:
+            shutil.rmtree(tmp)

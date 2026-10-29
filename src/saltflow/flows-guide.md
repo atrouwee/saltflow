@@ -142,7 +142,7 @@ surface, by where the surface lives (`client`). `saltflow needs` lists what is m
   `"saltflow <flow> <step> hierarchy"` (`XCTAttachment(string: app.debugDescription)`) and `"saltflow <flow> <step>
   screen"` (`XCUIScreen.main.screenshot()`, with the orientation set to `.landscapeLeft` in setUp for a landscape app;
   saltFlow turns the portrait picture upright; `"... screen dark"` for dark). Spaces, not a slash: xcresulttool drops
-  the slash from attachment names. Then `saltflow capture --xcresult <bundle>` files the
+  the slash from attachment names. Then `saltflow capture --xcresult <bundle>` files the pictures under the platform the tests ran on (iPad, iPhone...), beside the web ones, and files the
   screens and reads each control's identifier and label, and `saltflow lint` checks them as it checks `data-move`.
 - **A terminal**: a read-only `"command"` on the surface (a `saltflow` verb the page runs to show real output), or a
   sketch of what it prints.

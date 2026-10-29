@@ -9,7 +9,8 @@ The app marks each screen element accessibilityIdentifier("surface.<id>") and ea
 moves space-separated, as data-move on the web; " = <words>" after the ids gives a control whose label is data its
 fixed words, as data-words does); keypad keys are "key.N", input inside a step and not moves.
 `saltflow capture --xcresult <bundle>` exports the attachments with xcresulttool and writes the same
-captures/native.json, beside the web capture's index.json (each keeps its own; a step captured by both shows both),
+captures/native/<platform>.json (ipad, iphone...), beside the web capture's index.json: each platform keeps its own,
+and a step captured on several shows a platform switch,
 so the page, lint and needs read native steps as they read web ones: the moves on
 screen become moves_in_code, their labels move_words, and agrees says whether the flow's surface is on screen.
 
@@ -152,6 +153,45 @@ def attachments(entries, flows):
     return found
 
 
+def _read(path):
+    if not os.path.exists(path):
+        return {}
+    with open(path, encoding="utf-8") as f:
+        try:
+            return json.load(f) or {}
+        except ValueError:       # a broken index is rewritten whole
+            return {}
+
+
+def migrate(out):
+    """Move native rows out of the web index (before 0.2.2) and out of native.json (0.2.2) into their platform's
+    own index. Their picture files stay where they are; each row names its own."""
+    moved = {}
+    wip = os.path.join(out, "index.json")
+    web = _read(wip)
+    rows = {k: v for k, v in (web.get("steps") or {}).items() if v.get("client") == "native"}
+    if rows:
+        web["steps"] = {k: v for k, v in web["steps"].items() if k not in rows}
+        model.write_json(wip, web, indent=1, ensure_ascii=False)
+        moved.update(rows)
+    nip = os.path.join(out, "native.json")
+    if os.path.exists(nip):
+        moved.update(_read(nip).get("steps") or {})
+    by = {}
+    for k, v in moved.items():
+        by.setdefault(model.platform_of(dict(v, client="native")), {})[k] = dict(v, client="native")
+    for plat, rows in by.items():
+        p = os.path.join(out, "native", "%s.json" % plat)
+        os.makedirs(os.path.dirname(p), exist_ok=True)
+        ix = _read(p) or {"schema": "saltflow/v1/captures"}
+        ix.setdefault("steps", {})
+        for k, v in rows.items():
+            ix["steps"].setdefault(k, dict(v, platform=plat))
+        model.write_json(p, ix, indent=1, ensure_ascii=False)
+    if os.path.exists(nip):
+        os.remove(nip)
+
+
 def capture(root, bundle, log=print):
     man = M.load(root)
     from .server import Product
@@ -164,29 +204,14 @@ def capture(root, bundle, log=print):
         src, entries = export(bundle, tmp)
         found = attachments(entries, flows)
         log("%d steps attached in %s" % (len(found), os.path.basename(bundle.rstrip("/"))))
-        # native steps live in their own index beside the web one, so neither capture overwrites the other
-        oip = os.path.join(out, "native.json")
-        old = {}
-        if os.path.exists(oip):
-            with open(oip, encoding="utf-8") as f:
-                try:
-                    old = json.load(f) or {}
-                except ValueError:   # a broken index is rewritten whole
-                    old = {}
-        wip = os.path.join(out, "index.json")       # an older import wrote native rows into the web index: move them
-        if os.path.exists(wip):
-            with open(wip, encoding="utf-8") as f:
-                try:
-                    web = json.load(f) or {}
-                except ValueError:
-                    web = {}
-            moved = {k: v for k, v in (web.get("steps") or {}).items() if v.get("client") == "native"}
-            if moved:
-                old.setdefault("steps", {})
-                for k, v in moved.items():
-                    old["steps"].setdefault(k, v)
-                web["steps"] = {k: v for k, v in web["steps"].items() if k not in moved}
-                model.write_json(wip, web, indent=1, ensure_ascii=False)
+        # each platform keeps its own index (captures/native/<platform>.json), so a web capture, an iPad run and an
+        # iPhone run never overwrite one another; rows an older version left elsewhere move to theirs first
+        migrate(out)
+        device = next((x.get("device") for x in found.values() if x.get("device")), None)
+        plat = model.platform_of({"client": "native", "device": device})
+        oip = os.path.join(out, "native", "%s.json" % plat)
+        os.makedirs(os.path.dirname(oip), exist_ok=True)
+        old = _read(oip)
         head = W.product_head(root)
         now = time.strftime("%Y-%m-%dT%H:%M:%S")
         steps, disagree, errors = dict(old.get("steps") or {}), [], []
@@ -205,7 +230,7 @@ def capture(root, bundle, log=print):
             files = {}
             for sch in ("light", "dark"):
                 if a.get(sch):
-                    rel = "%s/%s%s.native.png" % (fid, sid, "" if sch == "light" else ".dark")
+                    rel = "%s/%s.%s%s.png" % (fid, sid, plat, "" if sch == "light" else ".dark")
                     os.makedirs(os.path.join(out, fid), exist_ok=True)
                     shutil.copyfile(os.path.join(src, a[sch]), os.path.join(out, rel))
                     upright(os.path.join(out, rel), window)
@@ -213,7 +238,7 @@ def capture(root, bundle, log=print):
             want = flow["steps"][sid].get("surface")
             agrees = (want in seen["surfaces"]) if (want and a.get("hierarchy")) else None
             e = {"flow": fid, "step": sid, "commit": head, "at": now, "device": a.get("device") or "native",
-                 "client": "native", "files": files, "agrees": agrees, "aria": " ".join(seen["surfaces"]) or None,
+                 "client": "native", "platform": plat, "files": files, "agrees": agrees, "aria": " ".join(seen["surfaces"]) or None,
                  "title": None, "how": "xcuitest %s" % (a.get("test") or "")}
             if seen["moves"] is not None:
                 e["moves_in_code"] = seen["moves"]

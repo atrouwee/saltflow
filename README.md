@@ -80,8 +80,9 @@ that answered it. Leave a note on any step, move or region; it reaches the agent
 `saltflow capture` plays each flow in your web build through WebKit and saves the screen at every step, light and
 dark. For iPhone and iPad apps, saltFlow reads the screenshots your own XCUITests attach
 (`saltflow capture --xcresult`). In both cases it reads every control back and checks it against the flow, so a
-button the flow does not know about, or a flow step with no button, shows up as a finding. A product built for both
-keeps both: a step captured on the web and on the iPad shows a switch between the two.
+button the flow does not know about, or a flow step with no button, shows up as a finding. A product built for
+several platforms keeps them all: a platform switch (Web, iPad, iPhone, whatever you capture) sets which pictures
+the whole page shows.
 
 ### On your phone, light or dark
 

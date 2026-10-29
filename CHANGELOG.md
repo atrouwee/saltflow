@@ -7,6 +7,25 @@ version and comes with a note on how to update your flows.
 
 ## [Unreleased]
 
+## [0.2.3]
+
+### Added
+
+- A platform switch on the page (Web, iPad, iPhone, Mac...): one choice sets which pictures the journey board, the
+  step, the comparison and decisions show, remembered on that device. It appears once a product has pictures of
+  more than one platform. A step without a picture for the chosen platform shows another one, marked as such.
+  `capture.prefer` (a platform or a list) sets the default order.
+
+### Changed
+
+- Native captures are kept per platform: `flows/captures/native/<platform>.json`, pictures named
+  `<step>.<platform>.png`, the platform read from the test device. Older layouts move there on the next import.
+
+### Fixed
+
+- The README's feature pictures were left out of 0.2.2. The release now fails when a document links to a file the
+  export does not have.
+
 ## [0.2.2]
 
 ### Added
@@ -65,7 +84,8 @@ version and comes with a note on how to update your flows.
 - `saltflow publish` writes the page as one static HTML file.
 - `saltflow doctor` checks the machine and says how to fix what is missing; `saltflow demo` opens a bundled example.
 
-[Unreleased]: https://github.com/atrouwee/saltflow/compare/v0.2.2...HEAD
+[Unreleased]: https://github.com/atrouwee/saltflow/compare/v0.2.3...HEAD
+[0.2.3]: https://github.com/atrouwee/saltflow/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/atrouwee/saltflow/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/atrouwee/saltflow/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/atrouwee/saltflow/releases/tag/v0.2.0

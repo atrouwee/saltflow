@@ -280,7 +280,8 @@ class Product:
     def summary(self):
         runs = self.runs()
         jobs = self.jobs()
-        caps = (self.captures() or {}).get("steps", {})
+        allcaps = self.captures() or {}
+        caps = allcaps.get("steps", {})
         sk = self.sketches()
         flows = []
         for f in self.flows():
@@ -292,7 +293,7 @@ class Product:
                           "breaks": sum(1 for r in named if model.run_verdict(r) == "break"),
                           "unbuilt": sum(1 for s in f["steps"].values() if model.step_status(s) in ("designed", "making")),
                           "area": flow_area(f, jobs), "stage": f.get("stage"), "path": f.get("path"), "journey": f.get("journey"), "inner": [st["flow"] for st in f["steps"].values() if st.get("flow")],
-                          "thumb": thumb(f, caps), "sketch": first_sketch(self, f, sk), "job": (jobs.get(f["jobs"][0]["ref"].split("#")[-1], {}) if f.get("jobs") else {}).get("name")})
+                          "thumb": thumb(f, caps), "thumbs": thumbs(f, caps), "sketch": first_sketch(self, f, sk), "job": (jobs.get(f["jobs"][0]["ref"].split("#")[-1], {}) if f.get("jobs") else {}).get("name")})
         notes = self.notes()
         return {"product": self.man.product, "head": self.head, "says": self.man.data.get("says", ""),
                 "flows": flows, "walked_at": runs.get("at"), "walked_commit": runs.get("commit"),
@@ -301,7 +302,9 @@ class Product:
                 "look": self.man.data.get("look", {}), "journeys": model.journeys_of(self.man.data),
                 # what the product calls its work-in-progress build, in the page's words
                 "calls_it": self.man.data.get("capture", {}).get("calls_it", "the build"),
-                "reviewer": M.reviewer(self.root)}
+                "reviewer": M.reviewer(self.root),
+                # the platforms this product has pictures of, in the order shown; the page's platform switch
+                "platforms": [{"id": pl, "name": model.PLATFORM_NAMES.get(pl, pl)} for pl in allcaps.get("platforms") or []]}
 
     def today(self):
         """What is waiting on the reviewer, what broke, what changed, what was answered. All from files."""
@@ -466,14 +469,23 @@ def terminal(root, cmd):
     return {"command": "saltflow " + cmd, "output": out, "code": r.returncode}
 
 
-def thumb(flow, caps):
-    """The tile's picture on the journey board: the crop of the first captured step along the flow, from its entry."""
+def thumbs(flow, caps):
+    """The tile's picture on the journey board, per platform: the crop of the first step along the flow, from its
+    entry, that the platform captured."""
     order = [flow["entry"]] + [mv["to"] for mv in flow["moves"] if mv.get("kind") == "forward"]
+    out = {}
     for sid in order:
         c = caps.get("%s/%s" % (flow["id"], sid))
-        if c and c.get("files"):
-            return c["files"]
-    return None
+        for e in ([c] + list(c.get("alt") or [])) if c else []:
+            if e.get("files") and e.get("platform", "web") not in out:
+                out[e.get("platform", "web")] = e["files"]
+    return out
+
+
+def thumb(flow, caps):
+    """The tile's picture in the shown platform's order: the first platform that captured any step of the flow."""
+    t = thumbs(flow, caps)
+    return next(iter(t.values()), None)
 
 
 def first_sketch(p, flow, sk):
